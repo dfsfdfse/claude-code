@@ -22,13 +22,13 @@ export class RedactedGithubToken {
     return this.#value
   }
   toString(): string {
-    return '[REDACTED:gh-token]'
+    return '[已隐藏:gh-token]'
   }
   toJSON(): string {
-    return '[REDACTED:gh-token]'
+    return '[已隐藏:gh-token]'
   }
   [Symbol.for('nodejs.util.inspect.custom')](): string {
-    return '[REDACTED:gh-token]'
+    return '[已隐藏:gh-token]'
   }
 }
 
@@ -83,7 +83,7 @@ export async function importGithubToken(
     if (response.status === 401) {
       return { ok: false, error: { kind: 'not_signed_in' } }
     }
-    logForDebugging(`import-token returned ${response.status}`, {
+    logForDebugging(`导入 GitHub 令牌返回 ${response.status}`, {
       level: 'error',
     })
     return { ok: false, error: { kind: 'server', status: response.status } }
@@ -91,7 +91,7 @@ export async function importGithubToken(
     if (axios.isAxiosError(err)) {
       // err.config.data would contain the POST body with the raw token.
       // Do not include it in any log. The error code alone is enough.
-      logForDebugging(`import-token network error: ${err.code ?? 'unknown'}`, {
+      logForDebugging(`导入 GitHub 令牌网络错误: ${err.code ?? '未知'}`, {
         level: 'error',
       })
     }
@@ -143,7 +143,7 @@ export async function createDefaultEnvironment(): Promise<boolean> {
       {
         name: 'Default',
         kind: 'anthropic_cloud',
-        description: 'Default - trusted network access',
+        description: '默认 - 可信任的网络访问',
         config: {
           environment_type: 'anthropic',
           cwd: '/home/user',

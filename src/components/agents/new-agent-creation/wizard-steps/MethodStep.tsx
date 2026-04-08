@@ -12,27 +12,27 @@ export function MethodStep(): ReactNode {
 
   const methodOptions = [
     {
-      label: 'Generate with Claude (recommended)',
+      label: '使用 Claude 生成 (推荐)',
       value: 'generate',
     },
     {
-      label: 'Manual configuration',
+      label: '手动配置',
       value: 'manual',
     },
   ]
 
   return (
     <WizardDialogLayout
-      subtitle="Creation method"
+      subtitle="创建方式"
       footerText={
         <Byline>
-          <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-          <KeyboardShortcutHint shortcut="Enter" action="select" />
+          <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+          <KeyboardShortcutHint shortcut="Enter" action="选择" />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="go back"
+            description="返回"
           />
         </Byline>
       }

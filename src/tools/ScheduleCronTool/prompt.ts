@@ -9,42 +9,41 @@ export const DEFAULT_MAX_AGE_DAYS =
   DEFAULT_CRON_JITTER_CONFIG.recurringMaxAgeMs / (24 * 60 * 60 * 1000)
 
 /**
- * Unified gate for the cron scheduling system. Combines the build-time
- * `feature('AGENT_TRIGGERS')` flag (dead code elimination) with the runtime
- * `tengu_kairos_cron` GrowthBook gate on a 5-minute refresh window.
+ * cron 调度系统的统一门控。结合构建时的
+ * `feature('AGENT_TRIGGERS')` 标志（死代码消除）和运行时的
+ * 5 分钟刷新窗口内的 `tengu_kairos_cron` GrowthBook 门控。
  *
- * AGENT_TRIGGERS is independently shippable from KAIROS — the cron module
- * graph (cronScheduler/cronTasks/cronTasksLock/cron.ts + the three tools +
- * /loop skill) has zero imports into src/assistant/ and no feature('KAIROS')
- * calls. The REPL.tsx kairosEnabled read is safe:
- * kairosEnabled is unconditionally in AppStateStore with default false, so
- * when KAIROS is off the scheduler just gets assistantMode: false.
+ * AGENT_TRIGGERS 可以独立于 KAIROS 发货——cron 模块
+ * graph (cronScheduler/cronTasks/cronTasksLock/cron.ts + 三个工具 +
+ * /loop skill) 对 src/assistant/ 没有零导入，也没有 feature('KAIROS')
+ * 调用。REPL.tsx kairosEnabled 读取是安全的：
+ * kairosEnabled 无条件地在 AppStateStore 中默认为 false，所以
+ * 当 KAIROS 关闭时调度器只是得到 assistantMode: false。
  *
- * Called from Tool.isEnabled() (lazy, post-init) and inside useEffect /
- * imperative setup, never at module scope — so the disk cache has had a
- * chance to populate.
+ * 从 Tool.isEnabled()（延迟，后初始化）和 useEffect 内部调用/
+ * 命令式设置，从不在模块范围内——所以磁盘缓存有机会填充。
  *
- * The default is `true` — /loop is GA (announced in changelog). GrowthBook
- * is disabled for Bedrock/Vertex/Foundry and when DISABLE_TELEMETRY /
- * CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC are set; a `false` default would
- * break /loop for those users (GH #31759). The GB gate now serves purely as
- * a fleet-wide kill switch — flipping it to `false` stops already-running
- * schedulers on their next isKilled poll tick, not just new ones.
+ * 默认为 `true`——/loop 已 GA（已在 changelog 中宣布）。GrowthBook
+ * 对 Bedrock/Vertex/Foundry 和设置了 DISABLE_TELEMETRY /
+ * CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC 的用户禁用；`false` 默认值会
+ * 为这些用户破坏 /loop（GH #31759）。GB 门控现在纯粹作为
+ * 舰队范围的 kill switch——将其翻转为 `false` 在下一次 isKilled 轮询
+ * 时停止已运行的调度器，而不仅仅是新的。
  *
- * `CLAUDE_CODE_DISABLE_CRON` is a local override that wins over GB.
+ * `CLAUDE_CODE_DISABLE_CRON` 是一个本地覆盖，优先级高于 GB。
  */
 export function isKairosCronEnabled(): boolean {
   return !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_CRON)
 }
 
 /**
- * Kill switch for disk-persistent (durable) cron tasks. Narrower than
- * {@link isKairosCronEnabled} — flipping this off forces `durable: false` at
- * the call() site, leaving session-only cron (in-memory, GA) untouched.
+ * 磁盘持久化（持久）cron 任务的 kill switch。比
+ * {@link isKairosCronEnabled} 更窄——关闭此开关强制 call() 站点
+ * 的 `durable: false`，使会话唯一的 cron（内存中，GA）不受影响。
  *
- * Defaults to `true` so Bedrock/Vertex/Foundry and DISABLE_TELEMETRY users get
- * durable cron. Does NOT consult CLAUDE_CODE_DISABLE_CRON (that kills the whole
- * scheduler via isKairosCronEnabled).
+ * 默认为 `true`，以便 Bedrock/Vertex/Foundry 和 DISABLE_TELEMETRY 用户获得
+ * 持久 cron。不咨询 CLAUDE_CODE_DISABLE_CRON（那通过 isKairosCronEnabled
+ * 杀死整个调度器）。
  */
 export function isDurableCronEnabled(): boolean {
   return getFeatureValue_CACHED_WITH_REFRESH(
@@ -60,69 +59,69 @@ export const CRON_LIST_TOOL_NAME = 'CronList'
 
 export function buildCronCreateDescription(durableEnabled: boolean): string {
   return durableEnabled
-    ? 'Schedule a prompt to run at a future time — either recurring on a cron schedule, or once at a specific time. Pass durable: true to persist to .claude/scheduled_tasks.json; otherwise session-only.'
-    : 'Schedule a prompt to run at a future time within this Claude session — either recurring on a cron schedule, or once at a specific time.'
+    ? '计划一个提示词在将来时间运行——可以是 cron 计划上的循环运行，也可以是特定时间的一次性运行。传递 durable: true 持久化到 .claude/scheduled_tasks.json；否则仅会话内。'
+    : '计划一个提示词在将来时间运行——可以是 cron 计划上的循环运行，也可以是特定时间的一次性运行，仅限本次 Claude 会话。'
 }
 
 export function buildCronCreatePrompt(durableEnabled: boolean): string {
   const durabilitySection = durableEnabled
-    ? `## Durability
+    ? `## 持久性
 
-By default (durable: false) the job lives only in this Claude session — nothing is written to disk, and the job is gone when Claude exits. Pass durable: true to write to .claude/scheduled_tasks.json so the job survives restarts. Only use durable: true when the user explicitly asks for the task to persist ("keep doing this every day", "set this up permanently"). Most "remind me in 5 minutes" / "check back in an hour" requests should stay session-only.`
-    : `## Session-only
+默认情况下（durable: false）任务只存在于本次 Claude 会话中——不写入磁盘，当 Claude 退出时任务消失。传递 durable: true 写入 .claude/scheduled_tasks.json 以便任务在重启后存活。只有当用户明确要求任务持久（"每天继续做这个"、"永久设置这个"）时才使用 durable: true。大多数"5 分钟后提醒我"/"一小时后检查"的请求应该保持会话内。`
+    : `## 会话内
 
-Jobs live only in this Claude session — nothing is written to disk, and the job is gone when Claude exits.`
+任务只存在于本次 Claude 会话中——不写入磁盘，当 Claude 退出时任务消失。`
 
   const durableRuntimeNote = durableEnabled
-    ? 'Durable jobs persist to .claude/scheduled_tasks.json and survive session restarts — on next launch they resume automatically. One-shot durable tasks that were missed while the REPL was closed are surfaced for catch-up. Session-only jobs die with the process. '
+    ? '持久任务持久化到 .claude/scheduled_tasks.json 并在会话重启后存活——下次启动时它们会自动恢复。在 REPL 关闭时错过的一次性持久任务会被浮出以便追赶。会话内任务随进程终止。'
     : ''
 
-  return `Schedule a prompt to be enqueued at a future time. Use for both recurring schedules and one-shot reminders.
+  return `计划一个提示词在将来时间入队。使用于循环计划和一次性提醒。
 
-Uses standard 5-field cron in the user's local timezone: minute hour day-of-month month day-of-week. "0 9 * * *" means 9am local — no timezone conversion needed.
+使用用户本地时区的标准 5 字段 cron：分钟 小时 日-of-month 月 日-of-week。"0 9 * * *" 表示当地时间上午 9 点——无需时区转换。
 
-## One-shot tasks (recurring: false)
+## 一次性任务（recurring: false）
 
-For "remind me at X" or "at <time>, do Y" requests — fire once then auto-delete.
-Pin minute/hour/day-of-month/month to specific values:
-  "remind me at 2:30pm today to check the deploy" → cron: "30 14 <today_dom> <today_month> *", recurring: false
-  "tomorrow morning, run the smoke test" → cron: "57 8 <tomorrow_dom> <tomorrow_month> *", recurring: false
+对于"在 X 提醒我"或"在 <时间>，做 Y"的请求——触发一次后自动删除。
+将分钟/小时/日-of-month/月固定到特定值：
+  "今天下午 2:30 提醒我检查部署" → cron: "30 14 <今天_dom> <今天_month> *", recurring: false
+  "明天早上运行冒烟测试" → cron: "57 8 <明天_dom> <明天_month> *", recurring: false
 
-## Recurring jobs (recurring: true, the default)
+## 循环任务（recurring: true，默认为此）
 
-For "every N minutes" / "every hour" / "weekdays at 9am" requests:
-  "*/5 * * * *" (every 5 min), "0 * * * *" (hourly), "0 9 * * 1-5" (weekdays at 9am local)
+对于"每 N 分钟"/"每小时"/"工作日上午 9 点"的请求：
+  "*/5 * * * *"（每 5 分钟），"0 * * * *"（每小时），"0 9 * * 1-5"（工作日上午 9 点当地时间）
 
-## Avoid the :00 and :30 minute marks when the task allows it
+## 避免 :00 和 :30 分钟刻度（当任务允许时）
 
-Every user who asks for "9am" gets \`0 9\`, and every user who asks for "hourly" gets \`0 *\` — which means requests from across the planet land on the API at the same instant. When the user's request is approximate, pick a minute that is NOT 0 or 30:
-  "every morning around 9" → "57 8 * * *" or "3 9 * * *" (not "0 9 * * *")
-  "hourly" → "7 * * * *" (not "0 * * * *")
-  "in an hour or so, remind me to..." → pick whatever minute you land on, don't round
+每个要求"上午 9 点"的用户都得到 \`0 9\`，每个要求"每小时"的用户都得到 \`0 *\`——这意味着来自全球的请求同时到达 API。当用户的请求是近似的时候，选择不是 0 或 30 的分钟：
+  "每天早上大约 9 点" → "57 8 * * *" 或 "3 9 * * *"（不是 "0 9 * * *"）
+  "每小时" → "7 * * * *"（不是 "0 * * * *"）
+  "大约一小时后提醒我..." → 选择你落在的任何分钟，不要四舍五入
 
-Only use minute 0 or 30 when the user names that exact time and clearly means it ("at 9:00 sharp", "at half past", coordinating with a meeting). When in doubt, nudge a few minutes early or late — the user will not notice, and the fleet will.
+只有当用户指定那个确切时间并明确表示时就使用分钟 0 或 30（"在 9:00 整"、"在半点"、"与会议协调"）。如有疑问，提前或推后几分钟——用户不会注意到，但舰队会。
 
 ${durabilitySection}
 
-## Runtime behavior
+## 运行行为
 
-Jobs only fire while the REPL is idle (not mid-query). ${durableRuntimeNote}The scheduler adds a small deterministic jitter on top of whatever you pick: recurring tasks fire up to 10% of their period late (max 15 min); one-shot tasks landing on :00 or :30 fire up to 90 s early. Picking an off-minute is still the bigger lever.
+任务只在 REPL 空闲时触发（非查询中）。${durableRuntimeNote}调度器在你选择的基础上添加小的确定性抖动：循环任务最多延迟其周期的 10%（最多 15 分钟）；落在 :00 或 :30 的一次性任务最多提前 90 秒。选择非整点分钟仍然是更大的杠杆。
 
-Recurring tasks auto-expire after ${DEFAULT_MAX_AGE_DAYS} days — they fire one final time, then are deleted. This bounds session lifetime. Tell the user about the ${DEFAULT_MAX_AGE_DAYS}-day limit when scheduling recurring jobs.
+循环任务在 ${DEFAULT_MAX_AGE_DAYS} 天后自动过期——它们触发最后一次，然后被删除。这限制了会话生命周期。在安排循环任务时告诉用户 ${DEFAULT_MAX_AGE_DAYS} 天限制。
 
-Returns a job ID you can pass to ${CRON_DELETE_TOOL_NAME}.`
+返回一个你可以传递给 ${CRON_DELETE_TOOL_NAME} 的任务 ID。`
 }
 
-export const CRON_DELETE_DESCRIPTION = 'Cancel a scheduled cron job by ID'
+export const CRON_DELETE_DESCRIPTION = '通过 ID 取消计划的 cron 任务'
 export function buildCronDeletePrompt(durableEnabled: boolean): string {
   return durableEnabled
-    ? `Cancel a cron job previously scheduled with ${CRON_CREATE_TOOL_NAME}. Removes it from .claude/scheduled_tasks.json (durable jobs) or the in-memory session store (session-only jobs).`
-    : `Cancel a cron job previously scheduled with ${CRON_CREATE_TOOL_NAME}. Removes it from the in-memory session store.`
+    ? `取消之前用 ${CRON_CREATE_TOOL_NAME} 计划的 cron 任务。从 .claude/scheduled_tasks.json（持久任务）或内存会话存储（会话内任务）中移除。`
+    : `取消之前用 ${CRON_CREATE_TOOL_NAME} 计划的 cron 任务。从内存会话存储中移除。`
 }
 
-export const CRON_LIST_DESCRIPTION = 'List scheduled cron jobs'
+export const CRON_LIST_DESCRIPTION = '列出计划的 cron 任务'
 export function buildCronListPrompt(durableEnabled: boolean): string {
   return durableEnabled
-    ? `List all cron jobs scheduled via ${CRON_CREATE_TOOL_NAME}, both durable (.claude/scheduled_tasks.json) and session-only.`
-    : `List all cron jobs scheduled via ${CRON_CREATE_TOOL_NAME} in this session.`
+    ? `列出通过 ${CRON_CREATE_TOOL_NAME} 计划的所有 cron 任务，包括持久任务（.claude/scheduled_tasks.json）和会话内任务。`
+    : `列出本次会话中通过 ${CRON_CREATE_TOOL_NAME} 计划的所有 cron 任务。`
 }

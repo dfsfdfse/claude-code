@@ -85,11 +85,11 @@ function RateLimitOptionsMenu({
 
         let label: string
         if (needsToRequestFromAdmin) {
-          label = isOverageState ? 'Request more' : 'Request extra usage'
+          label = isOverageState ? '请求更多' : '请求额外用量'
         } else {
           label = hasExtraUsageEnabled
-            ? 'Add funds to continue with extra usage'
-            : 'Switch to extra usage'
+            ? '充值以继续使用额外用量'
+            : '切换到额外用量'
         }
 
         actionOptions.push({
@@ -101,14 +101,14 @@ function RateLimitOptionsMenu({
 
     if (!isMax20x && !isTeamOrEnterprise && upgrade.isEnabled()) {
       actionOptions.push({
-        label: 'Upgrade your plan',
+        label: '升级套餐',
         value: 'upgrade',
       })
     }
 
     const cancelOption: OptionWithDescription<RateLimitOptionsMenuOptionType> =
       {
-        label: 'Stop and wait for limit to reset',
+        label: '停止并等待限制重置',
         value: 'cancel',
       }
 
@@ -156,7 +156,7 @@ function RateLimitOptionsMenu({
 
   return (
     <Dialog
-      title="What do you want to do?"
+      title="你想要做什么？"
       onCancel={handleCancel}
       color="suggestion"
     >

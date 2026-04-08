@@ -80,8 +80,8 @@ export function AsyncAgentDetailDialog({
 
   const title = (
     <Text>
-      {agent.selectedAgent?.agentType ?? 'agent'} ›{' '}
-      {agent.description || 'Async agent'}
+      {agent.selectedAgent?.agentType ?? '智能体'} ›{' '}
+      {agent.description || '异步智能体'}
     </Text>
   )
 
@@ -92,10 +92,10 @@ export function AsyncAgentDetailDialog({
         <Text color={getTaskStatusColor(agent.status)}>
           {getTaskStatusIcon(agent.status)}{' '}
           {agent.status === 'completed'
-            ? 'Completed'
+            ? '已完成'
             : agent.status === 'failed'
-              ? 'Failed'
-              : 'Stopped'}
+              ? '失败'
+              : '已停止'}
           {' · '}
         </Text>
       )}
@@ -107,7 +107,7 @@ export function AsyncAgentDetailDialog({
         {toolUseCount !== undefined && toolUseCount > 0 && (
           <>
             {' '}
-            · {toolUseCount} {toolUseCount === 1 ? 'tool' : 'tools'}
+            · {toolUseCount} {toolUseCount === 1 ? '个工具' : '个工具'}
           </>
         )}
       </Text>
@@ -128,13 +128,13 @@ export function AsyncAgentDetailDialog({
         color="background"
         inputGuide={exitState =>
           exitState.pending ? (
-            <Text>Press {exitState.keyName} again to exit</Text>
+            <Text>再次按 {exitState.keyName} 退出</Text>
           ) : (
             <Byline>
-              {onBack && <KeyboardShortcutHint shortcut="←" action="go back" />}
-              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="close" />
+              {onBack && <KeyboardShortcutHint shortcut="←" action="返回" />}
+              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="关闭" />
               {agent.status === 'running' && onKillAgent && (
-                <KeyboardShortcutHint shortcut="x" action="stop" />
+                <KeyboardShortcutHint shortcut="x" action="停止" />
               )}
             </Byline>
           )
@@ -147,7 +147,7 @@ export function AsyncAgentDetailDialog({
             agent.progress.recentActivities.length > 0 && (
               <Box flexDirection="column">
                 <Text bold dimColor>
-                  Progress
+                  进度
                 </Text>
                 {agent.progress.recentActivities.map((activity, i) => (
                   <Text
@@ -173,7 +173,7 @@ export function AsyncAgentDetailDialog({
             /* Prompt section - only shown when no plan */
             <Box flexDirection="column" marginTop={1}>
               <Text bold dimColor>
-                Prompt
+                提示词
               </Text>
               <Text wrap="wrap">{displayPrompt}</Text>
             </Box>
@@ -183,7 +183,7 @@ export function AsyncAgentDetailDialog({
           {agent.status === 'failed' && agent.error && (
             <Box flexDirection="column" marginTop={1}>
               <Text bold color="error">
-                Error
+                错误
               </Text>
               <Text color="error" wrap="wrap">
                 {agent.error}

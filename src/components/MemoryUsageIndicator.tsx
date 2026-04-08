@@ -33,7 +33,7 @@ export function MemoryUsageIndicator(): React.ReactNode {
   return (
     <Box>
       <Text color={color} wrap="truncate">
-        High memory usage ({formattedSize}) · /heapdump
+        内存使用率较高（{formattedSize}）· /heapdump
       </Text>
     </Box>
   )

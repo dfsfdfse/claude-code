@@ -28,13 +28,13 @@ export function ThinkingToggle({
   const options = [
     {
       value: 'true',
-      label: 'Enabled',
-      description: 'Claude will think before responding',
+      label: '已启用',
+      description: 'Claude 将在回复前进行思考',
     },
     {
       value: 'false',
-      label: 'Disabled',
-      description: 'Claude will respond without extended thinking',
+      label: '已禁用',
+      description: 'Claude 将直接回复，不进行扩展思考',
     },
   ]
 
@@ -76,19 +76,17 @@ export function ThinkingToggle({
       <Box flexDirection="column">
         <Box marginBottom={1} flexDirection="column">
           <Text color="remember" bold>
-            Toggle thinking mode
+            切换思考模式
           </Text>
-          <Text dimColor>Enable or disable thinking for this session.</Text>
+          <Text dimColor>为本次会话启用或禁用思考功能。</Text>
         </Box>
 
         {confirmationPending !== null ? (
           <Box flexDirection="column" marginBottom={1} gap={1}>
             <Text color="warning">
-              Changing thinking mode mid-conversation will increase latency and
-              may reduce quality. For best results, set this at the start of a
-              session.
+              在会话中途更改思考模式会增加延迟，并可能降低质量。如需最佳效果，请在会话开始时设置。
             </Text>
-            <Text color="warning">Do you want to proceed?</Text>
+            <Text color="warning">确定要继续吗？</Text>
           </Box>
         ) : (
           <Box flexDirection="column" marginBottom={1}>
@@ -105,25 +103,25 @@ export function ThinkingToggle({
       </Box>
       <Text dimColor italic>
         {exitState.pending ? (
-          <>Press {exitState.keyName} again to exit</>
+          <>按 {exitState.keyName} 再按一次退出</>
         ) : confirmationPending !== null ? (
           <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="Enter" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         ) : (
           <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="Enter" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="exit"
+              description="退出"
             />
           </Byline>
         )}

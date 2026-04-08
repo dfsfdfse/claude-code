@@ -47,12 +47,12 @@ export function IdeOnboardingDialog({
         title={
           <>
             <Text color="claude">✻ </Text>
-            <Text>Welcome to Claude Code for {ideName}</Text>
+            <Text>欢迎使用 {ideName} 版 Claude Code</Text>
           </>
         }
         subtitle={
           installedVersion
-            ? `installed ${pluginOrExtension} v${installedVersion}`
+            ? `已安装 ${pluginOrExtension} v${installedVersion}`
             : undefined
         }
         color="ide"
@@ -61,26 +61,26 @@ export function IdeOnboardingDialog({
       >
         <Box flexDirection="column" gap={1}>
           <Text>
-            • Claude has context of <Text color="suggestion">⧉ open files</Text>{' '}
-            and <Text color="suggestion">⧉ selected lines</Text>
+            • Claude 可以获取 <Text color="suggestion">⧉ 打开的文件</Text>{' '}
+            和 <Text color="suggestion">⧉ 选中的行</Text> 的上下文
           </Text>
           <Text>
-            • Review Claude Code&apos;s changes{' '}
+            • 在您的 IDE 中舒适地{' '}
             <Text color="diffAddedWord">+11</Text>{' '}
-            <Text color="diffRemovedWord">-22</Text> in the comfort of your IDE
+            <Text color="diffRemovedWord">-22</Text> 审查 Claude Code 的更改
           </Text>
           <Text>
-            • Cmd+Esc<Text dimColor> for Quick Launch</Text>
+            • Cmd+Esc<Text dimColor> 快速启动</Text>
           </Text>
           <Text>
             • {mentionShortcut}
-            <Text dimColor> to reference files or lines in your input</Text>
+            <Text dimColor> 在输入中引用文件或行</Text>
           </Text>
         </Box>
       </Dialog>
       <Box paddingX={1}>
         <Text dimColor italic>
-          Press Enter to continue
+          按 Enter 继续
         </Text>
       </Box>
     </>

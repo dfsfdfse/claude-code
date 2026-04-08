@@ -135,10 +135,10 @@ export function ResumeTask({
       <Box flexDirection="column" padding={1}>
         <Box flexDirection="row">
           <Spinner />
-          <Text bold>Loading Claude Code sessions…</Text>
+          <Text bold>正在加载 Claude Code 会话…</Text>
         </Box>
         <Text dimColor>
-          {retrying ? 'Retrying…' : 'Fetching your Claude Code sessions…'}
+          {retrying ? '重试中…' : '正在获取您的 Claude Code 会话…'}
         </Text>
       </Box>
     )
@@ -148,14 +148,14 @@ export function ResumeTask({
     return (
       <Box flexDirection="column" padding={1}>
         <Text bold color="error">
-          Error loading Claude Code sessions
+          加载 Claude Code 会话出错
         </Text>
 
         {renderErrorSpecificGuidance(loadErrorType)}
 
         <Text dimColor>
-          Press <Text bold>Ctrl+R</Text> to retry · Press{' '}
-          <Text bold>{escKey}</Text> to cancel
+          按 <Text bold>Ctrl+R</Text> 重试 · 按{' '}
+          <Text bold>{escKey}</Text> 取消
         </Text>
       </Box>
     )
@@ -165,12 +165,12 @@ export function ResumeTask({
     return (
       <Box flexDirection="column" padding={1}>
         <Text bold>
-          No Claude Code sessions found
-          {currentRepo && <Text> for {currentRepo}</Text>}
+          未找到 Claude Code 会话
+          {currentRepo && <Text>（仓库: {currentRepo}）</Text>}
         </Text>
         <Box marginTop={1}>
           <Text dimColor>
-            Press <Text bold>{escKey}</Text> to cancel
+            按 <Text bold>{escKey}</Text> 取消
           </Text>
         </Box>
       </Box>
@@ -213,21 +213,21 @@ export function ResumeTask({
   return (
     <Box flexDirection="column" padding={1} height={maxHeight}>
       <Text bold>
-        Select a session to resume
+        选择要恢复的会话
         {showScrollPosition && (
           <Text dimColor>
             {' '}
-            ({focusedIndex} of {sessions.length})
+            ({focusedIndex} / {sessions.length})
           </Text>
         )}
-        {currentRepo && <Text dimColor> ({currentRepo})</Text>}:
+        {currentRepo && <Text dimColor>（{currentRepo}）</Text>}:
       </Text>
       <Box flexDirection="column" marginTop={1} flexGrow={1}>
         <Box marginLeft={2}>
           <Text bold>
-            {UPDATED_STRING.padEnd(maxTimeStringLength, ' ')}
+            {'更新时间'.padEnd(maxTimeStringLength, ' ')}
             {SPACE_BETWEEN_TABLE_COLUMNS}
-            {'Session Title'}
+            {'会话标题'}
           </Text>
         </Box>
         <Select
@@ -250,13 +250,13 @@ export function ResumeTask({
       <Box flexDirection="row">
         <Text dimColor>
           <Byline>
-            <KeyboardShortcutHint shortcut="↑/↓" action="select" />
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="↑/↓" action="选择" />
+            <KeyboardShortcutHint shortcut="Enter" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         </Text>
@@ -314,17 +314,16 @@ function renderErrorSpecificGuidance(
     case 'network':
       return (
         <Box marginY={1} flexDirection="column">
-          <Text dimColor>Check your internet connection</Text>
+          <Text dimColor>请检查网络连接</Text>
         </Box>
       )
 
     case 'auth':
       return (
         <Box marginY={1} flexDirection="column">
-          <Text dimColor>Teleport requires a Claude account</Text>
+          <Text dimColor>跳转功能需要 Claude 账户</Text>
           <Text dimColor>
-            Run <Text bold>/login</Text> and select &quot;Claude account with
-            subscription&quot;
+            运行 <Text bold>/login</Text> 并选择"订阅 Claude 账户"
           </Text>
         </Box>
       )
@@ -332,14 +331,14 @@ function renderErrorSpecificGuidance(
     case 'api':
       return (
         <Box marginY={1} flexDirection="column">
-          <Text dimColor>Sorry, Claude encountered an error</Text>
+          <Text dimColor>抱歉，Claude 遇到错误</Text>
         </Box>
       )
 
     case 'other':
       return (
         <Box marginY={1} flexDirection="row">
-          <Text dimColor>Sorry, Claude Code encountered an error</Text>
+          <Text dimColor>抱歉，Claude Code 遇到错误</Text>
         </Box>
       )
   }

@@ -37,8 +37,8 @@ function MCPToggle({
     if (toToggle.length === 0) {
       onComplete(
         target === 'all'
-          ? `All MCP servers are already ${isEnabling ? 'enabled' : 'disabled'}`
-          : `MCP server "${target}" not found`,
+          ? `所有 MCP 服务器都已经是 ${isEnabling ? '启用' : '禁用'}`
+          : `MCP 服务器 "${target}" 未找到`,
       )
       return
     }
@@ -49,8 +49,8 @@ function MCPToggle({
 
     onComplete(
       target === 'all'
-        ? `${isEnabling ? 'Enabled' : 'Disabled'} ${toToggle.length} MCP server(s)`
-        : `MCP server "${target}" ${isEnabling ? 'enabled' : 'disabled'}`,
+        ? `${isEnabling ? '启用' : '禁用'} ${toToggle.length} MCP 服务器(s)`
+        : `MCP 服务器 "${target}" ${isEnabling ? '启用' : '禁用'}`,
     )
   }, [action, target, mcpClients, toggleMcpServer, onComplete])
 
@@ -65,7 +65,7 @@ export async function call(
   if (args) {
     const parts = args.trim().split(/\s+/)
 
-    // Allow /mcp no-redirect to bypass the redirect for testing
+    // 允许 /mcp no-redirect 绕过重定向用于测试
     if (parts[0] === 'no-redirect') {
       return <MCPSettings onComplete={onDone} />
     }
@@ -90,7 +90,7 @@ export async function call(
     }
   }
 
-  // Redirect base /mcp command to /plugins installed tab for ant users
+  // 重定向 base /mcp 命令到 /plugins 安装的标签页用于 ant 用户
   if (process.env.USER_TYPE === 'ant') {
     return (
       <PluginSettings

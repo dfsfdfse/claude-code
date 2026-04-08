@@ -16,35 +16,35 @@ export function InstallAppStep({ repoUrl, onSubmit }: InstallAppStepProps) {
   return (
     <Box flexDirection="column" borderStyle="round" borderDimColor paddingX={1}>
       <Box flexDirection="column" marginBottom={1}>
-        <Text bold>Install the Claude GitHub App</Text>
+        <Text bold>安装 Claude GitHub App</Text>
       </Box>
       <Box marginBottom={1}>
-        <Text>Opening browser to install the Claude GitHub App…</Text>
+        <Text>正在打开浏览器安装 Claude GitHub App…</Text>
       </Box>
       <Box marginBottom={1}>
-        <Text>If your browser doesn&apos;t open automatically, visit:</Text>
+        <Text>如果浏览器未自动打开，请访问：</Text>
       </Box>
       <Box marginBottom={1}>
         <Text underline>https://github.com/apps/claude</Text>
       </Box>
       <Box marginBottom={1}>
         <Text>
-          Please install the app for repository: <Text bold>{repoUrl}</Text>
+          请为仓库安装应用：<Text bold>{repoUrl}</Text>
         </Text>
       </Box>
       <Box marginBottom={1}>
         <Text dimColor>
-          Important: Make sure to grant access to this specific repository
+          重要提示：请确保授予对此仓库的访问权限
         </Text>
       </Box>
       <Box>
         <Text bold color="permission">
-          Press Enter once you&apos;ve installed the app{figures.ellipsis}
+          安装完成后按 Enter{figures.ellipsis}
         </Text>
       </Box>
       <Box marginTop={1}>
         <Text dimColor>
-          Having trouble? See manual setup instructions at:{' '}
+          遇到问题？查看手动设置说明：{' '}
           <Text color="claude">{GITHUB_ACTION_SETUP_DOCS_URL}</Text>
         </Text>
       </Box>

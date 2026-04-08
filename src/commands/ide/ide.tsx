@@ -108,8 +108,8 @@ function IDEScreen({
 
   return (
     <Dialog
-      title="Select IDE"
-      subtitle="Connect to an IDE for integrated development features."
+      title="选择 IDE"
+      subtitle="连接到 IDE 以获得集成开发功能。"
       onCancel={onClose}
       color="ide"
     >
@@ -117,9 +117,9 @@ function IDEScreen({
         {availableIDEs.length === 0 && (
           <Text dimColor>
             {isSupportedJetBrainsTerminal()
-              ? 'No available IDEs detected. Please install the plugin and restart your IDE:\n' +
+              ? '未检测到可用 IDE。请安装插件并重新启动你的 IDE:\n' +
                 'https://docs.claude.com/s/claude-code-jetbrains'
-              : 'No available IDEs detected. Make sure your IDE has the Claude Code extension or plugin installed and is running.'}
+              : '未检测到可用 IDE。请确保你的 IDE 已安装 Claude Code 扩展或插件并正在运行。'}
           </Text>
         )}
 
@@ -140,16 +140,15 @@ function IDEScreen({
           ) && (
             <Box marginTop={1}>
               <Text color="warning">
-                Note: Only one Claude Code instance can be connected to VS Code
-                at a time.
+                注意：每次只能将一个 Claude Code 实例连接到 VS Code
+                一次。
               </Text>
             </Box>
           )}
         {availableIDEs.length !== 0 && !isSupportedTerminal() && (
           <Box marginTop={1}>
             <Text dimColor>
-              Tip: You can enable auto-connect to IDE in /config or with the
-              --ide flag
+              Tip: 你可以在 /config 中启用自动连接到 IDE 或使用 --ide 标志
             </Text>
           </Box>
         )}
@@ -157,8 +156,8 @@ function IDEScreen({
         {unavailableIDEs.length > 0 && (
           <Box marginTop={1} flexDirection="column">
             <Text dimColor>
-              Found {unavailableIDEs.length} other running IDE(s). However,
-              their workspace/project directories do not match the current cwd.
+              找到 {unavailableIDEs.length} 个其他正在运行的 IDE。然而，
+              它们的工作区/项目目录与当前工作目录不匹配。可以手动连接到这些 IDE。
             </Text>
             <Box marginTop={1} flexDirection="column">
               {unavailableIDEs.map((ide, index) => (
@@ -229,12 +228,12 @@ function IDEOpenSelection({
   }))
 
   function handleCancel(): void {
-    onDone('IDE selection cancelled', { display: 'system' })
+    onDone('IDE 选择已取消', { display: 'system' })
   }
 
   return (
     <Dialog
-      title="Select an IDE to open the project"
+      title="选择一个 IDE 来打开项目"
       onCancel={handleCancel}
       color="ide"
     >
@@ -278,12 +277,12 @@ function RunningIDESelector({
   }))
 
   function handleCancel(): void {
-    onDone('IDE selection cancelled', { display: 'system' })
+    onDone('IDE 选择已取消', { display: 'system' })
   }
 
   return (
     <Dialog
-      title="Select IDE to install extension"
+      title="选择一个 IDE 来安装扩展"
       onCancel={handleCancel}
       color="ide"
     >
@@ -336,7 +335,7 @@ export async function call(
     const availableIDEs = detectedIDEs.filter(ide => ide.isValid)
 
     if (availableIDEs.length === 0) {
-      onDone('No IDEs with Claude Code extension detected.')
+      onDone('未检测到带有 Claude Code 扩展的 IDE。')
       return null
     }
 
@@ -346,7 +345,7 @@ export async function call(
         availableIDEs={availableIDEs}
         onSelectIDE={async (selectedIDE?: DetectedIDEInfo) => {
           if (!selectedIDE) {
-            onDone('No IDE selected.')
+            onDone('未选择 IDE。')
             return
           }
 
@@ -360,26 +359,26 @@ export async function call(
             const { code } = await execFileNoThrow('code', [targetPath])
             if (code === 0) {
               onDone(
-                `Opened ${worktreeSession ? 'worktree' : 'project'} in ${chalk.bold(selectedIDE.name)}`,
+                `已打开 ${worktreeSession ? '工作树' : '项目'} 到 ${chalk.bold(selectedIDE.name)}`,
               )
             } else {
               onDone(
-                `Failed to open in ${selectedIDE.name}. Try opening manually: ${targetPath}`,
+                `打开失败到 ${selectedIDE.name}。请手动打开: ${targetPath}`,
               )
             }
           } else if (isSupportedJetBrainsTerminal()) {
             // JetBrains IDEs - they usually open via their CLI tools
             onDone(
-              `Please open the ${worktreeSession ? 'worktree' : 'project'} manually in ${chalk.bold(selectedIDE.name)}: ${targetPath}`,
+              `请手动打开 ${worktreeSession ? '工作树' : '项目'} 到 ${chalk.bold(selectedIDE.name)}: ${targetPath}`,
             )
           } else {
             onDone(
-              `Please open the ${worktreeSession ? 'worktree' : 'project'} manually in ${chalk.bold(selectedIDE.name)}: ${targetPath}`,
+              `请手动打开 ${worktreeSession ? '工作树' : '项目'} 到 ${chalk.bold(selectedIDE.name)}: ${targetPath}`,
             )
           }
         }}
         onDone={() => {
-          onDone('Exited without opening IDE', { display: 'system' })
+          onDone('退出时未打开 IDE', { display: 'system' })
         }}
       />
     )
@@ -401,11 +400,11 @@ export async function call(
         // The completion message will be shown after installation
         if (isJetBrainsIde(ide)) {
           onDone(
-            `Installed plugin to ${chalk.bold(toIDEDisplayName(ide))}\n` +
-              `Please ${chalk.bold('restart your IDE')} completely for it to take effect`,
+            `已安装插件到 ${chalk.bold(toIDEDisplayName(ide))}\n` +
+              `请 ${chalk.bold('重新启动你的 IDE')} 完全生效`,
           )
         } else {
-          onDone(`Installed extension to ${chalk.bold(toIDEDisplayName(ide))}`)
+          onDone(`已安装扩展到 ${chalk.bold(toIDEDisplayName(ide))}`)
         }
       }
     }
@@ -417,7 +416,7 @@ export async function call(
           runningIDEs={runningIDEs}
           onSelectIDE={onInstall}
           onDone={() => {
-            onDone('No IDE selected.', { display: 'system' })
+            onDone('未选择 IDE。', { display: 'system' })
           }}
         />
       )
@@ -486,9 +485,9 @@ function IDECommandFlow({
     }
     if (!ideClient || ideClient.type === 'pending') return
     if (ideClient.type === 'connected') {
-      onDone(`Connected to ${connectingIDE.name}.`)
+      onDone(`已连接到 ${connectingIDE.name}。`)
     } else if (ideClient.type === 'failed') {
-      onDone(`Failed to connect to ${connectingIDE.name}.`)
+      onDone(`连接到 ${connectingIDE.name} 失败。`)
     }
   }, [ideClient, connectingIDE, onDone])
 
@@ -498,7 +497,7 @@ function IDECommandFlow({
     const timer = setTimeout(
       onDone,
       IDE_CONNECTION_TIMEOUT_MS,
-      `Connection to ${connectingIDE.name} timed out.`,
+      `连接到 ${connectingIDE.name} 超时。`,
     )
     return () => clearTimeout(timer)
   }, [connectingIDE, onDone])
@@ -506,7 +505,7 @@ function IDECommandFlow({
   const handleSelectIDE = useCallback(
     (selectedIDE?: DetectedIDEInfo) => {
       if (!onChangeDynamicMcpConfig) {
-        onDone('Error connecting to IDE.')
+        onDone('连接到 IDE 失败。')
         return
       }
       const newConfig = { ...(dynamicMcpConfig || {}) }
@@ -536,8 +535,8 @@ function IDECommandFlow({
         onChangeDynamicMcpConfig(newConfig)
         onDone(
           currentIDE
-            ? `Disconnected from ${currentIDE.name}.`
-            : 'No IDE selected.',
+            ? `已断开与 ${currentIDE.name} 的连接。`
+            : '未选择 IDE。',
         )
         return
       }
@@ -565,7 +564,7 @@ function IDECommandFlow({
   )
 
   if (connectingIDE) {
-    return <Text dimColor>Connecting to {connectingIDE.name}…</Text>
+    return <Text dimColor>正在连接到 {connectingIDE.name}…</Text>
   }
 
   return (
@@ -573,7 +572,7 @@ function IDECommandFlow({
       availableIDEs={availableIDEs}
       unavailableIDEs={unavailableIDEs}
       selectedIDE={currentIDE}
-      onClose={() => onDone('IDE selection cancelled', { display: 'system' })}
+      onClose={() => onDone('IDE 选择已取消', { display: 'system' })}
       onSelect={handleSelectIDE}
     />
   )

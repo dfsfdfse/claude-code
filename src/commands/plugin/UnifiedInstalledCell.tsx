@@ -24,16 +24,16 @@ export function UnifiedInstalledCell({
     if (item.pendingToggle) {
       statusIcon = color('suggestion', theme)(figures.arrowRight)
       statusText =
-        item.pendingToggle === 'will-enable' ? 'will enable' : 'will disable'
+        item.pendingToggle === 'will-enable' ? '将启用' : '将禁用'
     } else if (item.errorCount > 0) {
       statusIcon = color('error', theme)(figures.cross)
       statusText = `${item.errorCount} ${plural(item.errorCount, 'error')}`
     } else if (!item.isEnabled) {
       statusIcon = color('inactive', theme)(figures.radioOff)
-      statusText = 'disabled'
+      statusText = '已禁用'
     } else {
       statusIcon = color('success', theme)(figures.tick)
-      statusText = 'enabled'
+      statusText = '已启用'
     }
 
     return (
@@ -44,7 +44,7 @@ export function UnifiedInstalledCell({
         <Text color={isSelected ? 'suggestion' : undefined}>{item.name}</Text>
         <Text dimColor={!isSelected}>
           {' '}
-          <Text backgroundColor="userMessageBackground">Plugin</Text>
+          <Text backgroundColor="userMessageBackground">插件</Text>
         </Text>
         <Text dimColor> · {item.marketplace}</Text>
         <Text dimColor={!isSelected}> · {statusIcon} </Text>
@@ -64,18 +64,18 @@ export function UnifiedInstalledCell({
         <Text color={isSelected ? 'suggestion' : undefined}>{item.name}</Text>
         <Text dimColor={!isSelected}>
           {' '}
-          <Text backgroundColor="userMessageBackground">Plugin</Text>
+          <Text backgroundColor="userMessageBackground">插件</Text>
         </Text>
         <Text dimColor> · {item.marketplace}</Text>
         <Text dimColor={!isSelected}> · {statusIcon} </Text>
-        <Text dimColor={!isSelected}>removed</Text>
+        <Text dimColor={!isSelected}>已移除</Text>
       </Box>
     )
   }
 
   if (item.type === 'failed-plugin') {
     const statusIcon = color('error', theme)(figures.cross)
-    const statusText = `failed to load · ${item.errorCount} ${plural(item.errorCount, 'error')}`
+    const statusText = `加载失败 · ${item.errorCount} ${plural(item.errorCount, '错误')}`
 
     return (
       <Box>
@@ -85,7 +85,7 @@ export function UnifiedInstalledCell({
         <Text color={isSelected ? 'suggestion' : undefined}>{item.name}</Text>
         <Text dimColor={!isSelected}>
           {' '}
-          <Text backgroundColor="userMessageBackground">Plugin</Text>
+          <Text backgroundColor="userMessageBackground">插件</Text>
         </Text>
         <Text dimColor> · {item.marketplace}</Text>
         <Text dimColor={!isSelected}> · {statusIcon} </Text>
@@ -100,19 +100,19 @@ export function UnifiedInstalledCell({
 
   if (item.status === 'connected') {
     statusIcon = color('success', theme)(figures.tick)
-    statusText = 'connected'
+    statusText = '已连接'
   } else if (item.status === 'disabled') {
     statusIcon = color('inactive', theme)(figures.radioOff)
-    statusText = 'disabled'
+    statusText = '已禁用'
   } else if (item.status === 'pending') {
     statusIcon = color('inactive', theme)(figures.radioOff)
-    statusText = 'connecting…'
+    statusText = '连接中…'
   } else if (item.status === 'needs-auth') {
     statusIcon = color('warning', theme)(figures.triangleUpOutline)
-    statusText = 'Enter to auth'
+    statusText = '输入以认证'
   } else {
     statusIcon = color('error', theme)(figures.cross)
-    statusText = 'failed'
+    statusText = '失败'
   }
 
   // Indented MCPs (child of a plugin)
@@ -126,7 +126,7 @@ export function UnifiedInstalledCell({
         <Text color={isSelected ? 'suggestion' : undefined}>{item.name}</Text>
         <Text dimColor={!isSelected}>
           {' '}
-          <Text backgroundColor="userMessageBackground">MCP</Text>
+          <Text backgroundColor="userMessageBackground">MCP 服务器</Text>
         </Text>
         <Text dimColor={!isSelected}> · {statusIcon} </Text>
         <Text dimColor={!isSelected}>{statusText}</Text>
@@ -142,7 +142,7 @@ export function UnifiedInstalledCell({
       <Text color={isSelected ? 'suggestion' : undefined}>{item.name}</Text>
       <Text dimColor={!isSelected}>
         {' '}
-        <Text backgroundColor="userMessageBackground">MCP</Text>
+        <Text backgroundColor="userMessageBackground">MCP 服务器</Text>
       </Text>
       <Text dimColor={!isSelected}> · {statusIcon} </Text>
       <Text dimColor={!isSelected}>{statusText}</Text>

@@ -149,7 +149,7 @@ function MainLine({
     >
       <Text dimColor={!isSelected && !isViewed && !hover} bold={isViewed}>
         {prefix}
-        {bullet} main
+        {bullet} 主控
       </Text>
     </Box>
   )
@@ -190,11 +190,11 @@ function AgentLine({
 
   const tokenText =
     tokenCount !== undefined && tokenCount > 0
-      ? ` · ${arrow} ${formatNumber(tokenCount)} tokens`
+      ? ` · ${arrow} ${formatNumber(tokenCount)} token`
       : ''
 
   const queuedCount = task.pendingMessages.length
-  const queuedText = queuedCount > 0 ? ` · ${queuedCount} queued` : ''
+  const queuedText = queuedCount > 0 ? ` · ${queuedCount} 队列` : ''
 
   // Precedence: AI summary > static description (no tool-call activity noise)
   const displayDescription = task.progress?.summary || task.description
@@ -210,7 +210,7 @@ function AgentLine({
   // Agent tool prompt asks for "one or two words, lowercase").
   const namePart = name ? `${name}: ` : ''
   const hintPart =
-    isSelected && !isViewed ? ` · x to ${isRunning ? 'stop' : 'clear'}` : ''
+    isSelected && !isViewed ? ` · x ${isRunning ? '停止' : '清除'}` : ''
   const suffixPart = ` ${sep} ${elapsed}${tokenText}${queuedText}${hintPart}`
   const availableForDesc =
     columns -

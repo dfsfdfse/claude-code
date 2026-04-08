@@ -359,14 +359,14 @@ function StatusLineInner({
       if (!checkHasTrustDialogAccepted()) {
         addNotification({
           key: 'statusline-trust-blocked',
-          text: 'statusline skipped · restart to fix',
+          text: '状态栏已跳过 · 重启以修复',
           color: 'warning',
           priority: 'low',
         })
-        logForDebugging(
-          'Status line command skipped: workspace trust not accepted',
-          { level: 'warn' },
-        )
+          logForDebugging(
+            '状态栏命令已跳过：未接受工作区信任',
+            { level: 'warn' },
+          )
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

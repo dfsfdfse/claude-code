@@ -404,7 +404,7 @@ function fromG(
           const targetLine = Math.min(state.count - 1, lines.length - 1)
           let offset = 0
           for (let i = 0; i < targetLine; i++) {
-            offset += (lines[i]?.length ?? 0) + 1 // +1 for newline
+            offset += (lines[i]?.length ?? 0) + 1 // +1 换行
           }
           ctx.setOffset(offset)
         },

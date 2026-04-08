@@ -21,30 +21,30 @@ export function CreatingStep({
 }: CreatingStepProps) {
   const progressSteps = skipWorkflow
     ? [
-        'Getting repository information',
+        '正在获取仓库信息',
         secretExists && useExistingSecret
-          ? 'Using existing API key secret'
-          : `Setting up ${secretName} secret`,
+          ? '使用现有 API 密钥'
+          : `正在设置 ${secretName} 密钥`,
       ]
     : [
-        'Getting repository information',
-        'Creating branch',
+        '正在获取仓库信息',
+        '正在创建分支',
         selectedWorkflows.length > 1
-          ? 'Creating workflow files'
-          : 'Creating workflow file',
+          ? '正在创建工作流文件'
+          : '正在创建工作流文件',
         secretExists && useExistingSecret
-          ? 'Using existing API key secret'
-          : `Setting up ${secretName} secret`,
-        'Opening pull request page',
+          ? '使用现有 API 密钥'
+          : `正在设置 ${secretName} 密钥`,
+        '正在打开 Pull Request 页面',
       ]
 
   return (
     <>
       <Box flexDirection="column" borderStyle="round" paddingX={1}>
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Install GitHub App</Text>
-          <Text dimColor>Create GitHub Actions workflow</Text>
-        </Box>
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>安装 GitHub App</Text>
+        <Text dimColor>创建 GitHub Actions 工作流</Text>
+      </Box>
         {progressSteps.map((stepText, index) => {
           let status: 'completed' | 'in-progress' | 'pending' = 'pending'
 

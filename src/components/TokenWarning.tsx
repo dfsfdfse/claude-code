@@ -50,12 +50,12 @@ function CollapseLabel({
   if (errors > 0 || idleWarn) {
     const problem =
       errors > 0
-        ? `collapse errors: ${errors}`
-        : `collapse idle (${emptySpawns} empty runs)`
+        ? `折叠错误：${errors}`
+        : `折叠空闲（${emptySpawns} 次空运行）`
     return (
       <Text color="warning" wrap="truncate">
         {total > 0
-          ? `${collapsed} / ${total} summarized \u00b7 ${problem}`
+          ? `${collapsed} / ${total} 已摘要 · ${problem}`
           : problem}
       </Text>
     )
@@ -63,7 +63,7 @@ function CollapseLabel({
 
   if (total === 0) return null
 
-  const label = `${collapsed} / ${total} summarized`
+  const label = `${collapsed} / ${total} 已摘要`
   return (
     <Text dimColor wrap="truncate">
       {upgradeMessage ? `${label} \u00b7 ${upgradeMessage}` : label}
@@ -129,8 +129,8 @@ export function TokenWarning({ tokenUsage, model }: Props): React.ReactNode {
   }
 
   const autocompactLabel = reactiveOnlyMode
-    ? `${100 - displayPercentLeft}% context used`
-    : `${displayPercentLeft}% until auto-compact`
+    ? `${100 - displayPercentLeft}% 上下文已使用`
+    : `距自动压缩还剩 ${displayPercentLeft}%`
 
   return (
     <Box flexDirection="row">
@@ -146,8 +146,8 @@ export function TokenWarning({ tokenUsage, model }: Props): React.ReactNode {
           wrap="truncate"
         >
           {upgradeMessage
-            ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}`
-            : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}
+            ? `上下文偏低（剩余 ${percentLeft}%）· ${upgradeMessage}`
+            : `上下文偏低（剩余 ${percentLeft}%）· 运行 /compact 压缩并继续`}
         </Text>
       )}
     </Box>

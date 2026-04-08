@@ -60,16 +60,16 @@ export function DreamDetailDialog({
       onKeyDown={handleKeyDown}
     >
       <Dialog
-        title="Memory consolidation"
+        title="记忆整合"
         subtitle={
           <Text dimColor>
-            {elapsedTime} · reviewing {task.sessionsReviewing}{' '}
-            {plural(task.sessionsReviewing, 'session')}
+            {elapsedTime} · 正在审查 {task.sessionsReviewing}{' '}
+            {plural(task.sessionsReviewing, '个会话')}
             {task.filesTouched.length > 0 && (
               <>
                 {' '}
-                · {task.filesTouched.length}{' '}
-                {plural(task.filesTouched.length, 'file')} touched
+                · 已修改 {task.filesTouched.length}{' '}
+                {plural(task.filesTouched.length, '个文件')}
               </>
             )}
           </Text>
@@ -78,13 +78,13 @@ export function DreamDetailDialog({
         color="background"
         inputGuide={exitState =>
           exitState.pending ? (
-            <Text>Press {exitState.keyName} again to exit</Text>
+            <Text>再次按 {exitState.keyName} 退出</Text>
           ) : (
             <Byline>
-              {onBack && <KeyboardShortcutHint shortcut="←" action="go back" />}
-              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="close" />
+              {onBack && <KeyboardShortcutHint shortcut="←" action="返回" />}
+              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="关闭" />
               {task.status === 'running' && onKill && (
-                <KeyboardShortcutHint shortcut="x" action="stop" />
+                <KeyboardShortcutHint shortcut="x" action="停止" />
               )}
             </Byline>
           )
@@ -92,9 +92,9 @@ export function DreamDetailDialog({
       >
         <Box flexDirection="column" gap={1}>
           <Text>
-            <Text bold>Status:</Text>{' '}
+            <Text bold>状态:</Text>{' '}
             {task.status === 'running' ? (
-              <Text color="background">running</Text>
+              <Text color="background">运行中</Text>
             ) : task.status === 'completed' ? (
               <Text color="success">{task.status}</Text>
             ) : (
@@ -104,13 +104,13 @@ export function DreamDetailDialog({
 
           {shown.length === 0 ? (
             <Text dimColor>
-              {task.status === 'running' ? 'Starting…' : '(no text output)'}
+              {task.status === 'running' ? '正在启动…' : '（无文本输出）'}
             </Text>
           ) : (
             <>
               {hidden > 0 && (
                 <Text dimColor>
-                  ({hidden} earlier {plural(hidden, 'turn')})
+                  （{hidden} 个更早的 {plural(hidden, '轮')})
                 </Text>
               )}
               {shown.map((turn, i) => (
@@ -119,7 +119,7 @@ export function DreamDetailDialog({
                   {turn.toolUseCount > 0 && (
                     <Text dimColor>
                       {'  '}({turn.toolUseCount}{' '}
-                      {plural(turn.toolUseCount, 'tool')})
+                      {plural(turn.toolUseCount, '个工具')}调用)
                     </Text>
                   )}
                 </Box>

@@ -92,10 +92,10 @@ export function InProcessTeammateDetailDialog({
           }
         >
           {teammate.status === 'completed'
-            ? 'Completed'
+            ? '已完成'
             : teammate.status === 'failed'
-              ? 'Failed'
-              : 'Stopped'}
+              ? '失败'
+              : '已停止'}
           {' · '}
         </Text>
       )}
@@ -107,7 +107,7 @@ export function InProcessTeammateDetailDialog({
         {toolUseCount !== undefined && toolUseCount > 0 && (
           <>
             {' '}
-            · {toolUseCount} {toolUseCount === 1 ? 'tool' : 'tools'}
+            · {toolUseCount} {toolUseCount === 1 ? '个工具' : '个工具'}
           </>
         )}
       </Text>
@@ -128,16 +128,16 @@ export function InProcessTeammateDetailDialog({
         color="background"
         inputGuide={exitState =>
           exitState.pending ? (
-            <Text>Press {exitState.keyName} again to exit</Text>
+            <Text>再次按 {exitState.keyName} 退出</Text>
           ) : (
             <Byline>
-              {onBack && <KeyboardShortcutHint shortcut="←" action="go back" />}
-              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="close" />
+              {onBack && <KeyboardShortcutHint shortcut="←" action="返回" />}
+              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="关闭" />
               {teammate.status === 'running' && onKill && (
-                <KeyboardShortcutHint shortcut="x" action="stop" />
+                <KeyboardShortcutHint shortcut="x" action="停止" />
               )}
               {teammate.status === 'running' && onForeground && (
-                <KeyboardShortcutHint shortcut="f" action="foreground" />
+                <KeyboardShortcutHint shortcut="f" action="调至前台" />
               )}
             </Byline>
           )
@@ -149,7 +149,7 @@ export function InProcessTeammateDetailDialog({
           teammate.progress.recentActivities.length > 0 && (
             <Box flexDirection="column">
               <Text bold dimColor>
-                Progress
+                进度
               </Text>
               {teammate.progress.recentActivities.map((activity, i) => (
                 <Text
@@ -169,7 +169,7 @@ export function InProcessTeammateDetailDialog({
         {/* Prompt section */}
         <Box flexDirection="column" marginTop={1}>
           <Text bold dimColor>
-            Prompt
+            提示词
           </Text>
           <Text wrap="wrap">{displayPrompt}</Text>
         </Box>
@@ -178,7 +178,7 @@ export function InProcessTeammateDetailDialog({
         {teammate.status === 'failed' && teammate.error && (
           <Box flexDirection="column" marginTop={1}>
             <Text bold color="error">
-              Error
+              错误
             </Text>
             <Text color="error" wrap="wrap">
               {teammate.error}

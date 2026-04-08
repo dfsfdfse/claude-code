@@ -314,7 +314,7 @@ export function Config({
       const valStr =
         modelDisplayString(value) +
         (isBilledAsExtraUsage(value, false, isOpus1mMergeEnabled())
-          ? ' · Billed as extra usage'
+          ? ' · 按额外用量计费'
           : '')
       if ('model' in prev) {
         const { model, ...rest } = prev
@@ -348,7 +348,7 @@ export function Config({
     // Global settings
     {
       id: 'autoCompactEnabled',
-      label: 'Auto-compact',
+            label: '自动压缩',
       value: globalConfig.autoCompactEnabled,
       type: 'boolean' as const,
       onChange(autoCompactEnabled: boolean) {
@@ -361,7 +361,7 @@ export function Config({
     },
     {
       id: 'spinnerTipsEnabled',
-      label: 'Show tips',
+            label: '显示提示',
       value: settingsData?.spinnerTipsEnabled ?? true,
       type: 'boolean' as const,
       onChange(spinnerTipsEnabled: boolean) {
@@ -380,7 +380,7 @@ export function Config({
     },
     {
       id: 'prefersReducedMotion',
-      label: 'Reduce motion',
+            label: '减少动画',
       value: settingsData?.prefersReducedMotion ?? false,
       type: 'boolean' as const,
       onChange(prefersReducedMotion: boolean) {
@@ -403,7 +403,7 @@ export function Config({
     },
     {
       id: 'thinkingEnabled',
-      label: 'Thinking mode',
+            label: '思考模式',
       value: thinkingEnabled ?? true,
       type: 'boolean' as const,
       onChange(enabled: boolean) {
@@ -419,7 +419,7 @@ export function Config({
       ? [
           {
             id: 'fastMode',
-            label: `Fast mode (${FAST_MODE_MODEL_DISPLAY} only)`,
+            label: `快速模式（仅限 ${FAST_MODE_MODEL_DISPLAY}）`,
             value: !!isFastMode,
             type: 'boolean' as const,
             onChange(enabled: boolean) {
@@ -454,7 +454,7 @@ export function Config({
       ? [
           {
             id: 'promptSuggestionEnabled',
-            label: 'Prompt suggestions',
+            label: '提示建议',
             value: promptSuggestionEnabled,
             type: 'boolean' as const,
             onChange(enabled: boolean) {
@@ -474,7 +474,7 @@ export function Config({
       ? [
           {
             id: 'speculationEnabled',
-            label: 'Speculative execution',
+            label: '推测执行',
             value: globalConfig.speculationEnabled ?? true,
             type: 'boolean' as const,
             onChange(enabled: boolean) {
@@ -500,7 +500,7 @@ export function Config({
       ? [
           {
             id: 'fileCheckpointingEnabled',
-            label: 'Rewind code (checkpoints)',
+            label: '代码回退（检查点）',
             value: globalConfig.fileCheckpointingEnabled,
             type: 'boolean' as const,
             onChange(enabled: boolean) {
@@ -521,14 +521,14 @@ export function Config({
       : []),
     {
       id: 'verbose',
-      label: 'Verbose output',
+      label: '详细输出',
       value: verbose,
       type: 'boolean',
       onChange: onChangeVerbose,
     },
     {
       id: 'terminalProgressBarEnabled',
-      label: 'Terminal progress bar',
+            label: '终端进度条',
       value: globalConfig.terminalProgressBarEnabled,
       type: 'boolean' as const,
       onChange(terminalProgressBarEnabled: boolean) {
@@ -546,7 +546,7 @@ export function Config({
       ? [
           {
             id: 'showStatusInTerminalTab',
-            label: 'Show status in terminal tab',
+            label: '在终端标签页显示状态',
             value: globalConfig.showStatusInTerminalTab ?? false,
             type: 'boolean' as const,
             onChange(showStatusInTerminalTab: boolean) {
@@ -567,7 +567,7 @@ export function Config({
       : []),
     {
       id: 'showTurnDuration',
-      label: 'Show turn duration',
+            label: '显示对话时长',
       value: globalConfig.showTurnDuration,
       type: 'boolean' as const,
       onChange(showTurnDuration: boolean) {
@@ -580,7 +580,7 @@ export function Config({
     },
     {
       id: 'defaultPermissionMode',
-      label: 'Default permission mode',
+            label: '默认权限模式',
       value: settingsData?.permissions?.defaultMode || 'default',
       options: (() => {
         const priorityOrder: PermissionMode[] = ['default', 'plan']
@@ -644,7 +644,7 @@ export function Config({
       ? [
           {
             id: 'useAutoModeDuringPlan',
-            label: 'Use auto mode during plan',
+            label: '计划期间使用自动模式',
             value:
               (settingsData as { useAutoModeDuringPlan?: boolean } | undefined)
                 ?.useAutoModeDuringPlan ?? true,
@@ -675,7 +675,7 @@ export function Config({
       : []),
     {
       id: 'respectGitignore',
-      label: 'Respect .gitignore in file picker',
+      label: '文件选择器中遵守 .gitignore',
       value: globalConfig.respectGitignore,
       type: 'boolean' as const,
       onChange(respectGitignore: boolean) {
@@ -688,7 +688,7 @@ export function Config({
     },
     {
       id: 'copyFullResponse',
-      label: 'Always copy full response (skip /copy picker)',
+      label: '始终复制完整回复（跳过 /copy 选择器）',
       value: globalConfig.copyFullResponse,
       type: 'boolean' as const,
       onChange(copyFullResponse: boolean) {
@@ -709,7 +709,7 @@ export function Config({
       ? [
           {
             id: 'copyOnSelect',
-            label: 'Copy on select',
+            label: '选中即复制',
             value: globalConfig.copyOnSelect ?? true,
             type: 'boolean' as const,
             onChange(copyOnSelect: boolean) {
@@ -730,14 +730,14 @@ export function Config({
     autoUpdaterDisabledReason
       ? {
           id: 'autoUpdatesChannel',
-          label: 'Auto-update channel',
+          label: '自动更新频道',
           value: 'disabled',
           type: 'managedEnum' as const,
           onChange() {},
         }
       : {
           id: 'autoUpdatesChannel',
-          label: 'Auto-update channel',
+          label: '自动更新频道',
           value: settingsData?.autoUpdatesChannel ?? 'latest',
           type: 'managedEnum' as const,
           onChange() {
@@ -746,7 +746,7 @@ export function Config({
         },
     {
       id: 'theme',
-      label: 'Theme',
+      label: '主题',
       value: themeSetting,
       type: 'managedEnum',
       onChange: setTheme,
@@ -755,8 +755,8 @@ export function Config({
       id: 'notifChannel',
       label:
         feature('KAIROS') || feature('KAIROS_PUSH_NOTIFICATION')
-          ? 'Local notifications'
-          : 'Notifications',
+          ? '本地通知'
+          : '通知',
       value: globalConfig.preferredNotifChannel,
       options: [
         'auto',
@@ -783,7 +783,7 @@ export function Config({
       ? [
           {
             id: 'taskCompleteNotifEnabled',
-            label: 'Push when idle',
+            label: '空闲时推送',
             value: globalConfig.taskCompleteNotifEnabled ?? false,
             type: 'boolean' as const,
             onChange(taskCompleteNotifEnabled: boolean) {
@@ -799,7 +799,7 @@ export function Config({
           },
           {
             id: 'inputNeededNotifEnabled',
-            label: 'Push when input needed',
+            label: '需要输入时推送',
             value: globalConfig.inputNeededNotifEnabled ?? false,
             type: 'boolean' as const,
             onChange(inputNeededNotifEnabled: boolean) {
@@ -815,7 +815,7 @@ export function Config({
           },
           {
             id: 'agentPushNotifEnabled',
-            label: 'Push when Claude decides',
+            label: 'Claude 决定时推送',
             value: globalConfig.agentPushNotifEnabled ?? false,
             type: 'boolean' as const,
             onChange(agentPushNotifEnabled: boolean) {
@@ -833,7 +833,7 @@ export function Config({
       : []),
     {
       id: 'outputStyle',
-      label: 'Output style',
+      label: '输出样式',
       value: currentOutputStyle,
       type: 'managedEnum' as const,
       onChange: () => {}, // handled by OutputStylePicker submenu
@@ -842,7 +842,7 @@ export function Config({
       ? [
           {
             id: 'defaultView',
-            label: 'What you see by default',
+            label: '默认视图',
             // 'default' means the setting is unset — currently resolves to
             // transcript (main.tsx falls through when defaultView !== 'chat').
             // String() narrows the conditional-schema-spread union to string.
@@ -880,14 +880,14 @@ export function Config({
       : []),
     {
       id: 'language',
-      label: 'Language',
-      value: currentLanguage ?? 'Default (English)',
+      label: '语言',
+      value: currentLanguage ?? '默认（英文）',
       type: 'managedEnum' as const,
       onChange: () => {}, // handled by LanguagePicker submenu
     },
     {
       id: 'editorMode',
-      label: 'Editor mode',
+      label: '编辑器模式',
       // Convert 'emacs' to 'normal' for backward compatibility
       value:
         globalConfig.editorMode === 'emacs'
@@ -914,7 +914,7 @@ export function Config({
     },
     {
       id: 'prStatusFooterEnabled',
-      label: 'Show PR status footer',
+      label: '显示 PR 状态页脚',
       value: globalConfig.prStatusFooterEnabled ?? true,
       type: 'boolean' as const,
       onChange(enabled: boolean) {
@@ -936,8 +936,8 @@ export function Config({
     },
     {
       id: 'model',
-      label: 'Model',
-      value: mainLoopModel === null ? 'Default (recommended)' : mainLoopModel,
+      label: '模型',
+      value: mainLoopModel === null ? '默认（推荐）' : mainLoopModel,
       type: 'managedEnum' as const,
       onChange: onChangeMainModelConfig,
     },
@@ -945,7 +945,7 @@ export function Config({
       ? [
           {
             id: 'diffTool',
-            label: 'Diff tool',
+            label: '差异工具',
             value: globalConfig.diffTool ?? 'auto',
             options: ['terminal', 'auto'],
             type: 'enum' as const,
@@ -972,7 +972,7 @@ export function Config({
       ? [
           {
             id: 'autoConnectIde',
-            label: 'Auto-connect to IDE (external terminal)',
+            label: '自动连接 IDE（外部终端）',
             value: globalConfig.autoConnectIde ?? false,
             type: 'boolean' as const,
             onChange(autoConnectIde: boolean) {
@@ -992,7 +992,7 @@ export function Config({
       ? [
           {
             id: 'autoInstallIdeExtension',
-            label: 'Auto-install IDE extension',
+            label: '自动安装 IDE 扩展',
             value: globalConfig.autoInstallIdeExtension ?? true,
             type: 'boolean' as const,
             onChange(autoInstallIdeExtension: boolean) {
@@ -1013,7 +1013,7 @@ export function Config({
       : []),
     {
       id: 'claudeInChromeDefaultEnabled',
-      label: 'Claude in Chrome enabled by default',
+      label: '默认启用 Chrome 中的 Claude',
       value: globalConfig.claudeInChromeDefaultEnabled ?? true,
       type: 'boolean' as const,
       onChange(enabled: boolean) {
@@ -1035,8 +1035,8 @@ export function Config({
       ? (() => {
           const cliOverride = getCliTeammateModeOverride()
           const label = cliOverride
-            ? `Teammate mode [overridden: ${cliOverride}]`
-            : 'Teammate mode'
+            ? `队友模式 [已覆盖：${cliOverride}]`
+            : '队友模式'
           return [
             {
               id: 'teammateMode',
@@ -1069,7 +1069,7 @@ export function Config({
             },
             {
               id: 'teammateDefaultModel',
-              label: 'Default teammate model',
+              label: '默认队友模型',
               value: teammateModelDisplayString(
                 globalConfig.teammateDefaultModel,
               ),
@@ -1084,7 +1084,7 @@ export function Config({
       ? [
           {
             id: 'remoteControlAtStartup',
-            label: 'Enable Remote Control for all sessions',
+            label: '为所有会话启用远程控制',
             value:
               globalConfig.remoteControlAtStartup === undefined
                 ? 'default'
@@ -1138,7 +1138,7 @@ export function Config({
       ? [
           {
             id: 'showExternalIncludesDialog',
-            label: 'External CLAUDE.md includes',
+            label: '外部 CLAUDE.md 包含项',
             value: (() => {
               const projectConfig = getCurrentProjectConfig()
               if (projectConfig.hasClaudeMdExternalIncludesApproved) {
@@ -1160,7 +1160,7 @@ export function Config({
             id: 'apiKey',
             label: (
               <Text>
-                Use custom API key:{' '}
+                使用自定义 API 密钥：{' '}
                 <Text bold>
                   {normalizeApiKeyForConfig(process.env.ANTHROPIC_API_KEY)}
                 </Text>
@@ -1296,7 +1296,7 @@ export function Config({
           value:
             value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         })
-        return `Set ${key} to ${chalk.bold(value)}`
+        return `将 ${key} 设置为 ${chalk.bold(value)}`
       },
     )
     // Check for API key changes
@@ -1319,7 +1319,7 @@ export function Config({
     )
     if (initialUsingCustomKey !== currentUsingCustomKey) {
       formattedChanges.push(
-        `${currentUsingCustomKey ? 'Enabled' : 'Disabled'} custom API key`,
+        `${currentUsingCustomKey ? '已启用' : '已禁用'}自定义 API 密钥`,
       )
       logEvent('tengu_config_changed', {
         key: 'env.ANTHROPIC_API_KEY' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1328,39 +1328,39 @@ export function Config({
       })
     }
     if (globalConfig.theme !== initialConfig.current.theme) {
-      formattedChanges.push(`Set theme to ${chalk.bold(globalConfig.theme)}`)
+      formattedChanges.push(`将主题设置为 ${chalk.bold(globalConfig.theme)}`)
     }
     if (
       globalConfig.preferredNotifChannel !==
       initialConfig.current.preferredNotifChannel
     ) {
       formattedChanges.push(
-        `Set notifications to ${chalk.bold(globalConfig.preferredNotifChannel)}`,
+        `将通知设置为 ${chalk.bold(globalConfig.preferredNotifChannel)}`,
       )
     }
     if (currentOutputStyle !== initialOutputStyle.current) {
       formattedChanges.push(
-        `Set output style to ${chalk.bold(currentOutputStyle)}`,
+        `将输出样式设置为 ${chalk.bold(currentOutputStyle)}`,
       )
     }
     if (currentLanguage !== initialLanguage.current) {
       formattedChanges.push(
-        `Set response language to ${chalk.bold(currentLanguage ?? 'Default (English)')}`,
+        `将响应语言设置为 ${chalk.bold(currentLanguage ?? '默认（英文）')}`,
       )
     }
     if (globalConfig.editorMode !== initialConfig.current.editorMode) {
       formattedChanges.push(
-        `Set editor mode to ${chalk.bold(globalConfig.editorMode || 'emacs')}`,
+        `将编辑器模式设置为 ${chalk.bold(globalConfig.editorMode || 'emacs')}`,
       )
     }
     if (globalConfig.diffTool !== initialConfig.current.diffTool) {
       formattedChanges.push(
-        `Set diff tool to ${chalk.bold(globalConfig.diffTool)}`,
+        `将差异工具设置为 ${chalk.bold(globalConfig.diffTool)}`,
       )
     }
     if (globalConfig.autoConnectIde !== initialConfig.current.autoConnectIde) {
       formattedChanges.push(
-        `${globalConfig.autoConnectIde ? 'Enabled' : 'Disabled'} auto-connect to IDE`,
+        `${globalConfig.autoConnectIde ? '已启用' : '已禁用'}自动连接 IDE`,
       )
     }
     if (
@@ -1368,7 +1368,7 @@ export function Config({
       initialConfig.current.autoInstallIdeExtension
     ) {
       formattedChanges.push(
-        `${globalConfig.autoInstallIdeExtension ? 'Enabled' : 'Disabled'} auto-install IDE extension`,
+        `${globalConfig.autoInstallIdeExtension ? '已启用' : '已禁用'}自动安装 IDE 扩展`,
       )
     }
     if (
@@ -1376,26 +1376,26 @@ export function Config({
       initialConfig.current.autoCompactEnabled
     ) {
       formattedChanges.push(
-        `${globalConfig.autoCompactEnabled ? 'Enabled' : 'Disabled'} auto-compact`,
+        `${globalConfig.autoCompactEnabled ? '已启用' : '已禁用'}自动压缩`,
       )
     }
     if (
       globalConfig.respectGitignore !== initialConfig.current.respectGitignore
     ) {
       formattedChanges.push(
-        `${globalConfig.respectGitignore ? 'Enabled' : 'Disabled'} respect .gitignore in file picker`,
+        `${globalConfig.respectGitignore ? '已启用' : '已禁用'}文件选择器中的 .gitignore 遵守`,
       )
     }
     if (
       globalConfig.copyFullResponse !== initialConfig.current.copyFullResponse
     ) {
       formattedChanges.push(
-        `${globalConfig.copyFullResponse ? 'Enabled' : 'Disabled'} always copy full response`,
+        `${globalConfig.copyFullResponse ? '已启用' : '已禁用'}始终复制完整回复`,
       )
     }
     if (globalConfig.copyOnSelect !== initialConfig.current.copyOnSelect) {
       formattedChanges.push(
-        `${globalConfig.copyOnSelect ? 'Enabled' : 'Disabled'} copy on select`,
+        `${globalConfig.copyOnSelect ? '已启用' : '已禁用'}选中即复制`,
       )
     }
     if (
@@ -1403,7 +1403,7 @@ export function Config({
       initialConfig.current.terminalProgressBarEnabled
     ) {
       formattedChanges.push(
-        `${globalConfig.terminalProgressBarEnabled ? 'Enabled' : 'Disabled'} terminal progress bar`,
+        `${globalConfig.terminalProgressBarEnabled ? '已启用' : '已禁用'}终端进度条`,
       )
     }
     if (
@@ -1411,14 +1411,14 @@ export function Config({
       initialConfig.current.showStatusInTerminalTab
     ) {
       formattedChanges.push(
-        `${globalConfig.showStatusInTerminalTab ? 'Enabled' : 'Disabled'} terminal tab status`,
+        `${globalConfig.showStatusInTerminalTab ? '已启用' : '已禁用'}终端标签页状态`,
       )
     }
     if (
       globalConfig.showTurnDuration !== initialConfig.current.showTurnDuration
     ) {
       formattedChanges.push(
-        `${globalConfig.showTurnDuration ? 'Enabled' : 'Disabled'} turn duration`,
+        `${globalConfig.showTurnDuration ? '已启用' : '已禁用'}对话时长`,
       )
     }
     if (
@@ -1427,8 +1427,8 @@ export function Config({
     ) {
       const remoteLabel =
         globalConfig.remoteControlAtStartup === undefined
-          ? 'Reset Remote Control to default'
-          : `${globalConfig.remoteControlAtStartup ? 'Enabled' : 'Disabled'} Remote Control for all sessions`
+          ? '重置远程控制为默认'
+          : `${globalConfig.remoteControlAtStartup ? '已启用' : '已禁用'}所有会话的远程控制`
       formattedChanges.push(remoteLabel)
     }
     if (
@@ -1436,13 +1436,13 @@ export function Config({
       initialSettingsData.current?.autoUpdatesChannel
     ) {
       formattedChanges.push(
-        `Set auto-update channel to ${chalk.bold(settingsData?.autoUpdatesChannel ?? 'latest')}`,
+        `将自动更新频道设置为 ${chalk.bold(settingsData?.autoUpdatesChannel ?? 'latest')}`,
       )
     }
     if (formattedChanges.length > 0) {
       onClose(formattedChanges.join('\n'))
     } else {
-      onClose('Config dialog dismissed', { display: 'system' })
+      onClose('配置对话框已关闭', { display: 'system' })
     }
   }, [
     showSubmenu,
@@ -1552,7 +1552,7 @@ export function Config({
     if (isDirty.current) {
       revertChanges()
     }
-    onClose('Config dialog dismissed', { display: 'system' })
+    onClose('配置对话框已关闭', { display: 'system' })
   }, [showSubmenu, revertChanges, onClose])
 
   // Disable when submenu is open so the submenu's Dialog handles ESC, and in
@@ -1808,7 +1808,7 @@ export function Config({
                   action="confirm:no"
                   context="Confirmation"
                   fallback="Esc"
-                  description="cancel"
+                  description="取消"
                 />
               </Byline>
             </Text>
@@ -1843,7 +1843,7 @@ export function Config({
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
@@ -1853,7 +1853,7 @@ export function Config({
           <ModelPicker
             initial={globalConfig.teammateDefaultModel ?? null}
             skipSettingsWrite
-            headerText="Default model for newly spawned teammates. The leader can override via the tool call's model parameter."
+            headerText="新生成的队友的默认模型。领导者可以通过工具调用的 model 参数覆盖此设置。"
             onSelect={(model, _effort) => {
               setShowSubmenu(null)
               setTabsHidden(false)
@@ -1897,7 +1897,7 @@ export function Config({
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
@@ -1918,7 +1918,7 @@ export function Config({
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="disable external includes"
+                  description="禁用外部包含项"
               />
             </Byline>
           </Text>
@@ -1959,7 +1959,7 @@ export function Config({
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
@@ -1998,14 +1998,14 @@ export function Config({
                 action="confirm:no"
                 context="Settings"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
         </>
       ) : showSubmenu === 'EnableAutoUpdates' ? (
         <Dialog
-          title="Enable Auto-Updates"
+          title="启用自动更新"
           onCancel={() => {
             setShowSubmenu(null)
             setTabsHidden(false)
@@ -2017,13 +2017,13 @@ export function Config({
             <>
               <Text>
                 {autoUpdaterDisabledReason?.type === 'env'
-                  ? 'Auto-updates are controlled by an environment variable and cannot be changed here.'
-                  : 'Auto-updates are disabled in development builds.'}
+                  ? '自动更新由环境变量控制，无法在此处更改。'
+                  : '自动更新在开发版本中已禁用。'}
               </Text>
               {autoUpdaterDisabledReason?.type === 'env' && (
                 <Text dimColor>
-                  Unset {autoUpdaterDisabledReason.envVar} to re-enable
-                  auto-updates.
+                  取消设置 {autoUpdaterDisabledReason.envVar} 以重新启用
+                  自动更新。
                 </Text>
               )}
             </>
@@ -2031,11 +2031,11 @@ export function Config({
             <Select
               options={[
                 {
-                  label: 'Enable with latest channel',
+                  label: '使用最新频道启用',
                   value: 'latest',
                 },
                 {
-                  label: 'Enable with stable channel',
+                  label: '使用稳定频道启用',
                   value: 'stable',
                 },
               ]}
@@ -2116,18 +2116,18 @@ export function Config({
             isFocused={isSearchMode && !headerFocused}
             isTerminalFocused={isTerminalFocused}
             cursorOffset={searchCursorOffset}
-            placeholder="Search settings…"
+            placeholder="搜索设置…"
           />
           <Box flexDirection="column">
             {filteredSettingsItems.length === 0 ? (
               <Text dimColor italic>
-                No settings match &quot;{searchQuery}&quot;
-              </Text>
+              没有匹配 "{searchQuery}" 的设置
+            </Text>
             ) : (
               <>
                 {scrollOffset > 0 && (
                   <Text dimColor>
-                    {figures.arrowUp} {scrollOffset} more above
+                    {figures.arrowUp} 向上 {scrollOffset} 项
                   </Text>
                 )}
                 {filteredSettingsItems
@@ -2160,9 +2160,7 @@ export function Config({
                                   setting.id === 'thinkingEnabled' && (
                                     <Text color="warning">
                                       {' '}
-                                      Changing thinking mode mid-conversation
-                                      will increase latency and may reduce
-                                      quality.
+                                      在对话中更改思考模式会增加延迟并可能降低质量。
                                     </Text>
                                   )}
                               </>
@@ -2195,7 +2193,7 @@ export function Config({
                                 <Text
                                   color={isSelected ? 'suggestion' : undefined}
                                 >
-                                  disabled
+                                  已禁用
                                 </Text>
                                 <Text dimColor>
                                   (
@@ -2221,7 +2219,7 @@ export function Config({
                   <Text dimColor>
                     {figures.arrowDown}{' '}
                     {filteredSettingsItems.length - scrollOffset - maxVisible}{' '}
-                    more below
+                    项更多
                   </Text>
                 )}
               </>
@@ -2236,21 +2234,21 @@ export function Config({
                   action="confirm:no"
                   context="Settings"
                   fallback="Esc"
-                  description="close"
+                  description="关闭"
                 />
               </Byline>
             </Text>
           ) : isSearchMode ? (
             <Text dimColor>
               <Byline>
-                <Text>Type to filter</Text>
+                <Text>输入以筛选</Text>
                 <KeyboardShortcutHint shortcut="Enter/↓" action="select" />
                 <KeyboardShortcutHint shortcut="↑" action="tabs" />
                 <ConfigurableShortcutHint
                   action="confirm:no"
                   context="Settings"
                   fallback="Esc"
-                  description="clear"
+                  description="清除"
                 />
               </Byline>
             </Text>
@@ -2261,25 +2259,25 @@ export function Config({
                   action="select:accept"
                   context="Settings"
                   fallback="Space"
-                  description="change"
+                  description="修改"
                 />
                 <ConfigurableShortcutHint
                   action="settings:close"
                   context="Settings"
                   fallback="Enter"
-                  description="save"
+                  description="保存"
                 />
                 <ConfigurableShortcutHint
                   action="settings:search"
                   context="Settings"
                   fallback="/"
-                  description="search"
+                  description="搜索"
                 />
                 <ConfigurableShortcutHint
                   action="confirm:no"
                   context="Settings"
                   fallback="Esc"
-                  description="cancel"
+                  description="取消"
                 />
               </Byline>
             </Text>
@@ -2299,13 +2297,13 @@ function teammateModelDisplayString(value: string | null | undefined): string {
 }
 
 const THEME_LABELS: Record<string, string> = {
-  auto: 'Auto (match terminal)',
-  dark: 'Dark mode',
-  light: 'Light mode',
-  'dark-daltonized': 'Dark mode (colorblind-friendly)',
-  'light-daltonized': 'Light mode (colorblind-friendly)',
-  'dark-ansi': 'Dark mode (ANSI colors only)',
-  'light-ansi': 'Light mode (ANSI colors only)',
+  auto: '自动（跟随终端）',
+  dark: '深色模式',
+  light: '浅色模式',
+  'dark-daltonized': '深色模式（色盲友好）',
+  'light-daltonized': '浅色模式（色盲友好）',
+  'dark-ansi': '深色模式（仅 ANSI 颜色）',
+  'light-ansi': '浅色模式（仅 ANSI 颜色）',
 }
 
 function NotifChannelLabel({ value }: { value: string }): React.ReactNode {

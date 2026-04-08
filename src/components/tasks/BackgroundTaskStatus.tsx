@@ -180,7 +180,7 @@ export function BackgroundTaskStatus({
         {showRightArrow && <Text dimColor> {figures.arrowRight}</Text>}
         <Text dimColor>
           {' · '}
-          <KeyboardShortcutHint shortcut="shift + ↓" action="expand" />
+          <KeyboardShortcutHint shortcut="shift + ↓" action="展开" />
         </Text>
       </>
     )
@@ -202,7 +202,7 @@ export function BackgroundTaskStatus({
         {getPillLabel(runningTasks)}
       </SummaryPill>
       {pillNeedsCta(runningTasks) && (
-        <Text dimColor> · {figures.arrowDown} to view</Text>
+        <Text dimColor> · ↓ 查看详情</Text>
       )}
     </>
   )

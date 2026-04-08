@@ -53,53 +53,53 @@ export function CheckExistingSecretStep({
   return (
     <>
       <Box flexDirection="column" borderStyle="round" paddingX={1}>
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Install GitHub App</Text>
-          <Text dimColor>Setup API key secret</Text>
-        </Box>
-        <Box marginBottom={1}>
-          <Text color="warning">
-            ANTHROPIC_API_KEY already exists in repository secrets!
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
-          <Text>Would you like to:</Text>
-        </Box>
-        <Box marginBottom={1}>
-          <Text>
-            {useExistingSecret ? color('success', theme)('> ') : '  '}
-            Use the existing API key
-          </Text>
-        </Box>
-        <Box marginBottom={1}>
-          <Text>
-            {!useExistingSecret ? color('success', theme)('> ') : '  '}
-            Create a new secret with a different name
-          </Text>
-        </Box>
-        {!useExistingSecret && (
-          <>
-            <Box marginBottom={1}>
-              <Text>
-                Enter new secret name (alphanumeric with underscores):
-              </Text>
-            </Box>
-            <TextInput
-              value={secretName}
-              onChange={onSecretNameChange}
-              onSubmit={onSubmit}
-              focus={true}
-              placeholder="e.g., CLAUDE_API_KEY"
-              columns={terminalSize.columns}
-              cursorOffset={cursorOffset}
-              onChangeCursorOffset={setCursorOffset}
-              showCursor={true}
-            />
-          </>
-        )}
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>安装 GitHub App</Text>
+        <Text dimColor>设置 API 密钥</Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text color="warning">
+          ANTHROPIC_API_KEY 已存在于仓库密钥中！
+        </Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text>您希望：</Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text>
+          {useExistingSecret ? color('success', theme)('> ') : '  '}
+          使用现有 API 密钥
+        </Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text>
+          {!useExistingSecret ? color('success', theme)('> ') : '  '}
+          使用不同名称创建新密钥
+        </Text>
+      </Box>
+      {!useExistingSecret && (
+        <>
+          <Box marginBottom={1}>
+            <Text>
+              输入新密钥名称（字母、数字和下划线）：
+            </Text>
+          </Box>
+          <TextInput
+            value={secretName}
+            onChange={onSecretNameChange}
+            onSubmit={onSubmit}
+            focus={true}
+            placeholder="例如 CLAUDE_API_KEY"
+            columns={terminalSize.columns}
+            cursorOffset={cursorOffset}
+            onChangeCursorOffset={setCursorOffset}
+            showCursor={true}
+          />
+        </>
+      )}
       </Box>
       <Box marginLeft={3}>
-        <Text dimColor>↑/↓ to select · Enter to continue</Text>
+        <Text dimColor>↑/↓ 选择 · Enter 继续</Text>
       </Box>
     </>
   )

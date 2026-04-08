@@ -68,8 +68,8 @@ export function ChooseRepoStep({
     <>
       <Box flexDirection="column" borderStyle="round" paddingX={1}>
         <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Install GitHub App</Text>
-          <Text dimColor>Select GitHub repository</Text>
+          <Text bold>安装 GitHub App</Text>
+          <Text dimColor>选择 GitHub 仓库</Text>
         </Box>
         {currentRepo && (
           <Box marginBottom={1}>
@@ -78,7 +78,7 @@ export function ChooseRepoStep({
               color={useCurrentRepo ? 'permission' : undefined}
             >
               {useCurrentRepo ? '> ' : '  '}
-              Use current repository: {currentRepo}
+              使用当前仓库：{currentRepo}
             </Text>
           </Box>
         )}
@@ -88,7 +88,7 @@ export function ChooseRepoStep({
             color={!useCurrentRepo || !currentRepo ? 'permission' : undefined}
           >
             {!useCurrentRepo || !currentRepo ? '> ' : '  '}
-            {currentRepo ? 'Enter a different repository' : 'Enter repository'}
+            {currentRepo ? '输入其他仓库' : '输入仓库'}
           </Text>
         </Box>
         {(!useCurrentRepo || !currentRepo) && (
@@ -101,7 +101,7 @@ export function ChooseRepoStep({
               }}
               onSubmit={handleSubmit}
               focus={true}
-              placeholder="Enter a repo as owner/repo or https://github.com/owner/repo…"
+              placeholder="输入仓库 owner/repo 或 https://github.com/owner/repo…"
               columns={textInputColumns}
               cursorOffset={cursorOffset}
               onChangeCursorOffset={setCursorOffset}
@@ -112,12 +112,12 @@ export function ChooseRepoStep({
       </Box>
       {showEmptyError && (
         <Box marginLeft={3} marginBottom={1}>
-          <Text color="error">Please enter a repository name to continue</Text>
+          <Text color="error">请输入仓库名称以继续</Text>
         </Box>
       )}
       <Box marginLeft={3}>
         <Text dimColor>
-          {currentRepo ? '↑/↓ to select · ' : ''}Enter to continue
+          {currentRepo ? '↑/↓ 选择 · ' : ''}Enter 继续
         </Text>
       </Box>
     </>

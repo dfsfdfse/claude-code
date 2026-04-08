@@ -67,10 +67,10 @@ export function MCPServerDesktopImportDialog({
     (importedCount: number) => {
       if (importedCount > 0) {
         writeToStdout(
-          `\n${color('success', theme)(`Successfully imported ${importedCount} MCP ${plural(importedCount, 'server')} to ${scope} config.`)}\n`,
+          `\n${color('success', theme)(`成功导入 ${importedCount} 个 MCP ${plural(importedCount, 'server')} 到 ${scope} 配置。`)}\n`,
         )
       } else {
-        writeToStdout('\nNo servers were imported.')
+        writeToStdout('\n未导入任何服务器。')
       }
       onDone()
 
@@ -87,23 +87,22 @@ export function MCPServerDesktopImportDialog({
   return (
     <>
       <Dialog
-        title="Import MCP Servers from Claude Desktop"
-        subtitle={`Found ${serverNames.length} MCP ${plural(serverNames.length, 'server')} in Claude Desktop.`}
+        title="从 Claude Desktop 导入 MCP 服务器"
+        subtitle={`在 Claude Desktop 中找到 ${serverNames.length} 个 MCP ${plural(serverNames.length, 'server')}。`}
         color="success"
         onCancel={handleEscCancel}
         hideInputGuide
       >
         {collisions.length > 0 && (
           <Text color="warning">
-            Note: Some servers already exist with the same name. If selected,
-            they will be imported with a numbered suffix.
+            注意：某些服务器已存在同名。如果选择，它们将被导入并带有数字后缀。
           </Text>
         )}
-        <Text>Please select the servers you want to import:</Text>
+        <Text>请选择要导入的服务器：</Text>
 
         <SelectMulti
           options={serverNames.map(server => ({
-            label: `${server}${collisions.includes(server) ? ' (already exists)' : ''}`,
+            label: `${server}${collisions.includes(server) ? '（已存在）' : ''}`,
             value: server,
           }))}
           defaultValue={serverNames.filter(name => !collisions.includes(name))} // Only preselect non-colliding servers
@@ -115,13 +114,13 @@ export function MCPServerDesktopImportDialog({
       <Box paddingX={1}>
         <Text dimColor italic>
           <Byline>
-            <KeyboardShortcutHint shortcut="Space" action="select" />
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="空格" action="选择" />
+            <KeyboardShortcutHint shortcut="回车" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         </Text>

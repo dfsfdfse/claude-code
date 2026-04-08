@@ -74,7 +74,7 @@ export async function call(
             authVersion: prev.authVersion + 1,
           }))
         }
-        onDone(success ? 'Login successful' : 'Login interrupted')
+        onDone(success ? '登录成功' : '登录已中断')
       }}
     />
   )
@@ -88,18 +88,18 @@ export function Login(props: {
 
   return (
     <Dialog
-      title="Login"
+      title="登录"
       onCancel={() => props.onDone(false, mainLoopModel)}
       color="permission"
       inputGuide={exitState =>
         exitState.pending ? (
-          <Text>Press {exitState.keyName} again to exit</Text>
+          <Text>按 {exitState.keyName} 再次退出</Text>
         ) : (
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="cancel"
+            description="取消"
           />
         )
       }

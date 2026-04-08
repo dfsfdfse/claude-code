@@ -40,17 +40,15 @@ export function ManagedSettingsSecurityDialog({
     <PermissionDialog
       color="warning"
       titleColor="warning"
-      title="Managed settings require approval"
+      title="托管设置需要审批"
     >
       <Box flexDirection="column" gap={1} paddingTop={1}>
         <Text>
-          Your organization has configured managed settings that could allow
-          execution of arbitrary code or interception of your prompts and
-          responses.
+          您的组织已配置托管设置，可能允许执行任意代码或拦截您的提示和回复。
         </Text>
 
         <Box flexDirection="column">
-          <Text dimColor>Settings requiring approval:</Text>
+          <Text dimColor>需要审批的设置：</Text>
           {settingsList.map((item, index) => (
             <Box key={index} paddingLeft={2}>
               <Text>
@@ -62,14 +60,13 @@ export function ManagedSettingsSecurityDialog({
         </Box>
 
         <Text>
-          Only accept if you trust your organization&apos;s IT administration
-          and expect these settings to be configured.
+          仅在您信任组织的 IT 管理部门并预期这些设置已配置时才接受。
         </Text>
 
         <Select
           options={[
-            { label: 'Yes, I trust these settings', value: 'accept' },
-            { label: 'No, exit Claude Code', value: 'exit' },
+            { label: '是，我信任这些设置', value: 'accept' },
+            { label: '否，退出 Claude Code', value: 'exit' },
           ]}
           onChange={value => onChange(value as 'accept' | 'exit')}
           onCancel={() => onChange('exit')}
@@ -77,9 +74,9 @@ export function ManagedSettingsSecurityDialog({
 
         <Text dimColor>
           {exitState.pending ? (
-            <>Press {exitState.keyName} again to exit</>
+            <>按 {exitState.keyName} 再按一次退出</>
           ) : (
-            <>Enter to confirm · Esc to exit</>
+            <>回车确认 · Esc 退出</>
           )}
         </Text>
       </Box>

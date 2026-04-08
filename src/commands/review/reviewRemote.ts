@@ -71,7 +71,7 @@ export async function checkOverageGate(): Promise<OverageGate> {
   if (quota.reviews_remaining > 0) {
     return {
       kind: 'proceed',
-      billingNote: ` This is free ultrareview ${quota.reviews_used + 1} of ${quota.reviews_limit}.`,
+      billingNote: ` 这是免费的 ultrareview ${quota.reviews_used + 1} 个中的第 ${quota.reviews_limit} 个。`,
     }
   }
 
@@ -108,7 +108,7 @@ export async function checkOverageGate(): Promise<OverageGate> {
 
   return {
     kind: 'proceed',
-    billingNote: ' This review bills as Extra Usage.',
+    billingNote: ' 此审查作为额外使用计费。',
   }
 }
 
@@ -151,7 +151,7 @@ export async function launchRemoteReview(
       return [
         {
           type: 'text',
-          text: `Ultrareview cannot launch:\n${reasons}`,
+          text: `Ultrareview 无法启动:\n${reasons}`,
         },
       ]
     }
@@ -245,7 +245,7 @@ export async function launchRemoteReview(
       return [
         {
           type: 'text',
-          text: `Could not find merge-base with ${baseBranch}. Make sure you're in a git repo with a ${baseBranch} branch.`,
+          text: `无法找到合并基点 ${baseBranch}。确保你在一个包含 ${baseBranch} 分支的 git 仓库中。`,
         },
       ]
     }
@@ -262,7 +262,7 @@ export async function launchRemoteReview(
       return [
         {
           type: 'text',
-          text: `No changes against the ${baseBranch} fork point. Make some commits or stage files first.`,
+          text: `没有对 ${baseBranch} 分叉点的更改。首先提交一些更改或暂存文件。`,
         },
       ]
     }
@@ -283,7 +283,7 @@ export async function launchRemoteReview(
       return [
         {
           type: 'text',
-          text: 'Repo is too large. Push a PR and use `/ultrareview <PR#>` instead.',
+          text: '仓库太大。推送一个 PR 并使用 `/ultrareview <PR#>` 代替。',
         },
       ]
     }
@@ -310,7 +310,8 @@ export async function launchRemoteReview(
   return [
     {
       type: 'text',
-      text: `Ultrareview launched for ${target} (~10–20 min, runs in the cloud). Track: ${sessionUrl}${resolvedBillingNote} Findings arrive via task-notification. Briefly acknowledge the launch to the user without repeating the target or URL — both are already visible in the tool output above.`,
+      text: `Ultrareview（超审查）已为 ${target} 启动，预计耗时约 10-20 分钟（将在云端完成审查）。您可通过以下链接跟踪进度：${sessionUrl}${resolvedBillingNote}。\n\n当审查结果准备就绪时，您会收到 task-notification（任务通知）。本消息仅用于简要确认已成功启动审查，无需重复目标分支或跟踪链接——两者已在工具输出中显示。`,
+ 
     },
   ]
 }

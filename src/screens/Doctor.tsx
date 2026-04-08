@@ -90,12 +90,12 @@ function DistTagsDisplay({
 }): React.ReactNode {
   const distTags = use(promise)
   if (!distTags.latest) {
-    return <Text dimColor>└ Failed to fetch versions</Text>
+    return <Text dimColor>└ 无法获取版本信息</Text>
   }
   return (
     <>
-      {distTags.stable && <Text>└ Stable version: {distTags.stable}</Text>}
-      <Text>└ Latest version: {distTags.latest}</Text>
+      {distTags.stable && <Text>└ 稳定版本: {distTags.stable}</Text>}
+      <Text>└ 最新版本: {distTags.latest}</Text>
     </>
   )
 }
@@ -229,7 +229,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
   }, [toolPermissionContext, tools, agentDefinitions])
 
   const handleDismiss = useCallback(() => {
-    onDone('Claude Code diagnostics dismissed', { display: 'system' })
+    onDone('Claude Code 诊断已关闭', { display: 'system' })
   }, [onDone])
 
   // Handle dismiss via keybindings (Enter, Escape, or Ctrl+C)
@@ -245,7 +245,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
   if (!diagnostic) {
     return (
       <Pane>
-        <Text dimColor>Checking installation status…</Text>
+        <Text dimColor>正在检查安装状态…</Text>
       </Pane>
     )
   }
@@ -254,23 +254,23 @@ export function Doctor({ onDone }: Props): React.ReactNode {
   return (
     <Pane>
       <Box flexDirection="column">
-        <Text bold>Diagnostics</Text>
+        <Text bold>诊断信息</Text>
         <Text>
-          └ Currently running: {diagnostic.installationType} (
+          └ 当前运行版本: {diagnostic.installationType} (
           {diagnostic.version})
         </Text>
         {diagnostic.packageManager && (
-          <Text>└ Package manager: {diagnostic.packageManager}</Text>
+          <Text>└ 包管理器: {diagnostic.packageManager}</Text>
         )}
-        <Text>└ Path: {diagnostic.installationPath}</Text>
-        <Text>└ Invoked: {diagnostic.invokedBinary}</Text>
-        <Text>└ Config install method: {diagnostic.configInstallMethod}</Text>
+        <Text>└ 安装路径: {diagnostic.installationPath}</Text>
+        <Text>└ 调用命令: {diagnostic.invokedBinary}</Text>
+        <Text>└ 配置安装方式: {diagnostic.configInstallMethod}</Text>
         <Text>
-          └ Search: {diagnostic.ripgrepStatus.working ? 'OK' : 'Not working'} (
+          └ 搜索功能: {diagnostic.ripgrepStatus.working ? '正常' : '异常'} (
           {diagnostic.ripgrepStatus.mode === 'embedded'
-            ? 'bundled'
+            ? '内置'
             : diagnostic.ripgrepStatus.mode === 'builtin'
-              ? 'vendor'
+              ? '系统'
               : diagnostic.ripgrepStatus.systemPath || 'system'}
           )
         </Text>
@@ -280,7 +280,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
           <>
             <Text></Text>
             <Text color="warning">
-              Recommendation: {diagnostic.recommendation.split('\n')[0]}
+              建议: {diagnostic.recommendation.split('\n')[0]}
             </Text>
             <Text dimColor>{diagnostic.recommendation.split('\n')[1]}</Text>
           </>
@@ -290,10 +290,10 @@ export function Doctor({ onDone }: Props): React.ReactNode {
         {diagnostic.multipleInstallations.length > 1 && (
           <>
             <Text></Text>
-            <Text color="warning">Warning: Multiple installations found</Text>
+            <Text color="warning">警告: 检测到多个安装版本</Text>
             {diagnostic.multipleInstallations.map((install, i) => (
               <Text key={i}>
-                └ {install.type} at {install.path}
+                └ {install.type} 位于 {install.path}
               </Text>
             ))}
           </>
@@ -305,8 +305,8 @@ export function Doctor({ onDone }: Props): React.ReactNode {
             <Text></Text>
             {diagnostic.warnings.map((warning, i) => (
               <Box key={i} flexDirection="column">
-                <Text color="warning">Warning: {warning.issue}</Text>
-                <Text>Fix: {warning.fix}</Text>
+                <Text color="warning">警告: {warning.issue}</Text>
+                <Text>修复: {warning.fix}</Text>
               </Box>
             ))}
           </>
@@ -315,7 +315,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
         {/* Show invalid settings errors */}
         {errorsExcludingMcp.length > 0 && (
           <Box flexDirection="column" marginTop={1} marginBottom={1}>
-            <Text bold>Invalid Settings</Text>
+            <Text bold>无效的设置</Text>
             <ValidationErrorsList errors={errorsExcludingMcp} />
           </Box>
         )}
@@ -323,20 +323,20 @@ export function Doctor({ onDone }: Props): React.ReactNode {
 
       {/* Updates section */}
       <Box flexDirection="column">
-        <Text bold>Updates</Text>
+        <Text bold>更新</Text>
         <Text>
-          └ Auto-updates:{' '}
+          └ 自动更新:{' '}
           {diagnostic.packageManager
-            ? 'Managed by package manager'
+            ? '由包管理器管理'
             : diagnostic.autoUpdates}
         </Text>
         {diagnostic.hasUpdatePermissions !== null && (
           <Text>
-            └ Update permissions:{' '}
-            {diagnostic.hasUpdatePermissions ? 'Yes' : 'No (requires sudo)'}
+            └ 更新权限:{' '}
+            {diagnostic.hasUpdatePermissions ? '有' : '无 (需要 sudo)'}
           </Text>
         )}
-        <Text>└ Auto-update channel: {autoUpdatesChannel}</Text>
+        <Text>└ 自动更新频道: {autoUpdatesChannel}</Text>
         <Suspense fallback={null}>
           <DistTagsDisplay promise={distTagsPromise} />
         </Suspense>
@@ -351,7 +351,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
       {/* Environment Variables */}
       {envValidationErrors.length > 0 && (
         <Box flexDirection="column">
-          <Text bold>Environment Variables</Text>
+          <Text bold>环境变量</Text>
           {envValidationErrors.map((validation, i) => (
             <Text key={i}>
               └ {validation.name}:{' '}
@@ -368,22 +368,22 @@ export function Doctor({ onDone }: Props): React.ReactNode {
       {/* Version Locks (PID-based locking) */}
       {versionLockInfo?.enabled && (
         <Box flexDirection="column">
-          <Text bold>Version Locks</Text>
+          <Text bold>版本锁</Text>
           {versionLockInfo.staleLocksCleaned > 0 && (
             <Text dimColor>
-              └ Cleaned {versionLockInfo.staleLocksCleaned} stale lock(s)
+              └ 已清理 {versionLockInfo.staleLocksCleaned} 个过期锁
             </Text>
           )}
           {versionLockInfo.locks.length === 0 ? (
-            <Text dimColor>└ No active version locks</Text>
+            <Text dimColor>└ 无活跃版本锁</Text>
           ) : (
             versionLockInfo.locks.map((lock, i) => (
               <Text key={i}>
                 └ {lock.version}: PID {lock.pid}{' '}
                 {lock.isProcessRunning ? (
-                  <Text>(running)</Text>
+                  <Text>(运行中)</Text>
                 ) : (
-                  <Text color="warning">(stale)</Text>
+                  <Text color="warning">(已过期)</Text>
                 )}
               </Text>
             ))
@@ -394,10 +394,10 @@ export function Doctor({ onDone }: Props): React.ReactNode {
       {agentInfo?.failedFiles && agentInfo.failedFiles.length > 0 && (
         <Box flexDirection="column">
           <Text bold color="error">
-            Agent Parse Errors
+            Agent 解析错误
           </Text>
           <Text color="error">
-            └ Failed to parse {agentInfo.failedFiles.length} agent file(s):
+            └ 解析失败 {agentInfo.failedFiles.length} 个 agent 文件:
           </Text>
           {agentInfo.failedFiles.map((file, i) => (
             <Text key={i} dimColor>
@@ -411,14 +411,14 @@ export function Doctor({ onDone }: Props): React.ReactNode {
       {pluginsErrors.length > 0 && (
         <Box flexDirection="column">
           <Text bold color="error">
-            Plugin Errors
+            插件错误
           </Text>
           <Text color="error">
-            └ {pluginsErrors.length} plugin error(s) detected:
+            └ 检测到 {pluginsErrors.length} 个插件错误:
           </Text>
           {pluginsErrors.map((error, i) => (
             <Text key={i} dimColor>
-              {'  '}└ {error.source || 'unknown'}
+              {'  '}└ {error.source || '未知'}
               {'plugin' in error && error.plugin ? ` [${error.plugin}]` : ''}:{' '}
               {getPluginErrorMessage(error)}
             </Text>
@@ -430,7 +430,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
       {contextWarnings?.unreachableRulesWarning && (
         <Box flexDirection="column">
           <Text bold color="warning">
-            Unreachable Permission Rules
+            无法到达的权限规则
           </Text>
           <Text>
             └{' '}
@@ -453,7 +453,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
           contextWarnings.agentWarning ||
           contextWarnings.mcpWarning) && (
           <Box flexDirection="column">
-            <Text bold>Context Usage Warnings</Text>
+            <Text bold>上下文使用警告</Text>
 
             {contextWarnings.claudeMdWarning && (
               <>
@@ -463,7 +463,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
                     {figures.warning} {contextWarnings.claudeMdWarning.message}
                   </Text>
                 </Text>
-                <Text>{'  '}└ Files:</Text>
+                <Text>{'  '}└ 文件:</Text>
                 {contextWarnings.claudeMdWarning.details.map((detail, i) => (
                   <Text key={i} dimColor>
                     {'    '}└ {detail}
@@ -480,7 +480,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
                     {figures.warning} {contextWarnings.agentWarning.message}
                   </Text>
                 </Text>
-                <Text>{'  '}└ Top contributors:</Text>
+                <Text>{'  '}└ 主要贡献者:</Text>
                 {contextWarnings.agentWarning.details.map((detail, i) => (
                   <Text key={i} dimColor>
                     {'    '}└ {detail}
@@ -497,7 +497,7 @@ export function Doctor({ onDone }: Props): React.ReactNode {
                     {figures.warning} {contextWarnings.mcpWarning.message}
                   </Text>
                 </Text>
-                <Text>{'  '}└ MCP servers:</Text>
+                <Text>{'  '}└ MCP 服务器:</Text>
                 {contextWarnings.mcpWarning.details.map((detail, i) => (
                   <Text key={i} dimColor>
                     {'    '}└ {detail}

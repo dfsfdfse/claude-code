@@ -7,13 +7,12 @@ export function General(): React.ReactNode {
     <Box flexDirection="column" paddingY={1} gap={1}>
       <Box>
         <Text>
-          Claude understands your codebase, makes edits with your permission,
-          and executes commands — right from your terminal.
+          Claude 能理解代码库、经您授权后进行编辑并执行命令 — 就在您的终端中。
         </Text>
       </Box>
       <Box flexDirection="column">
         <Box>
-          <Text bold>Shortcuts</Text>
+          <Text bold>快捷键</Text>
         </Box>
         <PromptInputHelpMenu gap={2} fixedWidth={true} />
       </Box>

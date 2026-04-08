@@ -36,9 +36,9 @@ type ResumeResult =
 function resumeHelpMessage(result: ResumeResult): string {
   switch (result.resultType) {
     case 'sessionNotFound':
-      return `Session ${chalk.bold(result.arg)} was not found.`
+      return `未找到会话 ${chalk.bold(result.arg)}。`
     case 'multipleMatches':
-      return `Found ${result.count} sessions matching ${chalk.bold(result.arg)}. Please use /resume to pick a specific session.`
+      return `找到 ${result.count} 个与 ${chalk.bold(result.arg)} 匹配的会话。请使用 /resume 选择具体会话。`
   }
 }
 
@@ -99,12 +99,12 @@ function ResumeCommand({
           : await loadSameRepoMessageLogs(paths)
         const resumable = filterResumableSessions(allLogs, getSessionId())
         if (resumable.length === 0) {
-          onDone('No conversations found to resume')
+          onDone('未找到可恢复的对话')
           return
         }
         setLogs(resumable)
       } catch (_err) {
-        onDone('Failed to load conversations')
+        onDone('加载对话失败')
       } finally {
         setLoading(false)
       }
@@ -158,12 +158,12 @@ function ResumeCommand({
       // Format the output message
       const message = [
         '',
-        'This conversation is from a different directory.',
+        '此对话来自不同的目录。',
         '',
-        'To resume, run:',
+        '要恢复对话，请运行：',
         `  ${crossProjectCheck.command}`,
         '',
-        '(Command copied to clipboard)',
+        '（命令已复制到剪贴板）',
         '',
       ].join('\n')
 
@@ -177,14 +177,14 @@ function ResumeCommand({
   }
 
   function handleCancel() {
-    onDone('Resume cancelled', { display: 'system' })
+    onDone('恢复已取消', { display: 'system' })
   }
 
   if (loading) {
     return (
       <Box>
         <Spinner />
-        <Text> Loading conversations…</Text>
+        <Text> 正在加载对话…</Text>
       </Box>
     )
   }
@@ -193,7 +193,7 @@ function ResumeCommand({
     return (
       <Box>
         <Spinner />
-        <Text> Resuming conversation…</Text>
+        <Text> 正在恢复对话…</Text>
       </Box>
     )
   }
@@ -249,7 +249,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
   const worktreePaths = await getWorktreePaths(getOriginalCwd())
   const logs = await loadSameRepoMessageLogs(worktreePaths)
   if (logs.length === 0) {
-    const message = 'No conversations found to resume.'
+    const message = '未找到可恢复的对话。'
     return (
       <ResumeError
         message={message}

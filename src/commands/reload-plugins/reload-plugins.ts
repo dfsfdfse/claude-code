@@ -50,7 +50,7 @@ export const call: LocalCommandCall = async (_args, context) => {
   let msg = `Reloaded: ${parts.join(' · ')}`
 
   if (r.error_count > 0) {
-    msg += `\n${n(r.error_count, 'error')} during load. Run /doctor for details.`
+    msg += `\n${n(r.error_count, '错误')} 加载时发生。运行 /doctor 获取详细信息。`
   }
 
   return { type: 'text', value: msg }

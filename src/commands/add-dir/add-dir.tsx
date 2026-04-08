@@ -96,15 +96,15 @@ export async function call(
     if (remember) {
       try {
         persistPermissionUpdate(permissionUpdate)
-        message = `Added ${chalk.bold(path)} as a working directory and saved to local settings`
+        message = `已将 ${chalk.bold(path)} 添加为工作目录并保存到本地设置`
       } catch (error) {
-        message = `Added ${chalk.bold(path)} as a working directory. Failed to save to local settings: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message = `已将 ${chalk.bold(path)} 添加为工作目录。保存到本地设置失败：${error instanceof Error ? error.message : '未知错误'}`
       }
     } else {
-      message = `Added ${chalk.bold(path)} as a working directory for this session`
+      message = `已将 ${chalk.bold(path)} 添加为当前会话的工作目录`
     }
 
-    const messageWithHint = `${message} ${chalk.dim('· /permissions to manage')}`
+    const messageWithHint = `${message} ${chalk.dim('· /permissions 管理')}`
     onDone(messageWithHint)
   }
 
@@ -116,7 +116,7 @@ export async function call(
         permissionContext={appState.toolPermissionContext}
         onAddDirectory={handleAddDirectory}
         onCancel={() => {
-          onDone('Did not add a working directory.')
+          onDone('未添加工作目录。')
         }}
       />
     )
@@ -144,11 +144,11 @@ export async function call(
       directoryPath={result.absolutePath}
       permissionContext={appState.toolPermissionContext}
       onAddDirectory={handleAddDirectory}
-      onCancel={() => {
-        onDone(
-          `Did not add ${chalk.bold(result.absolutePath)} as a working directory.`,
-        )
-      }}
+        onCancel={() => {
+          onDone(
+            `未将 ${chalk.bold(result.absolutePath)} 添加为工作目录。`,
+          )
+        }}
     />
   )
 }

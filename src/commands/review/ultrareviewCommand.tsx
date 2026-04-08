@@ -37,7 +37,7 @@ async function launchAndDone(
     // null only reaches here on teleport failure (PR mode) or non-github
     // repo — both are CCR/repo connectivity issues.
     onDone(
-      'Ultrareview failed to launch the remote session. Check that this is a GitHub repo and try again.',
+      'Ultrareview 无法启动远程会话。请确保这是 GitHub 仓库并重试。',
       { display: 'system' },
     )
   }
@@ -48,7 +48,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
 
   if (gate.kind === 'not-enabled') {
     onDone(
-      'Free ultrareviews used. Enable Extra Usage at https://claude.ai/settings/billing to continue.',
+      '免费 ultrareview 已用完。请在 https://claude.ai/settings/billing 启用额外用量以继续。',
       { display: 'system' },
     )
     return null
@@ -56,7 +56,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
 
   if (gate.kind === 'low-balance') {
     onDone(
-      `Balance too low to launch ultrareview ($${gate.available.toFixed(2)} available, $10 minimum). Top up at https://claude.ai/settings/billing`,
+      `余额过低无法启动 ultrareview（可用余额 $${gate.available.toFixed(2)}，最低 $10）。请在 https://claude.ai/settings/billing 充值`,
       { display: 'system' },
     )
     return null
@@ -70,7 +70,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
             args,
             context,
             onDone,
-            ' This review bills as Extra Usage.',
+            ' 此评论按额外用量计费。',
             signal,
           )
           // Only persist the confirmation flag after a non-aborted launch —
@@ -78,7 +78,7 @@ export const call: LocalJSXCommandCall = async (onDone, context, args) => {
           // skip this dialog on the next attempt.
           if (!signal.aborted) confirmOverage()
         }}
-        onCancel={() => onDone('Ultrareview cancelled.', { display: 'system' })}
+        onCancel={() => onDone('Ultrareview 已取消。', { display: 'system' })}
       />
     )
   }

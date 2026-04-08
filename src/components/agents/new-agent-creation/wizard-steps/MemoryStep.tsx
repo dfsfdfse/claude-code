@@ -30,21 +30,21 @@ export function MemoryStep(): ReactNode {
   const memoryOptions: MemoryOption[] = isUserScope
     ? [
         {
-          label: 'User scope (~/.claude/agent-memory/) (Recommended)',
+          label: '用户级别 (~/.claude/agent-memory/) (推荐)',
           value: 'user',
         },
-        { label: 'None (no persistent memory)', value: 'none' },
-        { label: 'Project scope (.claude/agent-memory/)', value: 'project' },
-        { label: 'Local scope (.claude/agent-memory-local/)', value: 'local' },
+        { label: '无 (无持久记忆)', value: 'none' },
+        { label: '项目级别 (.claude/agent-memory/)', value: 'project' },
+        { label: '本地级别 (.claude/agent-memory-local/)', value: 'local' },
       ]
     : [
         {
-          label: 'Project scope (.claude/agent-memory/) (Recommended)',
+          label: '项目级别 (.claude/agent-memory/) (推荐)',
           value: 'project',
         },
-        { label: 'None (no persistent memory)', value: 'none' },
-        { label: 'User scope (~/.claude/agent-memory/)', value: 'user' },
-        { label: 'Local scope (.claude/agent-memory-local/)', value: 'local' },
+        { label: '无 (无持久记忆)', value: 'none' },
+        { label: '用户级别 (~/.claude/agent-memory/)', value: 'user' },
+        { label: '本地级别 (.claude/agent-memory-local/)', value: 'local' },
       ]
 
   const handleSelect = (value: string): void => {
@@ -73,16 +73,16 @@ export function MemoryStep(): ReactNode {
 
   return (
     <WizardDialogLayout
-      subtitle="Configure agent memory"
+      subtitle="配置智能体记忆"
       footerText={
         <Byline>
-          <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-          <KeyboardShortcutHint shortcut="Enter" action="select" />
+          <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+          <KeyboardShortcutHint shortcut="Enter" action="选择" />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="go back"
+            description="返回"
           />
         </Byline>
       }

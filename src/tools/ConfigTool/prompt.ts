@@ -6,20 +6,20 @@ import {
   SUPPORTED_SETTINGS,
 } from './supportedSettings.js'
 
-export const DESCRIPTION = 'Get or set Claude Code configuration settings.'
+export const DESCRIPTION = '获取或设置 Claude Code 配置设置。'
 
 /**
- * Generate the prompt documentation from the registry
+ * 从注册表生成提示词文档
  */
 export function generatePrompt(): string {
   const globalSettings: string[] = []
   const projectSettings: string[] = []
 
   for (const [key, config] of Object.entries(SUPPORTED_SETTINGS)) {
-    // Skip model - it gets its own section with dynamic options
+  // 跳过 model - 它有自己的部分和动态选项
     if (key === 'model') continue
-    // Voice settings are registered at build-time but gated by GrowthBook
-    // at runtime. Hide from model prompt when the kill-switch is on.
+    // 语音设置在构建时注册，但在运行时由 GrowthBook 控制
+    // 当 kill-switch 开启时，从模型提示词中隐藏。
     if (
       feature('VOICE_MODE') &&
       key === 'voiceEnabled' &&
@@ -47,32 +47,32 @@ export function generatePrompt(): string {
 
   const modelSection = generateModelSection()
 
-  return `Get or set Claude Code configuration settings.
+  return `获取或设置 Claude Code 配置设置。
 
-  View or change Claude Code settings. Use when the user requests configuration changes, asks about current settings, or when adjusting a setting would benefit them.
+  查看或更改 Claude Code 设置。当用户请求配置更改、询问当前设置或调整设置对用户有益时使用此工具。
 
 
-## Usage
-- **Get current value:** Omit the "value" parameter
-- **Set new value:** Include the "value" parameter
+## 使用方法
+|- **获取当前值：**省略 "value" 参数
+|- **设置新值：**包含 "value" 参数
 
-## Configurable settings list
-The following settings are available for you to change:
+## 可配置设置列表
+以下设置可供你更改：
 
-### Global Settings (stored in ~/.claude.json)
+### 全局设置（存储在 ~/.claude.json）
 ${globalSettings.join('\n')}
 
-### Project Settings (stored in settings.json)
+### 项目设置（存储在 settings.json）
 ${projectSettings.join('\n')}
 
 ${modelSection}
-## Examples
-- Get theme: { "setting": "theme" }
-- Set dark theme: { "setting": "theme", "value": "dark" }
-- Enable vim mode: { "setting": "editorMode", "value": "vim" }
-- Enable verbose: { "setting": "verbose", "value": true }
-- Change model: { "setting": "model", "value": "opus" }
-- Change permission mode: { "setting": "permissions.defaultMode", "value": "plan" }
+## 示例
+|- 获取主题：{ "setting": "theme" }
+|- 设置深色主题：{ "setting": "theme", "value": "dark" }
+|- 启用 vim 模式：{ "setting": "editorMode", "value": "vim" }
+|- 启用详细模式：{ "setting": "verbose", "value": true }
+|- 更改模型：{ "setting": "model", "value": "opus" }
+|- 更改权限模式：{ "setting": "permissions.defaultMode", "value": "plan" }
 `
 }
 
@@ -83,11 +83,11 @@ function generateModelSection(): string {
       const value = o.value === null ? 'null/"default"' : `"${o.value}"`
       return `  - ${value}: ${o.descriptionForModel ?? o.description}`
     })
-    return `## Model
-- model - Override the default model. Available options:
+    return `## 模型
+|- model - 覆盖默认模型。可选选项：
 ${lines.join('\n')}`
   } catch {
-    return `## Model
-- model - Override the default model (sonnet, opus, haiku, best, or full model ID)`
+    return `## 模型
+|- model - 覆盖默认模型（sonnet、opus、haiku、best 或完整模型 ID）`
   }
 }

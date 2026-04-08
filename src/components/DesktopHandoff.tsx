@@ -69,14 +69,14 @@ export function DesktopHandoff({ onDone }: Props): React.ReactNode {
       const installStatus = await getDesktopInstallStatus()
 
       if (installStatus.status === 'not-installed') {
-        setDownloadMessage('Claude Desktop is not installed.')
+        setDownloadMessage('未安装 Claude Desktop。')
         setState('prompt-download')
         return
       }
 
       if (installStatus.status === 'version-too-old') {
         setDownloadMessage(
-          `Claude Desktop needs to be updated (found v${installStatus.version}, need v1.1.2396+).`,
+          `需要更新 Claude Desktop（当前版本 v${installStatus.version}，需要 v1.1.2396+）。`,
         )
         setState('prompt-download')
         return
@@ -102,7 +102,7 @@ export function DesktopHandoff({ onDone }: Props): React.ReactNode {
       // Give the user a moment to see the success message
       setTimeout(
         async (onDone: Props['onDone']) => {
-          onDone('Session transferred to Claude Desktop', { display: 'system' })
+          onDone('会话已转移到 Claude Desktop', { display: 'system' })
           await gracefulShutdown(0, 'other')
         },
         500,
@@ -119,8 +119,8 @@ export function DesktopHandoff({ onDone }: Props): React.ReactNode {
   if (state === 'error') {
     return (
       <Box flexDirection="column" paddingX={2}>
-        <Text color="error">Error: {error}</Text>
-        <Text dimColor>Press any key to continue…</Text>
+        <Text color="error">错误：{error}</Text>
+        <Text dimColor>按任意键继续…</Text>
       </Box>
     )
   }
@@ -129,7 +129,7 @@ export function DesktopHandoff({ onDone }: Props): React.ReactNode {
     return (
       <Box flexDirection="column" paddingX={2}>
         <Text>{downloadMessage}</Text>
-        <Text>Download now? (y/n)</Text>
+        <Text>立即下载？(y/n)</Text>
       </Box>
     )
   }
@@ -138,10 +138,10 @@ export function DesktopHandoff({ onDone }: Props): React.ReactNode {
     Exclude<DesktopHandoffState, 'error' | 'prompt-download'>,
     string
   > = {
-    checking: 'Checking for Claude Desktop…',
-    flushing: 'Saving session…',
-    opening: 'Opening Claude Desktop…',
-    success: 'Opening in Claude Desktop…',
+    checking: '正在检查 Claude Desktop…',
+    flushing: '正在保存会话…',
+    opening: '正在打开 Claude Desktop…',
+    success: '正在 Claude Desktop 中打开…',
   }
 
   return <LoadingState message={messages[state]} />

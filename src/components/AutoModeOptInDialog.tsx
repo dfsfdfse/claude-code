@@ -6,7 +6,7 @@ import { Select } from './CustomSelect/index.js'
 
 // NOTE: This copy is legally reviewed — do not modify without Legal team approval.
 export const AUTO_MODE_DESCRIPTION =
-  "Auto mode lets Claude handle permission prompts automatically — Claude checks each tool call for risky actions and prompt injection before executing. Actions Claude identifies as safe are executed, while actions Claude identifies as risky are blocked and Claude may try a different approach. Ideal for long-running tasks. Sessions are slightly more expensive. Claude can make mistakes that allow harmful commands to run, it's recommended to only use in isolated environments. Shift+Tab to change mode."
+  "自动模式让 Claude 自动处理权限提示——Claude 在执行前会检查每个工具调用中是否存在危险操作和提示注入。Claude 判定为安全的操作将被执行，而判定为危险的操作将被阻止，Claude 可能会尝试其他方法。适用于长时间运行的任务。会话成本略高。Claude 可能犯错导致有害命令运行，建议仅在隔离环境中使用。按 Shift+Tab 切换模式。"
 
 type Props = {
   onAccept(): void
@@ -52,7 +52,7 @@ export function AutoModeOptInDialog({
   }
 
   return (
-    <Dialog title="Enable auto mode?" color="warning" onCancel={onDecline}>
+    <Dialog title="启用自动模式？" color="warning" onCancel={onDecline}>
       <Box flexDirection="column" gap={1}>
         <Text>{AUTO_MODE_DESCRIPTION}</Text>
 
@@ -61,17 +61,17 @@ export function AutoModeOptInDialog({
 
       <Select
         options={[
-          ...("external" !== 'ant'
+          ...(process.env.USER_TYPE !== 'ant'
             ? [
                 {
-                  label: 'Yes, and make it my default mode',
+                  label: '是，并设为默认模式',
                   value: 'accept-default' as const,
                 },
               ]
             : []),
-          { label: 'Yes, enable auto mode', value: 'accept' as const },
+          { label: '是，启用自动模式', value: 'accept' as const },
           {
-            label: declineExits ? 'No, exit' : 'No, go back',
+            label: declineExits ? '否，退出' : '否，返回',
             value: 'decline' as const,
           },
         ]}

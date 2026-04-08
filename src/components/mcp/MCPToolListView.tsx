@@ -7,7 +7,6 @@ import {
 import { filterToolsByServer } from '../../services/mcp/utils.js'
 import { useAppState } from '../../state/AppState.js'
 import type { Tool } from '../../Tool.js'
-import { plural } from '../../utils/stringUtils.js'
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js'
 import { Select } from '../CustomSelect/index.js'
 import { Byline, Dialog, KeyboardShortcutHint } from '@anthropic/ink'
@@ -44,9 +43,9 @@ export function MCPToolListView({
     const isOpenWorld = tool.isOpenWorld?.({}) ?? false
 
     const annotations = []
-    if (isReadOnly) annotations.push('read-only')
-    if (isDestructive) annotations.push('destructive')
-    if (isOpenWorld) annotations.push('open-world')
+    if (isReadOnly) annotations.push('只读')
+    if (isDestructive) annotations.push('破坏性')
+    if (isOpenWorld) annotations.push('开放世界')
 
     return {
       label: displayName,
@@ -62,28 +61,28 @@ export function MCPToolListView({
 
   return (
     <Dialog
-      title={`Tools for ${server.name}`}
-      subtitle={`${serverTools.length} ${plural(serverTools.length, 'tool')}`}
+      title={`${server.name} 的工具`}
+      subtitle={`共 ${serverTools.length} 个工具`}
       onCancel={onBack}
       inputGuide={exitState =>
         exitState.pending ? (
-          <Text>Press {exitState.keyName} again to exit</Text>
+          <Text>再次按 {exitState.keyName} 退出</Text>
         ) : (
           <Byline>
-            <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-            <KeyboardShortcutHint shortcut="Enter" action="select" />
+            <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+            <KeyboardShortcutHint shortcut="Enter" action="选择" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="back"
+              description="返回"
             />
           </Byline>
         )
       }
     >
       {serverTools.length === 0 ? (
-        <Text dimColor>No tools available</Text>
+        <Text dimColor>没有可用的工具</Text>
       ) : (
         <Select
           options={toolOptions}
