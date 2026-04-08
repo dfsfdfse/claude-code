@@ -19,12 +19,12 @@ export async function call(): Promise<LocalCommandResult> {
   if (success) {
     return {
       type: 'text',
-      value: 'Opening Slack app installation page in browser…',
+      value: '正在打开 Slack 应用安装页面…',
     }
   } else {
     return {
       type: 'text',
-      value: `Couldn't open browser. Visit: ${SLACK_APP_URL}`,
+      value: `无法打开浏览器。请访问: ${SLACK_APP_URL}`,
     }
   }
 }

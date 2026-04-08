@@ -187,31 +187,29 @@ export function TrustDialog({ onDone, commands }: Props): React.ReactNode {
     <PermissionDialog
       color="warning"
       titleColor="warning"
-      title="Accessing workspace:"
+      title="正在访问工作区："
     >
       <Box flexDirection="column" gap={1} paddingTop={1}>
         <Text bold>{getFsImplementation().cwd()}</Text>
 
         <Text>
-          Quick safety check: Is this a project you created or one you trust?
-          (Like your own code, a well-known open source project, or work from
-          your team). If not, take a moment to review what{"'"}s in this folder
-          first.
+          快速安全检查：这是一个您创建的项目或信任的项目吗？
+          （比如您自己的代码、一个知名的开源项目，或您团队的工作）。如果不是，请先花点时间查看一下此文件夹中的内容。
         </Text>
         <Text>
-          Claude Code{"'"}ll be able to read, edit, and execute files here.
+          Claude Code 将能够在此处读取、编辑和执行文件。
         </Text>
 
         <Text dimColor>
           <Link url="https://code.claude.com/docs/en/security">
-            Security guide
+            安全指南
           </Link>
         </Text>
 
         <Select
           options={[
-            { label: 'Yes, I trust this folder', value: 'enable_all' },
-            { label: 'No, exit', value: 'exit' },
+            { label: '是，我信任此文件夹', value: 'enable_all' },
+            { label: '否，退出', value: 'exit' },
           ]}
           onChange={value => onChange(value as 'enable_all' | 'exit')}
           onCancel={() => onChange('exit')}
@@ -219,9 +217,9 @@ export function TrustDialog({ onDone, commands }: Props): React.ReactNode {
 
         <Text dimColor>
           {exitState.pending ? (
-            <>Press {exitState.keyName} again to exit</>
+            <>再按 {exitState.keyName} 一次退出</>
           ) : (
-            <>Enter to confirm · Esc to cancel</>
+            <>Enter 确认 · Esc 取消</>
           )}
         </Text>
       </Box>

@@ -1,8 +1,8 @@
 export const TASK_STOP_TOOL_NAME = 'TaskStop'
 
 export const DESCRIPTION = `
-- Stops a running background task by its ID
-- Takes a task_id parameter identifying the task to stop
-- Returns a success or failure status
-- Use this tool when you need to terminate a long-running task
+- 通过 ID 停止运行中的后台任务
+- 接收识别要停止的任务的 task_id 参数
+- 返回成功或失败状态
+- 当需要终止长时间运行的任务时使用此工具
 `

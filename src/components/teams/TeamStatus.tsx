@@ -31,7 +31,7 @@ export function TeamStatus({
     showHint && teamsSelected ? (
       <>
         <Text dimColor>· </Text>
-        <Text dimColor>Enter to view</Text>
+        <Text dimColor>回车查看</Text>
       </>
     ) : null
 

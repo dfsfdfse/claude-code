@@ -101,11 +101,11 @@ function ClaudeInChromeMenu({
   const options: OptionWithDescription<MenuAction>[] = []
   const requiresExtensionSuffix = isExtensionInstalled
     ? ''
-    : ' (requires extension)'
+    : ' (需要扩展程序)'
 
   if (!isExtensionInstalled && !isHomespace) {
     options.push({
-      label: 'Install Chrome extension',
+      label: '安装 Chrome 扩展程序',
       value: 'install-extension',
     })
   }
@@ -114,7 +114,7 @@ function ClaudeInChromeMenu({
     {
       label: (
         <>
-          <Text>Manage permissions</Text>
+          <Text>管理权限</Text>
           <Text dimColor>{requiresExtensionSuffix}</Text>
         </>
       ),
@@ -123,45 +123,43 @@ function ClaudeInChromeMenu({
     {
       label: (
         <>
-          <Text>Reconnect extension</Text>
+          <Text>重新连接扩展程序</Text>
           <Text dimColor>{requiresExtensionSuffix}</Text>
         </>
       ),
       value: 'reconnect',
     },
     {
-      label: `Enabled by default: ${enabledByDefault ? 'Yes' : 'No'}`,
+      label: `默认启用: ${enabledByDefault ? '是' : '否'}`,
       value: 'toggle-default',
     },
   )
 
   const isDisabled =
-    isWSL || ("external" !== 'ant' && !isClaudeAISubscriber)
+    isWSL || (process.env.USER_TYPE !== 'ant' && !isClaudeAISubscriber)
 
   return (
     <Dialog
-      title="Claude in Chrome (Beta)"
+      title="Chrome 中的 Claude (Beta)"
       onCancel={() => onDone()}
       color="chromeYellow"
     >
       <Box flexDirection="column" gap={1}>
         <Text>
-          Claude in Chrome works with the Chrome extension to let you control
-          your browser directly from Claude Code. Navigate websites, fill forms,
-          capture screenshots, record GIFs, and debug with console logs and
-          network requests.
+          Chrome 中的 Claude 通过 Chrome 扩展程序让您可以直接从 Claude Code
+          控制浏览器。浏览网站、填写表单、截取屏幕截图、录制 GIF、调试控制台日志和网络请求。
         </Text>
 
         {isWSL && (
           <Text color="error">
-            Claude in Chrome is not supported in WSL at this time.
+            Chrome 中的 Claude 目前不支持 WSL。
           </Text>
         )}
 
 
-        {"external" !== 'ant' && !isClaudeAISubscriber && (
+        {process.env.USER_TYPE === 'external' && !isClaudeAISubscriber && (
           <Text color="error">
-            Claude in Chrome requires a claude.ai subscription.
+            Chrome 中的 Claude 需要 claude.ai 订阅。
           </Text>
         )}
 
@@ -170,19 +168,19 @@ function ClaudeInChromeMenu({
             {!isHomespace && (
               <Box flexDirection="column">
                 <Text>
-                  Status:{' '}
+                  状态:{' '}
                   {isConnected ? (
-                    <Text color="success">Enabled</Text>
+                    <Text color="success">已启用</Text>
                   ) : (
-                    <Text color="inactive">Disabled</Text>
+                    <Text color="inactive">已禁用</Text>
                   )}
                 </Text>
                 <Text>
-                  Extension:{' '}
+                  扩展程序:{' '}
                   {isExtensionInstalled ? (
-                    <Text color="success">Installed</Text>
+                    <Text color="success">已安装</Text>
                   ) : (
-                    <Text color="warning">Not detected</Text>
+                    <Text color="warning">未检测到</Text>
                   )}
                 </Text>
               </Box>
@@ -196,21 +194,20 @@ function ClaudeInChromeMenu({
 
             {showInstallHint && (
               <Text color="warning">
-                Once installed, select {'"Reconnect extension"'} to connect.
+                安装后，选择 {"重新连接扩展程序"} 来连接。
               </Text>
             )}
 
             <Text>
-              <Text dimColor>Usage: </Text>
+              <Text dimColor>用法: </Text>
               <Text>claude --chrome</Text>
-              <Text dimColor> or </Text>
+              <Text dimColor> 或 </Text>
               <Text>claude --no-chrome</Text>
             </Text>
 
             <Text dimColor>
-              Site-level permissions are inherited from the Chrome extension.
-              Manage permissions in the Chrome extension settings to control
-              which sites Claude can browse, click, and type on.
+              网站级权限继承自 Chrome 扩展程序。在 Chrome 扩展程序设置中管理权限，
+              控制 Claude 可以浏览、点击和输入的网站。
             </Text>
           </>
         )}

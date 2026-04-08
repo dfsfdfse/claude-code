@@ -33,7 +33,7 @@ export function DescriptionStep(): ReactNode {
   const handleSubmit = (value: string): void => {
     const trimmedValue = value.trim()
     if (!trimmedValue) {
-      setError('Description is required')
+      setError('描述不能为空')
       return
     }
 
@@ -44,35 +44,35 @@ export function DescriptionStep(): ReactNode {
 
   return (
     <WizardDialogLayout
-      subtitle="Description (tell Claude when to use this agent)"
+      subtitle="描述 (告诉 Claude 何时使用此智能体)"
       footerText={
         <Byline>
-          <KeyboardShortcutHint shortcut="Type" action="enter text" />
-          <KeyboardShortcutHint shortcut="Enter" action="continue" />
+          <KeyboardShortcutHint shortcut="Type" action="输入文本" />
+          <KeyboardShortcutHint shortcut="Enter" action="继续" />
           <ConfigurableShortcutHint
             action="chat:externalEditor"
             context="Chat"
             fallback="ctrl+g"
-            description="open in editor"
+            description="在编辑器中打开"
           />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Settings"
             fallback="Esc"
-            description="go back"
+            description="返回"
           />
         </Byline>
       }
     >
       <Box flexDirection="column">
-        <Text>When should Claude use this agent?</Text>
+        <Text>何时应该使用此智能体？</Text>
 
         <Box marginTop={1}>
           <TextInput
             value={whenToUse}
             onChange={setWhenToUse}
             onSubmit={handleSubmit}
-            placeholder="e.g., use this agent after you're done writing code..."
+            placeholder="例如：代码编写完成后使用此智能体..."
             columns={80}
             cursorOffset={cursorOffset}
             onChangeCursorOffset={setCursorOffset}

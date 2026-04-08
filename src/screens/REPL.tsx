@@ -544,15 +544,15 @@ function TranscriptModeFooter({
       paddingLeft={2}
       width="100%"
     >
-      <Text dimColor>
-        Showing detailed transcript · {toggleShortcut} to toggle
+        <Text dimColor>
+        显示详细对话记录 · {toggleShortcut} 切换
         {searchBadge
-          ? ' · n/N to navigate'
+          ? ' · n/N 导航'
           : virtualScroll
-            ? ` · ${figures.arrowUp}${figures.arrowDown} scroll · home/end top/bottom`
+            ? ` · ${figures.arrowUp}${figures.arrowDown} 滚动 · home/end 跳转首尾`
             : suppressShowAll
               ? ''
-              : ` · ${showAllShortcut} to ${showAllInTranscript ? 'collapse' : 'show all'}`}
+              : ` · ${showAllShortcut} ${showAllInTranscript ? '收起' : '展开全部'}`}
       </Text>
       {status ? (
         // v-for-editor render progress — transient, preempts the search
@@ -679,11 +679,11 @@ function TranscriptSearchBar({
       {off < query.length && <Text>{query.slice(off + 1)}</Text>}
       <Box flexGrow={1} />
       {indexStatus === 'building' ? (
-        <Text dimColor>indexing… </Text>
+        <Text dimColor>正在索引… </Text>
       ) : indexStatus ? (
-        <Text dimColor>indexed in {indexStatus.ms}ms </Text>
+        <Text dimColor>索引耗时 {indexStatus.ms}ms </Text>
       ) : count === 0 && query ? (
-        <Text color="error">no matches </Text>
+        <Text color="error">无匹配结果 </Text>
       ) : count > 0 ? (
         // Engine-counted (indexOf on extractSearchText). May drift from
         // render-count for ghost/phantom messages — badge is a rough
@@ -2698,7 +2698,7 @@ export function REPL({
       key: 'sandbox-unavailable',
       jsx: (
         <>
-          <Text color="warning">sandbox disabled</Text>
+          <Text color="warning">沙盒已禁用</Text>
           <Text dimColor> · /sandbox</Text>
         </>
       ),
@@ -4194,7 +4194,7 @@ export function REPL({
             logForDebugging(`resumeAgentBackground failed: ${errorMessage(err)}`);
             addNotification({
               key: `resume-agent-failed-${task.id}`,
-              jsx: <Text color="error">Failed to resume agent: {errorMessage(err)}</Text>,
+              jsx: <Text color="error">恢复代理失败: {errorMessage(err)}</Text>,
               priority: 'low',
             });
           });
@@ -4414,7 +4414,7 @@ export function REPL({
         addNotification({
           // Same key as text-selection copy — repeated copies replace toast, don't queue.
           key: 'selection-copied',
-          text: 'copied',
+          text: '已复制',
           color: 'success',
           priority: 'immediate',
           timeoutMs: 2000,
@@ -4617,7 +4617,7 @@ export function REPL({
         ) {
           void sendNotification(
             {
-              message: 'Claude is waiting for your input',
+              message: 'Claude 正在等待您的输入',
               notificationType: 'idle_prompt',
             },
             terminal,
@@ -4663,13 +4663,13 @@ export function REPL({
           jsx:
             mode === 'hint_v2' ? (
               <>
-                <Text dimColor>new task? </Text>
+                <Text dimColor>新建任务? </Text>
                 <Text color="suggestion">/clear</Text>
-                <Text dimColor> to save </Text>
+                <Text dimColor> 保存 </Text>
                 <Text color="suggestion">{formattedTokens} tokens</Text>
               </>
             ) : (
-              <Text color="warning">new task? /clear to save {formattedTokens} tokens</Text>
+              <Text color="warning">新建任务? /clear 保存 {formattedTokens} tokens</Text>
             ),
           priority: 'medium',
           // Persist until submit — the hint fires at T+75min idle, user may
@@ -5618,8 +5618,8 @@ export function REPL({
                 {/* Show pending indicator for sandbox permission on worker side */}
                 {pendingSandboxRequest && (
                   <WorkerPendingPermission
-                    toolName="Network Access"
-                    description={`Waiting for leader to approve network access to ${pendingSandboxRequest.host}`}
+                    toolName="网络访问"
+                    description={`正在等待组长批准访问 ${pendingSandboxRequest.host}`}
                   />
                 )}
                 {/* Worker sandbox permission requests from swarm workers */}
@@ -6164,7 +6164,7 @@ export function REPL({
                       const historyShortcut = getShortcutDisplay('app:toggleTranscript', 'Global', 'ctrl+o');
                       addNotification({
                         key: 'summarize-ctrl-o-hint',
-                        text: `Conversation summarized (${historyShortcut} for history)`,
+                        text: `对话已总结 (${historyShortcut} 查看历史)`,
                         priority: 'medium',
                         timeoutMs: 8000,
                       });

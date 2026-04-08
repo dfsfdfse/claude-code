@@ -36,15 +36,15 @@ const SCOPE_ORDER: ConfigScope[] = ['project', 'local', 'user', 'enterprise']
 function getScopeHeading(scope: ConfigScope): { label: string; path?: string } {
   switch (scope) {
     case 'project':
-      return { label: 'Project MCPs', path: describeMcpConfigFilePath(scope) }
+      return { label: '项目 MCP', path: describeMcpConfigFilePath(scope) }
     case 'user':
-      return { label: 'User MCPs', path: describeMcpConfigFilePath(scope) }
+      return { label: '用户 MCP', path: describeMcpConfigFilePath(scope) }
     case 'local':
-      return { label: 'Local MCPs', path: describeMcpConfigFilePath(scope) }
+      return { label: '本地 MCP', path: describeMcpConfigFilePath(scope) }
     case 'enterprise':
-      return { label: 'Enterprise MCPs' }
+      return { label: '企业 MCP' }
     case 'dynamic':
-      return { label: 'Built-in MCPs', path: 'always available' }
+      return { label: '内置 MCP', path: '始终可用' }
     default:
       return { label: scope }
   }
@@ -130,7 +130,7 @@ export function MCPListPanel({
   }, [serversByScope, claudeAiServers, agentServers, dynamicServers])
 
   const handleCancel = useCallback((): void => {
-    onComplete('MCP dialog dismissed', {
+    onComplete('MCP 对话已关闭', {
       display: 'system',
     })
   }, [onComplete])
@@ -190,24 +190,24 @@ export function MCPListPanel({
 
     if (server.client.type === 'disabled') {
       statusIcon = color('inactive', theme)(figures.radioOff)
-      statusText = 'disabled'
+      statusText = '已禁用'
     } else if (server.client.type === 'connected') {
       statusIcon = color('success', theme)(figures.tick)
-      statusText = 'connected'
+      statusText = '已连接'
     } else if (server.client.type === 'pending') {
       statusIcon = color('inactive', theme)(figures.radioOff)
       const { reconnectAttempt, maxReconnectAttempts } = server.client
       if (reconnectAttempt && maxReconnectAttempts) {
-        statusText = `reconnecting (${reconnectAttempt}/${maxReconnectAttempts})…`
+        statusText = `重新连接中 (${reconnectAttempt}/${maxReconnectAttempts})…`
       } else {
-        statusText = 'connecting…'
+        statusText = '连接中…'
       }
     } else if (server.client.type === 'needs-auth') {
       statusIcon = color('warning', theme)(figures.triangleUpOutline)
-      statusText = 'needs authentication'
+      statusText = '需要认证'
     } else {
       statusIcon = color('error', theme)(figures.cross)
-      statusText = 'failed'
+      statusText = '失败'
     }
 
     return (
@@ -230,7 +230,7 @@ export function MCPListPanel({
     const statusIcon = agentServer.needsAuth
       ? color('warning', theme)(figures.triangleUpOutline)
       : color('inactive', theme)(figures.radioOff)
-    const statusText = agentServer.needsAuth ? 'may need auth' : 'agent-only'
+    const statusText = agentServer.needsAuth ? '可能需要认证' : '仅代理可用'
 
     return (
       <Box key={`agent-${agentServer.name}-${index}`}>
@@ -253,8 +253,8 @@ export function MCPListPanel({
       <McpParsingWarnings />
 
       <Dialog
-        title="Manage MCP servers"
-        subtitle={`${totalServers} ${plural(totalServers, 'server')}`}
+        title="管理 MCP 服务器"
+        subtitle={`共 ${totalServers} 个服务器`}
         onCancel={handleCancel}
         hideInputGuide
       >
@@ -289,7 +289,7 @@ export function MCPListPanel({
           {agentServers.length > 0 && (
             <Box flexDirection="column" marginBottom={1}>
               <Box paddingLeft={2}>
-                <Text bold>Agent MCPs</Text>
+                <Text bold>代理 MCP</Text>
               </Box>
               {/* Group servers by source agent */}
               {[...new Set(agentServers.flatMap(s => s.sourceAgents))].map(
@@ -325,15 +325,15 @@ export function MCPListPanel({
             {hasFailedClients && (
               <Text dimColor>
                 {debugMode
-                  ? '※ Error logs shown inline with --debug'
-                  : '※ Run claude --debug to see error logs'}
+                  ? '※ 错误日志已在 --debug 模式下内联显示'
+                  : '※ 运行 claude --debug 查看错误日志'}
               </Text>
             )}
             <Text dimColor>
               <Link url="https://code.claude.com/docs/en/mcp">
                 https://code.claude.com/docs/en/mcp
               </Link>{' '}
-              for help
+              获取帮助
             </Text>
           </Box>
         </Box>
@@ -343,13 +343,13 @@ export function MCPListPanel({
       <Box paddingX={1}>
         <Text dimColor italic>
           <Byline>
-            <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+            <KeyboardShortcutHint shortcut="Enter" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         </Text>

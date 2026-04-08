@@ -9,75 +9,75 @@ const MAX_SECTION_LENGTH = 2000
 const MAX_TOTAL_SESSION_MEMORY_TOKENS = 12000
 
 export const DEFAULT_SESSION_MEMORY_TEMPLATE = `
-# Session Title
-_A short and distinctive 5-10 word descriptive title for the session. Super info dense, no filler_
+# 会话标题
+|_简短且独特的5-10个词的描述性标题。信息高度密集，无冗余_
 
-# Current State
-_What is actively being worked on right now? Pending tasks not yet completed. Immediate next steps._
+# 当前状态
+|_当前正在积极处理什么？尚未完成的待处理任务。即将进行的下一步操作。_
 
-# Task specification
-_What did the user ask to build? Any design decisions or other explanatory context_
+# 任务规格
+|_用户要求构建什么？任何设计决策或其他解释性背景_
 
-# Files and Functions
-_What are the important files? In short, what do they contain and why are they relevant?_
+# 文件与函数
+|_有哪些重要文件？简要说明它们包含什么内容以及为什么相关？_
 
-# Workflow
-_What bash commands are usually run and in what order? How to interpret their output if not obvious?_
+# 工作流程
+|_通常按什么顺序运行哪些bash命令？如果输出不明显，如何解释？_
 
-# Errors & Corrections
-_Errors encountered and how they were fixed. What did the user correct? What approaches failed and should not be tried again?_
+# 错误与修正
+|_遇到的错误以及如何修复。用户纠正了什么？哪些方法失败了不应再尝试？_
 
-# Codebase and System Documentation
-_What are the important system components? How do they work/fit together?_
+# 代码库与系统文档
+|_有哪些重要的系统组件？它们如何工作/如何组合在一起？_
 
-# Learnings
-_What has worked well? What has not? What to avoid? Do not duplicate items from other sections_
+# 经验总结
+|_什么效果好？什么效果不好？应该避免什么？不要与其他部分重复内容_
 
-# Key results
-_If the user asked a specific output such as an answer to a question, a table, or other document, repeat the exact result here_
+# 关键结果
+|_如果用户要求特定的输出（如问题的答案、表格或其他文档），请在此处重复准确的结果_
 
-# Worklog
-_Step by step, what was attempted, done? Very terse summary for each step_
+# 工作日志
+|_逐步说明，尝试了什么，做了什么？每一步非常简短的总结_
 `
 
 function getDefaultUpdatePrompt(): string {
-  return `IMPORTANT: This message and these instructions are NOT part of the actual user conversation. Do NOT include any references to "note-taking", "session notes extraction", or these update instructions in the notes content.
+  return `重要提示：此消息及其中的指令不是用户实际对话的一部分。请勿在笔记内容中包含任何关于"记笔记"、"会话笔记提取"或这些更新指令的引用。
 
-Based on the user conversation above (EXCLUDING this note-taking instruction message as well as system prompt, claude.md entries, or any past session summaries), update the session notes file.
+基于上面的用户对话（不包括此记笔记指令消息、系统提示、claude.md条目或任何过去的会话摘要），更新会话笔记文件。
 
-The file {{notesPath}} has already been read for you. Here are its current contents:
+文件 {{notesPath}} 已为您读取。以下是当前内容：
 <current_notes_content>
 {{currentNotes}}
 </current_notes_content>
 
-Your ONLY task is to use the Edit tool to update the notes file, then stop. You can make multiple edits (update every section as needed) - make all Edit tool calls in parallel in a single message. Do not call any other tools.
+您唯一的任务是使用 Edit 工具更新笔记文件，然后停止。您可以进行多次编辑（根据需要更新每个部分）- 在一条消息中并行调用所有 Edit 工具。请勿调用任何其他工具。
 
-CRITICAL RULES FOR EDITING:
-- The file must maintain its exact structure with all sections, headers, and italic descriptions intact
--- NEVER modify, delete, or add section headers (the lines starting with '#' like # Task specification)
--- NEVER modify or delete the italic _section description_ lines (these are the lines in italics immediately following each header - they start and end with underscores)
--- The italic _section descriptions_ are TEMPLATE INSTRUCTIONS that must be preserved exactly as-is - they guide what content belongs in each section
--- ONLY update the actual content that appears BELOW the italic _section descriptions_ within each existing section
--- Do NOT add any new sections, summaries, or information outside the existing structure
-- Do NOT reference this note-taking process or instructions anywhere in the notes
-- It's OK to skip updating a section if there are no substantial new insights to add. Do not add filler content like "No info yet", just leave sections blank/unedited if appropriate.
-- Write DETAILED, INFO-DENSE content for each section - include specifics like file paths, function names, error messages, exact commands, technical details, etc.
-- For "Key results", include the complete, exact output the user requested (e.g., full table, full answer, etc.)
-- Do not include information that's already in the CLAUDE.md files included in the context
-- Keep each section under ~${MAX_SECTION_LENGTH} tokens/words - if a section is approaching this limit, condense it by cycling out less important details while preserving the most critical information
-- Focus on actionable, specific information that would help someone understand or recreate the work discussed in the conversation
-- IMPORTANT: Always update "Current State" to reflect the most recent work - this is critical for continuity after compaction
+编辑的关键规则：
+- 文件必须保持其确切结构，所有部分、标题和斜体描述都必须完整
+-- 切勿修改、删除或添加章节标题（以 '#' 开头的行，如 # 任务规格）
+-- 切勿修改或删除斜体 _章节描述_ 行（这些是紧跟在每个标题后面的斜体行——以单下划线开头和结尾）
+-- 斜体 _章节描述_ 是模板指令，必须原样保留——它们指导每个部分应包含什么内容
+-- 只能更新出现在每个现有部分的斜体 _章节描述_ 下方的实际内容
+-- 切勿在现有结构之外添加任何新部分、摘要或信息
+- 切勿在笔记中引用此记笔记过程或指令
+- 如果没有实质性新见解，可以跳过更新某个部分。如适用，请保持部分空白/不编辑。不要添加诸如"暂无信息"的填充内容
+- 为每个部分编写详细、信息密集的内容——包括具体细节，如文件路径、函数名、错误消息、确切命令、技术细节等
+- 对于"关键结果"，请包含用户要求的完整准确输出（例如，完整表格、完整答案等）
+- 不要包含已在上下文中包含的 CLAUDE.md 文件中的信息
+- 每个部分保持在约 ${MAX_SECTION_LENGTH} 个 token/词以内——如果某个部分接近此限制，请通过淘汰不太重要的细节、合并相关项目和总结旧条目来精简它
+- 专注于可操作的、具体的信息，这些信息有助于理解或重现对话中讨论的工作
+- 重要提示：始终更新"当前状态"以反映最近的工作——这对于压缩后的连续性至关重要
 
-Use the Edit tool with file_path: {{notesPath}}
+使用文件路径 {{notesPath}} 的 Edit 工具
 
-STRUCTURE PRESERVATION REMINDER:
-Each section has TWO parts that must be preserved exactly as they appear in the current file:
-1. The section header (line starting with #)
-2. The italic description line (the _italicized text_ immediately after the header - this is a template instruction)
+结构保持提醒：
+每个部分都有必须完全按照当前文件显示的两个部分：
+1. 部分标题（以 # 开头的行）
+2. 斜体描述行（标题后立即出现的斜体文本——这是模板指令）
 
-You ONLY update the actual content that comes AFTER these two preserved lines. The italic description lines starting and ending with underscores are part of the template structure, NOT content to be edited or removed.
+您只需更新这两个保留行之后的实际内容。以单下划线开头和结尾的斜体描述行是模板结构的一部分，不是要编辑或删除的内容。
 
-REMEMBER: Use the Edit tool in parallel and stop. Do not continue after the edits. Only include insights from the actual user conversation, never from these note-taking instructions. Do not delete or change section headers or italic _section descriptions_.`
+请记住：并行使用 Edit 工具然后停止。编辑后不要继续。只包含来自实际用户对话的见解，切勿从这些记笔记指令中获取。切勿删除或更改部分标题或斜体 _章节描述_。`
 }
 
 /**
@@ -171,7 +171,7 @@ function generateSectionReminders(
     .sort(([, a], [, b]) => b - a)
     .map(
       ([section, tokens]) =>
-        `- "${section}" is ~${tokens} tokens (limit: ${MAX_SECTION_LENGTH})`,
+        `- "${section}" 约 ${tokens} 个 token（限制：${MAX_SECTION_LENGTH}）`,
     )
 
   if (oversizedSections.length === 0 && !overBudget) {
@@ -182,13 +182,13 @@ function generateSectionReminders(
 
   if (overBudget) {
     parts.push(
-      `\n\nCRITICAL: The session memory file is currently ~${totalTokens} tokens, which exceeds the maximum of ${MAX_TOTAL_SESSION_MEMORY_TOKENS} tokens. You MUST condense the file to fit within this budget. Aggressively shorten oversized sections by removing less important details, merging related items, and summarizing older entries. Prioritize keeping "Current State" and "Errors & Corrections" accurate and detailed.`,
+      `\n\n关键提示：会话记忆文件当前约 ${totalTokens} 个 token，超过了最大限制 ${MAX_TOTAL_SESSION_MEMORY_TOKENS} 个 token。您必须将文件精简以符合此预算。积极缩短过大篇幅的部分，移除不太重要的细节，合并相关项目，并总结较旧的条目。优先保持"当前状态"和"错误与修正"的准确性和详细程度。`,
     )
   }
 
   if (oversizedSections.length > 0) {
     parts.push(
-      `\n\n${overBudget ? 'Oversized sections to condense' : 'IMPORTANT: The following sections exceed the per-section limit and MUST be condensed'}:\n${oversizedSections.join('\n')}`,
+      `\n\n${overBudget ? '需要精简的超大章节' : '重要提示：以下章节超过了每章节限制，必须精简'}：\n${oversizedSections.join('\n')}`,
     )
   }
 

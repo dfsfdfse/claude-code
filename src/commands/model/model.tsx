@@ -49,7 +49,7 @@ function ModelPickerWrapper({
         'cancel' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
     const displayModel = renderModelLabel(mainLoopModel)
-    onDone(`Kept model as ${chalk.bold(displayModel)}`, {
+    onDone(`保持模型为 ${chalk.bold(displayModel)}`, {
       display: 'system',
     })
   }
@@ -72,9 +72,9 @@ function ModelPickerWrapper({
       mainLoopModelForSession: null,
     }))
 
-    let message = `Set model to ${chalk.bold(renderModelLabel(model))}`
+    let message = `已设置模型为 ${chalk.bold(renderModelLabel(model))}`
     if (effort !== undefined) {
-      message += ` with ${chalk.bold(effort)} effort`
+      message += `，工作投入度 ${chalk.bold(effort)}`
     }
 
     // Turn off fast mode if switching to unsupported model
@@ -93,7 +93,7 @@ function ModelPickerWrapper({
         isFastModeAvailable() &&
         isFastMode
       ) {
-        message += ` · Fast mode ON`
+        message += ` · 快速模式开启`
         wasFastModeToggledOn = true
       }
     }
@@ -105,12 +105,11 @@ function ModelPickerWrapper({
         isOpus1mMergeEnabled(),
       )
     ) {
-      message += ` · Billed as extra usage`
+      message += ` · 按额外用量计费`
     }
 
     if (wasFastModeToggledOn === false) {
-      // Fast mode was toggled off, show suffix after extra usage billing
-      message += ` · Fast mode OFF`
+      message += ` · 快速模式关闭`
     }
 
     onDone(message)
@@ -151,7 +150,7 @@ function SetModelAndClose({
     async function handleModelChange(): Promise<void> {
       if (model && !isModelAllowed(model)) {
         onDone(
-          `Model '${model}' is not available. Your organization restricts model selection.`,
+          `模型 '${model}' 不可用。您的组织限制了模型选择。`,
           { display: 'system' },
         )
         return
@@ -160,7 +159,7 @@ function SetModelAndClose({
       // @[MODEL LAUNCH]: Update check for 1M access.
       if (model && isOpus1mUnavailable(model)) {
         onDone(
-          `Opus 4.6 with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m`,
+          `Opus 4.6 的 1M 上下文功能不适用于您的账户。了解更多：https://code.claude.com/docs/en/model-config#extended-context-with-1m`,
           { display: 'system' },
         )
         return
@@ -168,7 +167,7 @@ function SetModelAndClose({
 
       if (model && isSonnet1mUnavailable(model)) {
         onDone(
-          `Sonnet 4.6 with 1M context is not available for your account. Learn more: https://code.claude.com/docs/en/model-config#extended-context-with-1m`,
+          `Sonnet 4.6 的 1M 上下文功能不适用于您的账户。了解更多：https://code.claude.com/docs/en/model-config#extended-context-with-1m`,
           { display: 'system' },
         )
         return
@@ -195,12 +194,12 @@ function SetModelAndClose({
         if (valid) {
           setModel(model)
         } else {
-          onDone(error || `Model '${model}' not found`, {
+          onDone(error || `未找到模型 '${model}'`, {
             display: 'system',
           })
         }
       } catch (error) {
-        onDone(`Failed to validate model: ${(error as Error).message}`, {
+        onDone(`验证模型失败：${(error as Error).message}`, {
           display: 'system',
         })
       }
@@ -212,7 +211,7 @@ function SetModelAndClose({
         mainLoopModel: modelValue,
         mainLoopModelForSession: null,
       }))
-      let message = `Set model to ${chalk.bold(renderModelLabel(modelValue))}`
+      let message = `已设置模型为 ${chalk.bold(renderModelLabel(modelValue))}`
 
       let wasFastModeToggledOn = undefined
       if (isFastModeEnabled()) {
@@ -223,9 +222,8 @@ function SetModelAndClose({
             fastMode: false,
           }))
           wasFastModeToggledOn = false
-          // Do not update fast mode in settings since this is an automatic downgrade
         } else if (isFastModeSupportedByModel(modelValue) && isFastMode) {
-          message += ` · Fast mode ON`
+          message += ` · 快速模式开启`
           wasFastModeToggledOn = true
         }
       }
@@ -237,12 +235,11 @@ function SetModelAndClose({
           isOpus1mMergeEnabled(),
         )
       ) {
-        message += ` · Billed as extra usage`
+        message += ` · 按额外用量计费`
       }
 
       if (wasFastModeToggledOn === false) {
-        // Fast mode was toggled off, show suffix after extra usage billing
-        message += ` · Fast mode OFF`
+        message += ` · 快速模式关闭`
       }
 
       onDone(message)
@@ -290,14 +287,14 @@ function ShowModelAndClose({
   const effortValue = useAppState(s => s.effortValue)
   const displayModel = renderModelLabel(mainLoopModel)
   const effortInfo =
-    effortValue !== undefined ? ` (effort: ${effortValue})` : ''
+    effortValue !== undefined ? `（工作投入度：${effortValue}）` : ''
 
   if (mainLoopModelForSession) {
     onDone(
-      `Current model: ${chalk.bold(renderModelLabel(mainLoopModelForSession))} (session override from plan mode)\nBase model: ${displayModel}${effortInfo}`,
+      `当前模型：${chalk.bold(renderModelLabel(mainLoopModelForSession))}（计划模式下的会话覆盖）\n基础模型：${displayModel}${effortInfo}`,
     )
   } else {
-    onDone(`Current model: ${displayModel}${effortInfo}`)
+    onDone(`当前模型：${displayModel}${effortInfo}`)
   }
 
   return null
@@ -313,7 +310,7 @@ export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
   }
   if (COMMON_HELP_ARGS.includes(args)) {
     onDone(
-      'Run /model to open the model selection menu, or /model [modelName] to set the model.',
+      '运行 /model 打开模型选择菜单，或使用 /model <模型名称> 设置模型。',
       { display: 'system' },
     )
     return
@@ -333,5 +330,5 @@ function renderModelLabel(model: string | null): string {
   const rendered = renderDefaultModelSetting(
     model ?? getDefaultMainLoopModelSetting(),
   )
-  return model === null ? `${rendered} (default)` : rendered
+  return model === null ? `${rendered}（默认）` : rendered
 }

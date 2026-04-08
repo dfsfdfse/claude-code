@@ -111,7 +111,7 @@ function BridgeToggle({ onDone, name }: Props): React.ReactNode {
           replBridgeInitialName: name,
         }
       })
-      onDone('Remote Control connecting\u2026', {
+      onDone('正在连接远程控制…', {
         display: 'system',
       })
     })()
@@ -207,11 +207,11 @@ function BridgeDisconnectDialog({ onDone }: Props): React.ReactNode {
   const qrLines = qrText ? qrText.split('\n').filter(l => l.length > 0) : []
 
   return (
-    <Dialog title="Remote Control" onCancel={handleContinue} hideInputGuide>
+    <Dialog title="远程控制" onCancel={handleContinue} hideInputGuide>
       <Box flexDirection="column" gap={1}>
         <Text>
-          This session is available via Remote Control
-          {displayUrl ? ` at ${displayUrl}` : ''}.
+          此会话可通过远程控制访问
+          {displayUrl ? `：${displayUrl}` : ''}。
         </Text>
         {showQR && qrLines.length > 0 && (
           <Box flexDirection="column">
@@ -222,16 +222,16 @@ function BridgeDisconnectDialog({ onDone }: Props): React.ReactNode {
         )}
         <Box flexDirection="column">
           <ListItem isFocused={focusIndex === 0}>
-            <Text>Disconnect this session</Text>
+            <Text>断开此会话</Text>
           </ListItem>
           <ListItem isFocused={focusIndex === 1}>
-            <Text>{showQR ? 'Hide QR code' : 'Show QR code'}</Text>
+            <Text>{showQR ? '隐藏二维码' : '显示二维码'}</Text>
           </ListItem>
           <ListItem isFocused={focusIndex === 2}>
-            <Text>Continue</Text>
+            <Text>继续</Text>
           </ListItem>
         </Box>
-        <Text dimColor>Enter to select · Esc to continue</Text>
+        <Text dimColor>Enter 选择 · Esc 继续</Text>
       </Box>
     </Dialog>
   )
@@ -250,7 +250,7 @@ async function checkBridgePrerequisites(): Promise<string | null> {
   )
   await waitForPolicyLimitsToLoad()
   if (!isPolicyAllowed('allow_remote_control')) {
-    return "Remote Control is disabled by your organization's policy."
+    return "远程控制已被您组织的策略禁用。"
   }
 
   const disabledReason = await getBridgeDisabledReason()

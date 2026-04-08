@@ -48,25 +48,25 @@ function MarketplaceList({
         const names = Object.keys(config)
 
         if (names.length === 0) {
-          onComplete('No marketplaces configured')
+          onComplete('未配置应用商店')
         } else {
           onComplete(
-            `Configured marketplaces:\n${names.map(n => `  • ${n}`).join('\n')}`,
+            `已配置的应用商店:\n${names.map(n => `  • ${n}`).join('\n')}`,
           )
         }
       } catch (err) {
-        onComplete(`Error loading marketplaces: ${errorMessage(err)}`)
+        onComplete(`加载应用商店出错: ${errorMessage(err)}`)
       }
     }
 
     void loadList()
   }, [onComplete])
 
-  return <Text>Loading marketplaces...</Text>
+  return <Text>正在加载应用商店...</Text>
 }
 
 function McpRedirectBanner(): React.ReactNode {
-  if ("external" !== 'ant') {
+  if (process.env.USER_TYPE !== 'ant') {
     return null
   }
 
@@ -89,8 +89,8 @@ function McpRedirectBanner(): React.ReactNode {
         </Text>
       </Box>
       <Text>
-        [ANT-ONLY] MCP servers are now managed in /plugins. Use /mcp no-redirect
-        to test old UI
+        [仅限ANT] MCP 服务器现在在 /plugins 中管理。使用 /mcp no-redirect
+        测试旧界面
       </Text>
     </Box>
   )
@@ -231,7 +231,7 @@ function buildErrorRows(
     rows.push({
       label: pluginName ?? error.source,
       message: formatErrorMessage(error),
-      guidance: 'Restart to retry loading plugins',
+      guidance: '重启以重试加载插件',
       action: { kind: 'none' },
     })
   }
@@ -249,10 +249,10 @@ function buildErrorRows(
       : sourceInfo.editableSources[0]?.scope
     rows.push({
       label: m.name,
-      message: m.error ?? 'Installation failed',
+      message: m.error ?? '安装失败',
       guidance:
         action.kind === 'managed-only'
-          ? 'Managed by your organization — contact your admin'
+          ? '由组织管理 — 联系管理员'
           : undefined,
       action,
       scope,
@@ -560,7 +560,7 @@ function ErrorsTabContent({
     return (
       <Box flexDirection="column">
         <Box marginLeft={1}>
-          <Text dimColor>No plugin errors</Text>
+          <Text dimColor>没有插件错误</Text>
         </Box>
         <Box marginTop={1}>
           <Text dimColor italic>
@@ -568,7 +568,7 @@ function ErrorsTabContent({
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="back"
+              description="返回"
             />
           </Text>
         </Box>
@@ -616,21 +616,21 @@ function ErrorsTabContent({
               action="select:previous"
               context="Select"
               fallback="↑"
-              description="navigate"
+              description="导航"
             />
             {hasAction && (
               <ConfigurableShortcutHint
                 action="select:accept"
                 context="Select"
                 fallback="Enter"
-                description="resolve"
+                description="解决"
               />
             )}
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="back"
+              description="返回"
             />
           </Byline>
         </Text>
@@ -851,57 +851,55 @@ export function PluginSettings({
   if (viewState.type === 'help') {
     return (
       <Box flexDirection="column">
-        <Text bold>Plugin Command Usage:</Text>
+        <Text bold>插件命令用法:</Text>
         <Text> </Text>
-        <Text dimColor>Installation:</Text>
-        <Text> /plugin install - Browse and install plugins</Text>
+        <Text dimColor>安装:</Text>
+        <Text> /plugin install - 浏览并安装插件</Text>
         <Text>
           {' '}
-          /plugin install &lt;marketplace&gt; - Install from specific
-          marketplace
+          /plugin install &lt;marketplace&gt; - 从指定应用商店安装
         </Text>
-        <Text> /plugin install &lt;plugin&gt; - Install specific plugin</Text>
+        <Text> /plugin install &lt;plugin&gt; - 安装指定插件</Text>
         <Text>
           {' '}
-          /plugin install &lt;plugin&gt;@&lt;market&gt; - Install plugin from
-          marketplace
+          /plugin install &lt;plugin&gt;@&lt;market&gt; - 从应用商店安装插件
         </Text>
         <Text> </Text>
-        <Text dimColor>Management:</Text>
-        <Text> /plugin manage - Manage installed plugins</Text>
-        <Text> /plugin enable &lt;plugin&gt; - Enable a plugin</Text>
-        <Text> /plugin disable &lt;plugin&gt; - Disable a plugin</Text>
-        <Text> /plugin uninstall &lt;plugin&gt; - Uninstall a plugin</Text>
+        <Text dimColor>管理:</Text>
+        <Text> /plugin manage - 管理已安装的插件</Text>
+        <Text> /plugin enable &lt;plugin&gt; - 启用插件</Text>
+        <Text> /plugin disable &lt;plugin&gt; - 禁用插件</Text>
+        <Text> /plugin uninstall &lt;plugin&gt; - 卸载插件</Text>
         <Text> </Text>
-        <Text dimColor>Marketplaces:</Text>
-        <Text> /plugin marketplace - Marketplace management menu</Text>
-        <Text> /plugin marketplace add - Add a marketplace</Text>
+        <Text dimColor>应用商店:</Text>
+        <Text> /plugin marketplace - 应用商店管理菜单</Text>
+        <Text> /plugin marketplace add - 添加应用商店</Text>
         <Text>
           {' '}
-          /plugin marketplace add &lt;path/url&gt; - Add marketplace directly
+          /plugin marketplace add &lt;path/url&gt; - 直接添加应用商店
         </Text>
-        <Text> /plugin marketplace update - Update marketplaces</Text>
+        <Text> /plugin marketplace update - 更新应用商店</Text>
         <Text>
           {' '}
-          /plugin marketplace update &lt;name&gt; - Update specific marketplace
+          /plugin marketplace update &lt;name&gt; - 更新指定应用商店
         </Text>
-        <Text> /plugin marketplace remove - Remove a marketplace</Text>
+        <Text> /plugin marketplace remove - 移除应用商店</Text>
         <Text>
           {' '}
-          /plugin marketplace remove &lt;name&gt; - Remove specific marketplace
+          /plugin marketplace remove &lt;name&gt; - 移除指定应用商店
         </Text>
-        <Text> /plugin marketplace list - List all marketplaces</Text>
+        <Text> /plugin marketplace list - 列出所有应用商店</Text>
         <Text> </Text>
-        <Text dimColor>Validation:</Text>
+        <Text dimColor>验证:</Text>
         <Text>
           {' '}
-          /plugin validate &lt;path&gt; - Validate a manifest file or directory
+          /plugin validate &lt;path&gt; - 验证清单文件或目录
         </Text>
         <Text> </Text>
-        <Text dimColor>Other:</Text>
-        <Text> /plugin - Main plugin menu</Text>
-        <Text> /plugin help - Show this help</Text>
-        <Text> /plugins - Alias for /plugin</Text>
+        <Text dimColor>其他:</Text>
+        <Text> /plugin - 插件主菜单</Text>
+        <Text> /plugin help - 显示此帮助</Text>
+        <Text> /plugins - /plugin 的别名</Text>
       </Box>
     )
   }
@@ -941,7 +939,7 @@ export function PluginSettings({
   return (
     <Pane color="suggestion">
       <Tabs
-        title="Plugins"
+        title="插件"
         selectedTab={activeTab}
         onTabChange={handleTabChange}
         color="suggestion"
@@ -952,7 +950,7 @@ export function PluginSettings({
           ) : undefined
         }
       >
-        <Tab id="discover" title="Discover">
+        <Tab id="discover" title="发现">
           {viewState.type === 'browse-marketplace' ? (
             <BrowseMarketplace
               error={error}
@@ -981,7 +979,7 @@ export function PluginSettings({
             />
           )}
         </Tab>
-        <Tab id="installed" title="Installed">
+        <Tab id="installed" title="已安装">
           <ManagePlugins
             setViewState={setViewState}
             setResult={setResult}
@@ -1002,7 +1000,7 @@ export function PluginSettings({
             }
           />
         </Tab>
-        <Tab id="marketplaces" title="Marketplaces">
+        <Tab id="marketplaces" title="应用商店">
           <ManageMarketplaces
             setViewState={setViewState}
             error={error}

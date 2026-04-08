@@ -280,10 +280,10 @@ export function Feedback({
     } else {
       if (result.isZdrOrg) {
         setError(
-          'Feedback collection is not available for organizations with custom data retention policies.',
+          '组织启用了自定义数据保留策略，无法收集反馈。',
         )
       } else {
-        setError('Could not submit feedback. Please try again later.')
+        setError('无法提交反馈，请稍后重试。')
       }
       // Stay on userInput step so user can retry with their content preserved
       setStep('userInput')
@@ -327,11 +327,11 @@ export function Feedback({
         void openBrowser(issueUrl)
       }
       if (error) {
-        onDone('Error submitting feedback / bug report', {
+        onDone('提交反馈/缺陷报告时出错', {
           display: 'system',
         })
       } else {
-        onDone('Feedback / bug report submitted', { display: 'system' })
+        onDone('反馈/缺陷报告已提交', { display: 'system' })
       }
       return
     }
@@ -339,7 +339,7 @@ export function Feedback({
     // When in userInput step with error, allow user to edit and retry
     // (don't close on any keypress - they can still press Esc to cancel)
     if (error && step !== 'userInput') {
-      onDone('Error submitting feedback / bug report', {
+      onDone('提交反馈/缺陷报告时出错', {
         display: 'system',
       })
       return
@@ -352,30 +352,30 @@ export function Feedback({
 
   return (
     <Dialog
-      title="Submit Feedback / Bug Report"
+      title="提交反馈 / 缺陷报告"
       onCancel={handleCancel}
       isCancelActive={step !== 'userInput'}
       inputGuide={exitState =>
         exitState.pending ? (
-          <Text>Press {exitState.keyName} again to exit</Text>
+          <Text>按 {exitState.keyName} 再按一次退出</Text>
         ) : step === 'userInput' ? (
           <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="continue" />
+            <KeyboardShortcutHint shortcut="Enter" action="继续" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         ) : step === 'consent' ? (
           <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="submit" />
+            <KeyboardShortcutHint shortcut="Enter" action="提交" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="cancel"
+              description="取消"
             />
           </Byline>
         ) : null
@@ -383,7 +383,7 @@ export function Feedback({
     >
       {step === 'userInput' && (
         <Box flexDirection="column" gap={1}>
-          <Text>Describe the issue below:</Text>
+          <Text>请在下方描述问题：</Text>
           <TextInput
             value={description}
             onChange={value => {
@@ -395,9 +395,9 @@ export function Feedback({
             }}
             columns={textInputColumns}
             onSubmit={() => setStep('consent')}
-            onExitMessage={() =>
-              onDone('Feedback cancelled', { display: 'system' })
-            }
+              onExitMessage={() =>
+                onDone('已取消反馈', { display: 'system' })
+              }
             cursorOffset={cursorOffset}
             onChangeCursorOffset={setCursorOffset}
             showCursor
@@ -406,7 +406,7 @@ export function Feedback({
             <Box flexDirection="column" gap={1}>
               <Text color="error">{error}</Text>
               <Text dimColor>
-                Edit and press Enter to retry, or Esc to cancel
+                编辑后按回车重试，或按 Esc 取消
               </Text>
             </Box>
           )}
@@ -415,46 +415,45 @@ export function Feedback({
 
       {step === 'consent' && (
         <Box flexDirection="column">
-          <Text>This report will include:</Text>
+          <Text>此报告将包含：</Text>
           <Box marginLeft={2} flexDirection="column">
             <Text>
-              - Your feedback / bug description:{' '}
+              - 您的反馈/缺陷描述：{' '}
               <Text dimColor>{description}</Text>
             </Text>
             <Text>
-              - Environment info:{' '}
+              - 环境信息：{' '}
               <Text dimColor>
-                {env.platform}, {env.terminal}, v{MACRO.VERSION}
+                {env.platform}，{env.terminal}，v{MACRO.VERSION}
               </Text>
             </Text>
             {envInfo.gitState && (
               <Text>
-                - Git repo metadata:{' '}
+                - Git 仓库元数据：{' '}
                 <Text dimColor>
                   {envInfo.gitState.branchName}
                   {envInfo.gitState.commitHash
-                    ? `, ${envInfo.gitState.commitHash.slice(0, 7)}`
+                    ? `，${envInfo.gitState.commitHash.slice(0, 7)}`
                     : ''}
                   {envInfo.gitState.remoteUrl
                     ? ` @ ${envInfo.gitState.remoteUrl}`
                     : ''}
-                  {!envInfo.gitState.isHeadOnRemote && ', not synced'}
-                  {!envInfo.gitState.isClean && ', has local changes'}
+                  {!envInfo.gitState.isHeadOnRemote && '，未同步'}
+                  {!envInfo.gitState.isClean && '，有本地更改'}
                 </Text>
               </Text>
             )}
-            <Text>- Current session transcript</Text>
+            <Text>- 当前会话记录</Text>
           </Box>
           <Box marginTop={1}>
             <Text wrap="wrap" dimColor>
-              We will use your feedback to debug related issues or to improve{' '}
-              Claude Code&apos;s functionality (eg. to reduce the risk of bugs
-              occurring in the future).
+              我们将使用您的反馈来调试相关问题或改进{' '}
+              Claude Code 的功能（例如降低未来出现 bug 的风险）。
             </Text>
           </Box>
           <Box marginTop={1}>
             <Text>
-              Press <Text bold>Enter</Text> to confirm and submit.
+              按 <Text bold>回车</Text> 确认并提交。
             </Text>
           </Box>
         </Box>
@@ -462,7 +461,7 @@ export function Feedback({
 
       {step === 'submitting' && (
         <Box flexDirection="row" gap={1}>
-          <Text>Submitting report…</Text>
+          <Text>正在提交报告…</Text>
         </Box>
       )}
 
@@ -471,15 +470,14 @@ export function Feedback({
           {error ? (
             <Text color="error">{error}</Text>
           ) : (
-            <Text color="success">Thank you for your report!</Text>
+            <Text color="success">感谢您的报告！</Text>
           )}
-          {feedbackId && <Text dimColor>Feedback ID: {feedbackId}</Text>}
+          {feedbackId && <Text dimColor>反馈 ID：{feedbackId}</Text>}
           <Box marginTop={1}>
-            <Text>Press </Text>
-            <Text bold>Enter </Text>
+            <Text>按 </Text>
+            <Text bold>回车 </Text>
             <Text>
-              to open your browser and draft a GitHub issue, or any other key to
-              close.
+              打开浏览器并创建 GitHub issue，或按其他键关闭。
             </Text>
           </Box>
         </Box>
@@ -720,14 +718,14 @@ async function submitFeedback(
       }
       sanitizeAndLogError(
         new Error(
-          'Failed to submit feedback: request did not return feedback_id',
+          '无法提交反馈：请求未返回 feedback_id',
         ),
       )
       return { success: false }
     }
 
     sanitizeAndLogError(
-      new Error('Failed to submit feedback:' + response.status),
+      new Error('提交反馈失败：' + response.status),
     )
     return { success: false }
   } catch (err) {

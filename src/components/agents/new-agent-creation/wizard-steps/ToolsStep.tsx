@@ -26,16 +26,16 @@ export function ToolsStep({ tools }: Props): ReactNode {
 
   return (
     <WizardDialogLayout
-      subtitle="Select tools"
+      subtitle="选择工具"
       footerText={
         <Byline>
-          <KeyboardShortcutHint shortcut="Enter" action="toggle selection" />
-          <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
+          <KeyboardShortcutHint shortcut="Enter" action="切换选择" />
+          <KeyboardShortcutHint shortcut="↑↓" action="导航" />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="go back"
+            description="返回"
           />
         </Byline>
       }

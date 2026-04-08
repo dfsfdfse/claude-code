@@ -177,41 +177,39 @@ export async function call(
   _args: string,
 ): Promise<null> {
   if (env.terminal && env.terminal in NATIVE_CSIU_TERMINALS) {
-    const message = `Shift+Enter is natively supported in ${NATIVE_CSIU_TERMINALS[env.terminal]}.
+    const message = `${NATIVE_CSIU_TERMINALS[env.terminal]} 原生支持 Shift+Enter。
 
-No configuration needed. Just use Shift+Enter to add newlines.`
+无需配置。使用 Shift+Enter 即可添加换行符。`
     onDone(message)
     return null
   }
 
   // Check if terminal is supported
   if (!shouldOfferTerminalSetup()) {
-    const terminalName = env.terminal || 'your current terminal'
+    const terminalName = env.terminal || '您当前的终端'
     const currentPlatform = getPlatform()
 
     // Build platform-specific terminal suggestions
     let platformTerminals = ''
     if (currentPlatform === 'macos') {
-      platformTerminals = '   • macOS: Apple Terminal\n'
+      platformTerminals = '   • macOS：Apple Terminal\n'
     } else if (currentPlatform === 'windows') {
-      platformTerminals = '   • Windows: Windows Terminal\n'
+      platformTerminals = '   • Windows：Windows Terminal\n'
     }
-    // For Linux and other platforms, we don't show native terminal options
-    // since they're not currently supported
 
-    const message = `Terminal setup cannot be run from ${terminalName}.
+    const message = `无法从 ${terminalName} 运行终端设置。
 
-This command configures a convenient Shift+Enter shortcut for multi-line prompts.
-${chalk.dim('Note: You can already use backslash (\\\\) + return to add newlines.')}
+此命令用于配置便捷的 Shift+Enter 快捷键以输入多行提示。
+${chalk.dim('注意：您已可使用反斜杠（\\\\）+ 回车来添加换行符。')}
 
-To set up the shortcut (optional):
-1. Exit tmux/screen temporarily
-2. Run /terminal-setup directly in one of these terminals:
-${platformTerminals}   • IDE: VSCode, Cursor, Windsurf, Zed
-   • Other: Alacritty
-3. Return to tmux/screen - settings will persist
+设置快捷键（可选）：
+1. 暂时退出 tmux/screen
+2. 直接在以下终端之一中运行 /terminal-setup：
+${platformTerminals}   • IDE：VSCode、Cursor、Windsurf、Zed
+   • 其他：Alacritty
+3. 返回 tmux/screen——设置将保持
 
-${chalk.dim('Note: iTerm2, WezTerm, Ghostty, Kitty, and Warp support Shift+Enter natively.')}`
+${chalk.dim('注意：iTerm2、WezTerm、Ghostty、Kitty 和 Warp 原生支持 Shift+Enter。')}`
     onDone(message)
     return null
   }
@@ -239,8 +237,8 @@ async function installBindingsForVSCodeTerminal(
       'warning',
       theme,
     )(
-      `Cannot install keybindings from a remote ${editor} session.`,
-    )}${EOL}${EOL}${editor} keybindings must be installed on your local machine, not the remote server.${EOL}${EOL}To install the Shift+Enter keybinding:${EOL}1. Open ${editor} on your local machine (not connected to remote)${EOL}2. Open the Command Palette (Cmd/Ctrl+Shift+P) → "Preferences: Open Keyboard Shortcuts (JSON)"${EOL}3. Add this keybinding (the file must be a JSON array):${EOL}${EOL}${chalk.dim(`[
+      `无法从远程 ${editor} 会话安装按键绑定。`,
+    )}${EOL}${EOL}${editor} 按键绑定必须安装到您的本地计算机，而非远程服务器。${EOL}${EOL}安装 Shift+Enter 按键绑定：${EOL}1. 在本地计算机上打开 ${editor}（不要连接远程）${EOL}2. 打开命令面板（Cmd/Ctrl+Shift+P）→ "首选项：打开键盘快捷键（JSON）"${EOL}3. 添加此按键绑定（文件必须是 JSON 数组）：${EOL}${EOL}${chalk.dim(`[
   {
     "key": "shift+enter",
     "command": "workbench.action.terminal.sendSequence",
@@ -288,8 +286,8 @@ async function installBindingsForVSCodeTerminal(
           'warning',
           theme,
         )(
-          `Error backing up existing ${editor} terminal keybindings. Bailing out.`,
-        )}${EOL}${chalk.dim(`See ${formatPathLink(keybindingsPath)}`)}${EOL}${chalk.dim(`Backup path: ${formatPathLink(backupPath)}`)}${EOL}`
+          `备份现有 ${editor} 终端按键绑定时出错。放弃操作。`,
+        )}${EOL}${chalk.dim(`参见 ${formatPathLink(keybindingsPath)}`)}${EOL}${chalk.dim(`备份路径：${formatPathLink(backupPath)}`)}${EOL}`
       }
     }
 
@@ -305,8 +303,8 @@ async function installBindingsForVSCodeTerminal(
         'warning',
         theme,
       )(
-        `Found existing ${editor} terminal Shift+Enter key binding. Remove it to continue.`,
-      )}${EOL}${chalk.dim(`See ${formatPathLink(keybindingsPath)}`)}${EOL}`
+        `发现现有 ${editor} 终端 Shift+Enter 按键绑定。请先移除它以继续。`,
+      )}${EOL}${chalk.dim(`参见 ${formatPathLink(keybindingsPath)}`)}${EOL}`
     }
 
     // Create the new keybinding
@@ -327,12 +325,12 @@ async function installBindingsForVSCodeTerminal(
       'success',
       theme,
     )(
-      `Installed ${editor} terminal Shift+Enter key binding`,
-    )}${EOL}${chalk.dim(`See ${formatPathLink(keybindingsPath)}`)}${EOL}`
+      `已安装 ${editor} 终端 Shift+Enter 按键绑定`,
+    )}${EOL}${chalk.dim(`参见 ${formatPathLink(keybindingsPath)}`)}${EOL}`
   } catch (error) {
     logError(error)
     throw new Error(
-      `Failed to install ${editor} terminal Shift+Enter key binding`,
+      `安装 ${editor} 终端 Shift+Enter 按键绑定失败`,
     )
   }
 }
@@ -359,7 +357,7 @@ async function enableOptionAsMetaForProfile(
     if (setCode !== 0) {
       logError(
         new Error(
-          `Failed to enable Option as Meta key for Terminal.app profile: ${profileName}`,
+          `为 Terminal.app 配置文件的 ${profileName} 启用 Option 作为 Meta 键失败`,
         ),
       )
       return false
@@ -391,7 +389,7 @@ async function disableAudioBellForProfile(
     if (setCode !== 0) {
       logError(
         new Error(
-          `Failed to disable audio bell for Terminal.app profile: ${profileName}`,
+          `为 Terminal.app 配置文件的 ${profileName} 禁用音频提示音失败`,
         ),
       )
       return false
@@ -410,7 +408,7 @@ async function enableOptionAsMetaForTerminal(
     const backupPath = await backupTerminalPreferences()
     if (!backupPath) {
       throw new Error(
-        'Failed to create backup of Terminal.app preferences, bailing out',
+        '创建 Terminal.app 偏好设置备份失败，放弃操作',
       )
     }
 
@@ -421,7 +419,7 @@ async function enableOptionAsMetaForTerminal(
     )
 
     if (readCode !== 0 || !defaultProfile.trim()) {
-      throw new Error('Failed to read default Terminal.app profile')
+      throw new Error('读取默认 Terminal.app 配置文件失败')
     }
 
     const { stdout: startupProfile, code: startupCode } = await execFileNoThrow(
@@ -429,7 +427,7 @@ async function enableOptionAsMetaForTerminal(
       ['read', 'com.apple.Terminal', 'Startup Window Settings'],
     )
     if (startupCode !== 0 || !startupProfile.trim()) {
-      throw new Error('Failed to read startup Terminal.app profile')
+      throw new Error('读取启动 Terminal.app 配置文件失败')
     }
 
     let wasAnyProfileUpdated = false
@@ -460,7 +458,7 @@ async function enableOptionAsMetaForTerminal(
 
     if (!wasAnyProfileUpdated) {
       throw new Error(
-        'Failed to enable Option as Meta key or disable audio bell for any Terminal.app profile',
+        '为任何 Terminal.app 配置文件启用 Option 作为 Meta 键或禁用音频提示音失败',
       )
     }
 
@@ -473,26 +471,26 @@ async function enableOptionAsMetaForTerminal(
       'success',
       theme,
     )(
-      `Configured Terminal.app settings:`,
-    )}${EOL}${color('success', theme)('- Enabled "Use Option as Meta key"')}${EOL}${color('success', theme)('- Switched to visual bell')}${EOL}${chalk.dim('Option+Enter will now enter a newline.')}${EOL}${chalk.dim('You must restart Terminal.app for changes to take effect.', theme)}${EOL}`
+      `已配置 Terminal.app 设置：`,
+    )}${EOL}${color('success', theme)('- 已启用"使用 Option 作为 Meta 键"')}${EOL}${color('success', theme)('- 已切换到视觉提示音')}${EOL}${chalk.dim('Option+Enter 现在将输入换行符。')}${EOL}${chalk.dim('您必须重启 Terminal.app 才能使更改生效。', theme)}${EOL}`
   } catch (error) {
     logError(error)
 
     // Attempt to restore from backup
     const restoreResult = await checkAndRestoreTerminalBackup()
 
-    const errorMessage = 'Failed to enable Option as Meta key for Terminal.app.'
+    const errorMessage = '为 Terminal.app 启用 Option 作为 Meta 键失败。'
     if (restoreResult.status === 'restored') {
       throw new Error(
-        `${errorMessage} Your settings have been restored from backup.`,
+        `${errorMessage} 您的设置已从备份恢复。`,
       )
     } else if (restoreResult.status === 'failed') {
       throw new Error(
-        `${errorMessage} Restoring from backup failed, try manually with: defaults import com.apple.Terminal ${restoreResult.backupPath}`,
+        `${errorMessage} 从备份恢复失败，请尝试手动操作：defaults import com.apple.Terminal ${restoreResult.backupPath}`,
       )
     } else {
       throw new Error(
-        `${errorMessage} No backup was available to restore from.`,
+        `${errorMessage} 没有可用的备份可供恢复。`,
       )
     }
   }
@@ -546,7 +544,7 @@ chars = "\\u001B\\r"`
   }
 
   if (!configPath) {
-    throw new Error('No valid config path found for Alacritty')
+    throw new Error('未找到 Alacritty 的有效配置路径')
   }
 
   try {
@@ -560,8 +558,8 @@ chars = "\\u001B\\r"`
           'warning',
           theme,
         )(
-          'Found existing Alacritty Shift+Enter key binding. Remove it to continue.',
-        )}${EOL}${chalk.dim(`See ${formatPathLink(configPath)}`)}${EOL}`
+          '发现现有 Alacritty Shift+Enter 按键绑定。请先移除它以继续。',
+        )}${EOL}${chalk.dim(`参见 ${formatPathLink(configPath)}`)}${EOL}`
       }
 
       // Create backup
@@ -574,8 +572,8 @@ chars = "\\u001B\\r"`
           'warning',
           theme,
         )(
-          'Error backing up existing Alacritty config. Bailing out.',
-        )}${EOL}${chalk.dim(`See ${formatPathLink(configPath)}`)}${EOL}${chalk.dim(`Backup path: ${formatPathLink(backupPath)}`)}${EOL}`
+          '备份现有 Alacritty 配置时出错。放弃操作。',
+        )}${EOL}${chalk.dim(`参见 ${formatPathLink(configPath)}`)}${EOL}${chalk.dim(`备份路径：${formatPathLink(backupPath)}`)}${EOL}`
       }
     } else {
       // Ensure config directory exists (idempotent with recursive)
@@ -595,15 +593,15 @@ chars = "\\u001B\\r"`
     return `${color(
       'success',
       theme,
-    )('Installed Alacritty Shift+Enter key binding')}${EOL}${color(
+    )('已安装 Alacritty Shift+Enter 按键绑定')}${EOL}${color(
       'success',
       theme,
     )(
-      'You may need to restart Alacritty for changes to take effect',
-    )}${EOL}${chalk.dim(`See ${formatPathLink(configPath)}`)}${EOL}`
+      '您可能需要重启 Alacritty 才能使更改生效',
+    )}${EOL}${chalk.dim(`参见 ${formatPathLink(configPath)}`)}${EOL}`
   } catch (error) {
     logError(error)
-    throw new Error('Failed to install Alacritty Shift+Enter key binding')
+    throw new Error('安装 Alacritty Shift+Enter 按键绑定失败')
   }
 }
 
@@ -633,8 +631,8 @@ async function installBindingsForZed(theme: ThemeName): Promise<string> {
           'warning',
           theme,
         )(
-          'Found existing Zed Shift+Enter key binding. Remove it to continue.',
-        )}${EOL}${chalk.dim(`See ${formatPathLink(keymapPath)}`)}${EOL}`
+          '发现现有 Zed Shift+Enter 按键绑定。请先移除它以继续。',
+        )}${EOL}${chalk.dim(`参见 ${formatPathLink(keymapPath)}`)}${EOL}`
       }
 
       // Create backup
@@ -647,8 +645,8 @@ async function installBindingsForZed(theme: ThemeName): Promise<string> {
           'warning',
           theme,
         )(
-          'Error backing up existing Zed keymap. Bailing out.',
-        )}${EOL}${chalk.dim(`See ${formatPathLink(keymapPath)}`)}${EOL}${chalk.dim(`Backup path: ${formatPathLink(backupPath)}`)}${EOL}`
+          '备份现有 Zed 键位映射时出错。放弃操作。',
+        )}${EOL}${chalk.dim(`参见 ${formatPathLink(keymapPath)}`)}${EOL}${chalk.dim(`备份路径：${formatPathLink(backupPath)}`)}${EOL}`
       }
     }
 
@@ -683,10 +681,10 @@ async function installBindingsForZed(theme: ThemeName): Promise<string> {
       'success',
       theme,
     )(
-      'Installed Zed Shift+Enter key binding',
-    )}${EOL}${chalk.dim(`See ${formatPathLink(keymapPath)}`)}${EOL}`
+      '已安装 Zed Shift+Enter 按键绑定',
+    )}${EOL}${chalk.dim(`参见 ${formatPathLink(keymapPath)}`)}${EOL}`
   } catch (error) {
     logError(error)
-    throw new Error('Failed to install Zed Shift+Enter key binding')
+    throw new Error('安装 Zed Shift+Enter 按键绑定失败')
   }
 }

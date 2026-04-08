@@ -75,7 +75,7 @@ type DialogLevel =
   | { type: 'teammateDetail'; teamName: string; memberName: string }
 
 /**
- * Dialog for viewing teammates in the current team
+ * 查看当前团队中的队友
  */
 export function TeamsDialog({ initialTeams, onDone }: Props): React.ReactNode {
   // Register as overlay so CancelRequestHandler doesn't intercept escape
@@ -394,7 +394,7 @@ function TeamDetailView({
         hideInputGuide
       >
         {teammates.length === 0 ? (
-          <Text dimColor>No teammates</Text>
+          <Text dimColor>暂无队友</Text>
         ) : (
           <Box flexDirection="column">
             {teammates.map((teammate, index) => (
@@ -409,11 +409,10 @@ function TeamDetailView({
       </Dialog>
       <Box marginLeft={1}>
         <Text dimColor>
-          {figures.arrowUp}/{figures.arrowDown} select · Enter view · k kill · s
-          shutdown · p prune idle
-          {supportsHideShow && ' · h hide/show · H hide/show all'}
+          {figures.arrowUp}/{figures.arrowDown} 选择 · 回车查看 · k 终止 · s 关闭 · p 清理空闲
+          {supportsHideShow && ' · h 显示/隐藏 · H 显示/隐藏全部'}
           {' · '}
-          {cycleModeShortcut} sync cycle modes for all · Esc close
+          {cycleModeShortcut} 同步轮换模式 · Esc 关闭
         </Text>
       </Box>
     </>
@@ -443,8 +442,8 @@ function TeammateListItem({
   return (
     <Text color={isSelected ? 'suggestion' : undefined} dimColor={shouldDim}>
       {isSelected ? figures.pointer + ' ' : '  '}
-      {teammate.isHidden && <Text dimColor>[hidden] </Text>}
-      {isIdle && <Text dimColor>[idle] </Text>}
+      {teammate.isHidden && <Text dimColor>[隐藏] </Text>}
+      {isIdle && <Text dimColor>[空闲] </Text>}
       {modeSymbol && <Text color={modeColor}>{modeSymbol} </Text>}@
       {teammate.name}
       {teammate.model && <Text dimColor> ({teammate.model})</Text>}
@@ -546,7 +545,7 @@ function TeammateDetailView({
         {/* Tasks section */}
         {teammateTasks.length > 0 && (
           <Box flexDirection="column">
-            <Text bold>Tasks</Text>
+            <Text bold>任务</Text>
             {teammateTasks.map(task => (
               <Text
                 key={task.id}
@@ -562,13 +561,13 @@ function TeammateDetailView({
         {/* Prompt section */}
         {teammate.prompt && (
           <Box flexDirection="column">
-            <Text bold>Prompt</Text>
+            <Text bold>提示词</Text>
             <Text>
               {promptExpanded
                 ? teammate.prompt
                 : truncateToWidth(teammate.prompt, 80)}
               {stringWidth(teammate.prompt) > 80 && !promptExpanded && (
-                <Text dimColor> (p to expand)</Text>
+                <Text dimColor> (p 展开)</Text>
               )}
             </Text>
           </Box>
@@ -576,10 +575,10 @@ function TeammateDetailView({
       </Dialog>
       <Box marginLeft={1}>
         <Text dimColor>
-          {figures.arrowLeft} back · Esc close · k kill · s shutdown
-          {getCachedBackend()?.supportsHideShow && ' · h hide/show'}
+          {figures.arrowLeft} 返回 · Esc 关闭 · k 终止 · s 关闭
+          {getCachedBackend()?.supportsHideShow && ' · h 显示/隐藏'}
           {' · '}
-          {cycleModeShortcut} cycle mode
+          {cycleModeShortcut} 轮换模式
         </Text>
       </Box>
     </>

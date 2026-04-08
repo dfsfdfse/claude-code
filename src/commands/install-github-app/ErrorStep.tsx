@@ -16,18 +16,18 @@ export function ErrorStep({
   return (
     <>
       <Box flexDirection="column" borderStyle="round" paddingX={1}>
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Install GitHub App</Text>
-        </Box>
-        <Text color="error">Error: {error}</Text>
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>安装 GitHub App</Text>
+      </Box>
+      <Text color="error">错误：{error}</Text>
         {errorReason && (
           <Box marginTop={1}>
-            <Text dimColor>Reason: {errorReason}</Text>
+            <Text dimColor>原因：{errorReason}</Text>
           </Box>
         )}
         {errorInstructions && errorInstructions.length > 0 && (
           <Box flexDirection="column" marginTop={1}>
-            <Text dimColor>How to fix:</Text>
+            <Text dimColor>修复方法：</Text>
             {errorInstructions.map((instruction, index) => (
               <Box key={index} marginLeft={2}>
                 <Text dimColor>• </Text>
@@ -38,13 +38,13 @@ export function ErrorStep({
         )}
         <Box marginTop={1}>
           <Text dimColor>
-            For manual setup instructions, see:{' '}
+            手动设置说明：{' '}
             <Text color="claude">{GITHUB_ACTION_SETUP_DOCS_URL}</Text>
           </Text>
         </Box>
       </Box>
       <Box marginLeft={3}>
-        <Text dimColor>Press any key to exit</Text>
+        <Text dimColor>按任意键退出</Text>
       </Box>
     </>
   )

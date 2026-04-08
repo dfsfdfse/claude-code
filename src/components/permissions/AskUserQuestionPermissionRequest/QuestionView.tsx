@@ -193,8 +193,8 @@ export function QuestionView({
   const otherOption: OptionWithDescription<string> = {
     type: 'input' as const,
     value: '__other__',
-    label: 'Other',
-    placeholder: question.multiSelect ? 'Type something' : 'Type something.',
+    label: '其他',
+    placeholder: question.multiSelect ? '请输入内容' : '请输入内容',
     initialValue: questionState?.textInputValue ?? '',
     onChange: (value: string) => {
       onUpdateQuestionState(
@@ -293,8 +293,8 @@ export function QuestionView({
                 onCancel={onCancel}
                 submitButtonText={
                   currentQuestionIndex === questions.length - 1
-                    ? 'Submit'
-                    : 'Next'
+                    ? '提交'
+                    : '下一步'
                 }
                 onSubmit={onSubmit}
                 onDownFromLastItem={handleDownFromLastItem}
@@ -353,7 +353,7 @@ export function QuestionView({
                     : undefined
                 }
               >
-                {options.length + 1}. Chat about this
+                {options.length + 1}. 讨论这个问题
               </Text>
             </Box>
             {isInPlanMode && (
@@ -370,25 +370,25 @@ export function QuestionView({
                       : undefined
                   }
                 >
-                  {options.length + 2}. Skip interview and plan immediately
+                  {options.length + 2}. 跳过问答直接计划
                 </Text>
               </Box>
             )}
           </Box>
           <Box marginTop={1}>
             <Text color="inactive" dimColor>
-              Enter to select ·{' '}
+              Enter 选择 ·{' '}
               {questions.length === 1 ? (
                 <>
-                  {figures.arrowUp}/{figures.arrowDown} to navigate
+                  {figures.arrowUp}/{figures.arrowDown} 导航
                 </>
               ) : (
-                'Tab/Arrow keys to navigate'
+                'Tab/方向键 导航'
               )}
               {isOtherFocused && editorName && (
-                <> · ctrl+g to edit in {editorName}</>
+                <> · ctrl+g 在 {editorName} 中编辑</>
               )}{' '}
-              · Esc to cancel
+              · Esc 取消
             </Text>
           </Box>
         </Box>

@@ -9,11 +9,9 @@ export function PluginTrustWarning(): React.ReactNode {
     <Box marginBottom={1}>
       <Text color="claude">{figures.warning} </Text>
       <Text dimColor italic>
-        Make sure you trust a plugin before installing, updating, or using it.
-        Anthropic does not control what MCP servers, files, or other software
-        are included in plugins and cannot verify that they will work as
-        intended or that they won&apos;t change. See each plugin&apos;s homepage
-        for more information.{customMessage ? ` ${customMessage}` : ''}
+        安装、更新或使用插件前请确认您信任该插件。Anthropic 无法控制插件中包含的 MCP
+        服务器、文件或其他软件，也无法验证它们是否能按预期工作或不会发生变化。请参阅各插件的主页了解更多信息。
+        {customMessage ? ` ${customMessage}` : ''}
       </Text>
     </Box>
   )

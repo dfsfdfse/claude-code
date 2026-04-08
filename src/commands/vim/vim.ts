@@ -29,10 +29,10 @@ export const call: LocalCommandCall = async () => {
 
   return {
     type: 'text',
-    value: `Editor mode set to ${newMode}. ${
+    value: `编辑器模式已设置为 ${newMode}. ${
       newMode === 'vim'
-        ? 'Use Escape key to toggle between INSERT and NORMAL modes.'
-        : 'Using standard (readline) keyboard bindings.'
+        ? '使用 ESC 键切换 INSERT 和 NORMAL 模式。'
+        : '使用标准 (readline) 键盘绑定。'
     }`,
   }
 }

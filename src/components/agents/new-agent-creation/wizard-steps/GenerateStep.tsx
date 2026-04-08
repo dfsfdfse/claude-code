@@ -29,7 +29,7 @@ export function GenerateStep(): ReactNode {
       abortControllerRef.current.abort()
       abortControllerRef.current = null
       setIsGenerating(false)
-      setError('Generation cancelled')
+      setError('生成已取消')
     }
   }, [])
 
@@ -76,7 +76,7 @@ export function GenerateStep(): ReactNode {
   const handleGenerate = async (): Promise<void> => {
     const trimmedPrompt = prompt.trim()
     if (!trimmedPrompt) {
-      setError('Please describe what the agent should do')
+      setError('请描述智能体应具备的功能')
       return
     }
 
@@ -118,7 +118,7 @@ export function GenerateStep(): ReactNode {
         err instanceof Error &&
         !err.message.includes('No assistant message found')
       ) {
-        setError(err.message || 'Failed to generate agent')
+        setError(err.message || '智能体生成失败')
       }
       updateWizardData({ isGenerating: false })
     } finally {
@@ -128,7 +128,7 @@ export function GenerateStep(): ReactNode {
   }
 
   const subtitle =
-    'Describe what this agent should do and when it should be used (be comprehensive for best results)'
+    '描述此智能体应具备的功能及使用场景（建议填写详细以获得最佳效果）'
 
   if (isGenerating) {
     return (
@@ -139,13 +139,13 @@ export function GenerateStep(): ReactNode {
             action="confirm:no"
             context="Settings"
             fallback="Esc"
-            description="cancel"
+            description="取消"
           />
         }
       >
         <Box flexDirection="row" alignItems="center">
           <Spinner />
-          <Text color="suggestion"> Generating agent from description...</Text>
+          <Text color="suggestion"> 正在根据描述生成智能体...</Text>
         </Box>
       </WizardDialogLayout>
     )
@@ -160,19 +160,19 @@ export function GenerateStep(): ReactNode {
             action="confirm:yes"
             context="Confirmation"
             fallback="Enter"
-            description="submit"
+            description="提交"
           />
           <ConfigurableShortcutHint
             action="chat:externalEditor"
             context="Chat"
             fallback="ctrl+g"
-            description="open in editor"
+            description="在编辑器中打开"
           />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Settings"
             fallback="Esc"
-            description="go back"
+            description="返回"
           />
         </Byline>
       }
@@ -187,7 +187,7 @@ export function GenerateStep(): ReactNode {
           value={prompt}
           onChange={setPrompt}
           onSubmit={handleGenerate}
-          placeholder="e.g., Help me write unit tests for my code..."
+          placeholder="例如：帮我编写代码的单元测试..."
           columns={80}
           cursorOffset={cursorOffset}
           onChangeCursorOffset={setCursorOffset}

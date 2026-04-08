@@ -103,9 +103,9 @@ function formatContextAsMarkdownTable(data: ContextData): string {
     systemPromptSections,
   } = data
 
-  let output = `## Context Usage\n\n`
-  output += `**Model:** ${model}  \n`
-  output += `**Tokens:** ${formatTokens(totalTokens)} / ${formatTokens(rawMaxTokens)} (${percentage}%)\n`
+  let output = `## 上下文使用情况\n\n`
+  output += `**模型:** ${model}  \n`
+  output += `**令牌:** ${formatTokens(totalTokens)} / ${formatTokens(rawMaxTokens)} (${percentage}%)\n`
 
   // Context-collapse status. Always show when the runtime gate is on —
   // the user needs to know which strategy is managing their context
@@ -122,26 +122,26 @@ function formatContextAsMarkdownTable(data: ContextData): string {
       const parts = []
       if (s.collapsedSpans > 0) {
         parts.push(
-          `${s.collapsedSpans} ${plural(s.collapsedSpans, 'span')} summarized (${s.collapsedMessages} messages)`,
+          `${s.collapsedSpans} ${plural(s.collapsedSpans, 'span')} 总结 (${s.collapsedMessages} 消息)`,
         )
       }
-      if (s.stagedSpans > 0) parts.push(`${s.stagedSpans} staged`)
+      if (s.stagedSpans > 0) parts.push(`${s.stagedSpans} 暂存`)
       const summary =
         parts.length > 0
           ? parts.join(', ')
           : h.totalSpawns > 0
-            ? `${h.totalSpawns} ${plural(h.totalSpawns, 'spawn')}, nothing staged yet`
-            : 'waiting for first trigger'
-      output += `**Context strategy:** collapse (${summary})\n`
+            ? `${h.totalSpawns} ${plural(h.totalSpawns, 'spawn')}, 没有暂存`
+            : '等待第一次触发'
+      output += `**上下文策略:** 折叠 (${summary})\n`
 
       if (h.totalErrors > 0) {
-        output += `**Collapse errors:** ${h.totalErrors}/${h.totalSpawns} spawns failed`
+        output += `**折叠错误:** ${h.totalErrors}/${h.totalSpawns} 启动失败`
         if (h.lastError) {
           output += ` (last: ${h.lastError.slice(0, 80)})`
         }
         output += '\n'
       } else if (h.emptySpawnWarningEmitted) {
-        output += `**Collapse idle:** ${h.totalEmptySpawns} consecutive empty runs\n`
+        output += `**折叠空闲:** ${h.totalEmptySpawns} 连续空运行\n`
       }
     }
   }
@@ -151,13 +151,13 @@ function formatContextAsMarkdownTable(data: ContextData): string {
   const visibleCategories = categories.filter(
     cat =>
       cat.tokens > 0 &&
-      cat.name !== 'Free space' &&
-      cat.name !== 'Autocompact buffer',
+      cat.name !== '空闲空间' &&
+      cat.name !== '自动压缩缓冲区',
   )
 
   if (visibleCategories.length > 0) {
-    output += `### Estimated usage by category\n\n`
-    output += `| Category | Tokens | Percentage |\n`
+    output += `### 估计使用按类别\n\n`
+    output += `| 类别 | 令牌 | 百分比 |\n`
     output += `|----------|--------|------------|\n`
 
     for (const cat of visibleCategories) {
@@ -165,24 +165,24 @@ function formatContextAsMarkdownTable(data: ContextData): string {
       output += `| ${cat.name} | ${formatTokens(cat.tokens)} | ${percentDisplay}% |\n`
     }
 
-    const freeSpaceCategory = categories.find(c => c.name === 'Free space')
+    const freeSpaceCategory = categories.find(c => c.name === '空闲空间')
     if (freeSpaceCategory && freeSpaceCategory.tokens > 0) {
       const percentDisplay = (
         (freeSpaceCategory.tokens / rawMaxTokens) *
         100
       ).toFixed(1)
-      output += `| Free space | ${formatTokens(freeSpaceCategory.tokens)} | ${percentDisplay}% |\n`
+      output += `| 空闲空间 | ${formatTokens(freeSpaceCategory.tokens)} | ${percentDisplay}% |\n`
     }
 
     const autocompactCategory = categories.find(
-      c => c.name === 'Autocompact buffer',
+      c => c.name === '自动压缩缓冲区',
     )
     if (autocompactCategory && autocompactCategory.tokens > 0) {
       const percentDisplay = (
         (autocompactCategory.tokens / rawMaxTokens) *
         100
       ).toFixed(1)
-      output += `| Autocompact buffer | ${formatTokens(autocompactCategory.tokens)} | ${percentDisplay}% |\n`
+      output += `| 自动压缩缓冲区 | ${formatTokens(autocompactCategory.tokens)} | ${percentDisplay}% |\n`
     }
 
     output += `\n`
@@ -190,8 +190,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
 
   // MCP tools
   if (mcpTools.length > 0) {
-    output += `### MCP Tools\n\n`
-    output += `| Tool | Server | Tokens |\n`
+    output += `### MCP 工具\n\n`
+    output += `| 工具 | 服务器 | 令牌 |\n`
     output += `|------|--------|--------|\n`
     for (const tool of mcpTools) {
       output += `| ${tool.name} | ${tool.serverName} | ${formatTokens(tool.tokens)} |\n`
@@ -205,8 +205,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
     systemTools.length > 0 &&
     process.env.USER_TYPE === 'ant'
   ) {
-    output += `### [ANT-ONLY] System Tools\n\n`
-    output += `| Tool | Tokens |\n`
+    output += `### [仅内部功能] 系统工具\n\n`
+    output += `| 工具 | 令牌 |\n`
     output += `|------|--------|\n`
     for (const tool of systemTools) {
       output += `| ${tool.name} | ${formatTokens(tool.tokens)} |\n`
@@ -220,8 +220,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
     systemPromptSections.length > 0 &&
     process.env.USER_TYPE === 'ant'
   ) {
-    output += `### [ANT-ONLY] System Prompt Sections\n\n`
-    output += `| Section | Tokens |\n`
+    output += `### [仅内部功能] 系统提示词部分\n\n`
+    output += `| 部分 | 令牌 |\n`
     output += `|---------|--------|\n`
     for (const section of systemPromptSections) {
       output += `| ${section.name} | ${formatTokens(section.tokens)} |\n`
@@ -231,32 +231,32 @@ function formatContextAsMarkdownTable(data: ContextData): string {
 
   // Custom agents
   if (agents.length > 0) {
-    output += `### Custom Agents\n\n`
-    output += `| Agent Type | Source | Tokens |\n`
+    output += `### 自定义代理\n\n`
+    output += `| 代理类型 | 来源 | 令牌 |\n`
     output += `|------------|--------|--------|\n`
     for (const agent of agents) {
       let sourceDisplay: string
       switch (agent.source) {
         case 'projectSettings':
-          sourceDisplay = 'Project'
+          sourceDisplay = '项目'
           break
         case 'userSettings':
-          sourceDisplay = 'User'
+          sourceDisplay = '用户'
           break
         case 'localSettings':
-          sourceDisplay = 'Local'
+          sourceDisplay = '本地'
           break
         case 'flagSettings':
-          sourceDisplay = 'Flag'
+          sourceDisplay = '标志'
           break
         case 'policySettings':
-          sourceDisplay = 'Policy'
+          sourceDisplay = '政策'
           break
         case 'plugin':
-          sourceDisplay = 'Plugin'
+          sourceDisplay = '插件'
           break
         case 'built-in':
-          sourceDisplay = 'Built-in'
+          sourceDisplay = '内置'
           break
         default:
           sourceDisplay = String(agent.source)
@@ -268,8 +268,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
 
   // Memory files
   if (memoryFiles.length > 0) {
-    output += `### Memory Files\n\n`
-    output += `| Type | Path | Tokens |\n`
+    output += `### 记忆文件\n\n`
+    output += `| 类型 | 路径 | 令牌 |\n`
     output += `|------|------|--------|\n`
     for (const file of memoryFiles) {
       output += `| ${file.type} | ${file.path} | ${formatTokens(file.tokens)} |\n`
@@ -279,8 +279,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
 
   // Skills
   if (skills && skills.tokens > 0 && skills.skillFrontmatter.length > 0) {
-    output += `### Skills\n\n`
-    output += `| Skill | Source | Tokens |\n`
+    output += `### 技能\n\n`
+    output += `| 技能 | 来源 | 令牌 |\n`
     output += `|-------|--------|--------|\n`
     for (const skill of skills.skillFrontmatter) {
       output += `| ${skill.name} | ${getSourceDisplayName(skill.source)} | ${formatTokens(skill.tokens)} |\n`
@@ -290,19 +290,19 @@ function formatContextAsMarkdownTable(data: ContextData): string {
 
   // Message breakdown (ant-only)
   if (messageBreakdown && process.env.USER_TYPE === 'ant') {
-    output += `### [ANT-ONLY] Message Breakdown\n\n`
-    output += `| Category | Tokens |\n`
+    output += `### [仅内部功能] 消息分析\n\n`
+    output += `| 类别 | 令牌 |\n`
     output += `|----------|--------|\n`
-    output += `| Tool calls | ${formatTokens(messageBreakdown.toolCallTokens)} |\n`
-    output += `| Tool results | ${formatTokens(messageBreakdown.toolResultTokens)} |\n`
-    output += `| Attachments | ${formatTokens(messageBreakdown.attachmentTokens)} |\n`
-    output += `| Assistant messages (non-tool) | ${formatTokens(messageBreakdown.assistantMessageTokens)} |\n`
-    output += `| User messages (non-tool-result) | ${formatTokens(messageBreakdown.userMessageTokens)} |\n`
+    output += `| 工具调用 | ${formatTokens(messageBreakdown.toolCallTokens)} |\n`
+    output += `| 工具结果 | ${formatTokens(messageBreakdown.toolResultTokens)} |\n`
+    output += `| 附件 | ${formatTokens(messageBreakdown.attachmentTokens)} |\n`
+    output += `| 助手消息 (非工具) | ${formatTokens(messageBreakdown.assistantMessageTokens)} |\n`
+    output += `| 用户消息 (非工具结果) | ${formatTokens(messageBreakdown.userMessageTokens)} |\n`
     output += `\n`
 
     if (messageBreakdown.toolCallsByType.length > 0) {
-      output += `#### Top Tools\n\n`
-      output += `| Tool | Call Tokens | Result Tokens |\n`
+      output += `#### 顶级工具\n\n`
+      output += `| 工具 | 调用令牌 | 结果令牌 |\n`
       output += `|------|-------------|---------------|\n`
       for (const tool of messageBreakdown.toolCallsByType) {
         output += `| ${tool.name} | ${formatTokens(tool.callTokens)} | ${formatTokens(tool.resultTokens)} |\n`
@@ -311,8 +311,8 @@ function formatContextAsMarkdownTable(data: ContextData): string {
     }
 
     if (messageBreakdown.attachmentsByType.length > 0) {
-      output += `#### Top Attachments\n\n`
-      output += `| Attachment | Tokens |\n`
+      output += `#### 顶级附件\n\n`
+      output += `| 附件 | 令牌 |\n`
       output += `|------------|--------|\n`
       for (const attachment of messageBreakdown.attachmentsByType) {
         output += `| ${attachment.name} | ${formatTokens(attachment.tokens)} |\n`

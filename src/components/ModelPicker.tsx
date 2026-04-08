@@ -107,7 +107,7 @@ export function ModelPicker({
         {
           value: initial,
           label: modelDisplayString(initial),
-          description: 'Current model',
+          description: '当前模型',
         },
       ]
     }
@@ -223,16 +223,15 @@ export function ModelPicker({
       <Box flexDirection="column">
         <Box marginBottom={1} flexDirection="column">
           <Text color="remember" bold>
-            Select model
+            选择模型
           </Text>
           <Text dimColor>
             {headerText ??
-              'Switch between Claude models. Applies to this session and future Claude Code sessions. For other/previous model names, specify with --model.'}
+              '在 Claude 模型之间切换。适用于当前会话和未来的 Claude Code 会话。对于其他/旧的模型名称，可通过 --model 指定。'}
           </Text>
           {sessionModel && (
             <Text dimColor>
-              Currently using {modelDisplayString(sessionModel)} for this
-              session (set by plan mode). Selecting a model will undo this.
+              当前会话使用 {modelDisplayString(sessionModel)}（由计划模式设置）。选择模型将撤销此设置。
             </Text>
           )}
         </Box>
@@ -251,7 +250,7 @@ export function ModelPicker({
           </Box>
           {hiddenCount > 0 && (
             <Box paddingLeft={3}>
-              <Text dimColor>and {hiddenCount} more…</Text>
+              <Text dimColor>还有 {hiddenCount} 个…</Text>
             </Box>
           )}
         </Box>
@@ -260,14 +259,14 @@ export function ModelPicker({
           {focusedSupportsEffort ? (
             <Text dimColor>
               <EffortLevelIndicator effort={displayEffort} />{' '}
-              {capitalize(displayEffort)} effort
-              {displayEffort === focusedDefaultEffort ? ` (default)` : ``}{' '}
-              <Text color="subtle">← → to adjust</Text>
+              {capitalize(displayEffort)} 投入度
+              {displayEffort === focusedDefaultEffort ? `（默认）` : ``}{' '}
+              <Text color="subtle">← → 调整</Text>
             </Text>
           ) : (
             <Text color="subtle">
-              <EffortLevelIndicator effort={undefined} /> Effort not supported
-              {focusedModelName ? ` for ${focusedModelName}` : ''}
+              <EffortLevelIndicator effort={undefined} /> 不支持投入度设置
+              {focusedModelName ? `，型号 ${focusedModelName}` : ''}
             </Text>
           )}
         </Box>
@@ -276,16 +275,13 @@ export function ModelPicker({
           showFastModeNotice ? (
             <Box marginBottom={1}>
               <Text dimColor>
-                Fast mode is <Text bold>ON</Text> and available with{' '}
-                {FAST_MODE_MODEL_DISPLAY} only (/fast). Switching to other
-                models turn off fast mode.
+                快速模式<Text bold>已开启</Text>，且仅适用于 {FAST_MODE_MODEL_DISPLAY}（/fast）。切换到其他模型将关闭快速模式。
               </Text>
             </Box>
           ) : isFastModeAvailable() && !isFastModeCooldown() ? (
             <Box marginBottom={1}>
               <Text dimColor>
-                Use <Text bold>/fast</Text> to turn on Fast mode (
-                {FAST_MODE_MODEL_DISPLAY} only).
+                使用 <Text bold>/fast</Text> 开启快速模式（仅限 {FAST_MODE_MODEL_DISPLAY}）。
               </Text>
             </Box>
           ) : null
@@ -295,15 +291,15 @@ export function ModelPicker({
       {isStandaloneCommand && (
         <Text dimColor italic>
           {exitState.pending ? (
-            <>Press {exitState.keyName} again to exit</>
+            <>再按一次 {exitState.keyName} 退出</>
           ) : (
             <Byline>
-              <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+              <KeyboardShortcutHint shortcut="Enter" action="确认" />
               <ConfigurableShortcutHint
                 action="select:cancel"
                 context="Select"
                 fallback="Esc"
-                description="exit"
+                description="退出"
               />
             </Byline>
           )}

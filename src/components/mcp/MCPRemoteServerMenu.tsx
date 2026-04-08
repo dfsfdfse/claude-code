@@ -138,14 +138,14 @@ export function MCPRemoteServerMenu({
       const success = result.client.type === 'connected'
       logEvent('tengu_claudeai_mcp_auth_completed', { success })
       if (success) {
-        onComplete?.(`Authentication successful. Connected to ${server.name}.`)
+        onComplete?.(`认证成功。已连接到 ${server.name}。`)
       } else if (result.client.type === 'needs-auth') {
         onComplete?.(
-          'Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.',
+          '认证成功，但服务器仍需要认证。您可能需要手动重启 Claude Code。',
         )
       } else {
         onComplete?.(
-          'Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.',
+          '认证成功，但服务器重连失败。您可能需要手动重启 Claude Code 以使更改生效。',
         )
       }
     } catch (err) {
@@ -189,7 +189,7 @@ export function MCPRemoteServerMenu({
     })
 
     logEvent('tengu_claudeai_mcp_clear_auth_completed', {})
-    onComplete?.(`Disconnected from ${server.name}.`)
+    onComplete?.(`已断开与 ${server.name} 的连接。`)
     setIsClaudeAIClearingAuth(false)
     setClaudeAIClearAuthUrl(null)
     setClaudeAIClearAuthBrowserOpened(false)
@@ -333,9 +333,9 @@ export function MCPRemoteServerMenu({
       // Return to the server list so user can continue managing other servers
       onCancel()
     } catch (err) {
-      const action = wasEnabled ? 'disable' : 'enable'
+      const action = wasEnabled ? '禁用' : '启用'
       onComplete?.(
-        `Failed to ${action} MCP server '${server.name}': ${errorMessage(err)}`,
+        `${action} MCP 服务器 '${server.name}' 失败：${errorMessage(err)}`,
       )
     }
   }, [
@@ -386,18 +386,18 @@ export function MCPRemoteServerMenu({
 
         if (result.client.type === 'connected') {
           const message = isEffectivelyAuthenticated
-            ? `Authentication successful. Reconnected to ${server.name}.`
-            : `Authentication successful. Connected to ${server.name}.`
+            ? `认证成功。已重新连接到 ${server.name}。`
+            : `认证成功。已连接到 ${server.name}。`
           onComplete?.(message)
         } else if (result.client.type === 'needs-auth') {
           onComplete?.(
-            'Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.',
+            '认证成功，但服务器仍需要认证。您可能需要手动重启 Claude Code。',
           )
         } else {
           // result.client.type === 'failed'
           logMCPDebug(server.name, `Reconnection failed after authentication`)
           onComplete?.(
-            'Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.',
+            '认证成功，但服务器重连失败。您可能需要手动重启 Claude Code 以使更改生效。',
           )
         }
       }
@@ -466,7 +466,7 @@ export function MCPRemoteServerMenu({
         }
       })
 
-      onComplete?.(`Authentication cleared for ${server.name}.`)
+      onComplete?.(`已清除 ${server.name} 的认证。`)
     }
   }
 
@@ -476,11 +476,11 @@ export function MCPRemoteServerMenu({
     // the URL fallback block below still renders.
     const authCopy =
       server.config.type !== 'claudeai-proxy' && server.config.oauth?.xaa
-        ? ' Authenticating via your identity provider'
-        : ' A browser window will open for authentication'
+        ? '正在通过您的身份提供者进行认证'
+        : '将打开浏览器窗口进行认证'
     return (
       <Box flexDirection="column" gap={1} padding={1}>
-        <Text color="claude">Authenticating with {server.name}…</Text>
+        <Text color="claude">正在与 {server.name} 进行认证…</Text>
         <Box>
           <Spinner />
           <Text>{authCopy}</Text>
@@ -489,14 +489,13 @@ export function MCPRemoteServerMenu({
           <Box flexDirection="column">
             <Box>
               <Text dimColor>
-                If your browser doesn&apos;t open automatically, copy this URL
-                manually{' '}
+                如果浏览器没有自动打开，请手动复制此 URL
               </Text>
               {urlCopied ? (
-                <Text color="success">(Copied!)</Text>
+                <Text color="success">(已复制！)</Text>
               ) : (
                 <Text dimColor>
-                  <KeyboardShortcutHint shortcut="c" action="copy" parens />
+                  <KeyboardShortcutHint shortcut="c" action="复制" parens />
                 </Text>
               )}
             </Box>
@@ -506,8 +505,7 @@ export function MCPRemoteServerMenu({
         {isAuthenticating && authorizationUrl && manualCallbackSubmit && (
           <Box flexDirection="column" marginTop={1}>
             <Text dimColor>
-              If the redirect page shows a connection error, paste the URL from
-              your browser&apos;s address bar:
+              如果重定向页面显示连接错误，请粘贴浏览器地址栏中的 URL：
             </Text>
             <Box>
               <Text dimColor>URL {'>'} </Text>
@@ -527,8 +525,7 @@ export function MCPRemoteServerMenu({
         )}
         <Box marginLeft={3}>
           <Text dimColor>
-            Return here after authenticating in your browser. Press Esc to go
-            back.
+            请在浏览器中完成认证后返回此处。按 Esc 返回。
           </Text>
         </Box>
       </Box>
@@ -538,23 +535,22 @@ export function MCPRemoteServerMenu({
   if (isClaudeAIAuthenticating) {
     return (
       <Box flexDirection="column" gap={1} padding={1}>
-        <Text color="claude">Authenticating with {server.name}…</Text>
+        <Text color="claude">正在与 {server.name} 进行认证…</Text>
         <Box>
           <Spinner />
-          <Text> A browser window will open for authentication</Text>
+          <Text> 将打开浏览器窗口进行认证</Text>
         </Box>
         {claudeAIAuthUrl && (
           <Box flexDirection="column">
             <Box>
               <Text dimColor>
-                If your browser doesn&apos;t open automatically, copy this URL
-                manually{' '}
+                如果浏览器没有自动打开，请手动复制此 URL
               </Text>
               {urlCopied ? (
-                <Text color="success">(Copied!)</Text>
+                <Text color="success">(已复制！)</Text>
               ) : (
                 <Text dimColor>
-                  <KeyboardShortcutHint shortcut="c" action="copy" parens />
+                  <KeyboardShortcutHint shortcut="c" action="复制" parens />
                 </Text>
               )}
             </Box>
@@ -563,14 +559,14 @@ export function MCPRemoteServerMenu({
         )}
         <Box marginLeft={3} flexDirection="column">
           <Text color="permission">
-            Press <Text bold>Enter</Text> after authenticating in your browser.
+            在浏览器中完成认证后按 <Text bold>Enter</Text>。
           </Text>
           <Text dimColor italic>
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="back"
+              description="返回"
             />
           </Text>
         </Box>
@@ -581,25 +577,23 @@ export function MCPRemoteServerMenu({
   if (isClaudeAIClearingAuth) {
     return (
       <Box flexDirection="column" gap={1} padding={1}>
-        <Text color="claude">Clear authentication for {server.name}</Text>
+        <Text color="claude">清除 {server.name} 的认证</Text>
         {claudeAIClearAuthBrowserOpened ? (
           <>
             <Text>
-              Find the MCP server in the browser and click
-              &quot;Disconnect&quot;.
+              在浏览器中找到 MCP 服务器并点击"断开连接"。
             </Text>
             {claudeAIClearAuthUrl && (
               <Box flexDirection="column">
                 <Box>
                   <Text dimColor>
-                    If your browser didn&apos;t open automatically, copy this
-                    URL manually{' '}
+                    如果浏览器没有自动打开，请手动复制此 URL
                   </Text>
                   {urlCopied ? (
-                    <Text color="success">(Copied!)</Text>
+                    <Text color="success">(已复制！)</Text>
                   ) : (
                     <Text dimColor>
-                      <KeyboardShortcutHint shortcut="c" action="copy" parens />
+                      <KeyboardShortcutHint shortcut="c" action="复制" parens />
                     </Text>
                   )}
                 </Box>
@@ -608,14 +602,14 @@ export function MCPRemoteServerMenu({
             )}
             <Box marginLeft={3} flexDirection="column">
               <Text color="permission">
-                Press <Text bold>Enter</Text> when done.
+                完成后按 <Text bold>Enter</Text>。
               </Text>
               <Text dimColor italic>
                 <ConfigurableShortcutHint
                   action="confirm:no"
                   context="Confirmation"
                   fallback="Esc"
-                  description="back"
+                  description="返回"
                 />
               </Text>
             </Box>
@@ -623,19 +617,18 @@ export function MCPRemoteServerMenu({
         ) : (
           <>
             <Text>
-              This will open claude.ai in the browser. Find the MCP server in
-              the list and click &quot;Disconnect&quot;.
+              这将在浏览器中打开 claude.ai。在列表中找到 MCP 服务器并点击"断开连接"。
             </Text>
             <Box marginLeft={3} flexDirection="column">
               <Text color="permission">
-                Press <Text bold>Enter</Text> to open the browser.
+                按 <Text bold>Enter</Text> 打开浏览器。
               </Text>
               <Text dimColor italic>
                 <ConfigurableShortcutHint
                   action="confirm:no"
                   context="Confirmation"
                   fallback="Esc"
-                  description="back"
+                  description="返回"
                 />
               </Text>
             </Box>
@@ -649,13 +642,13 @@ export function MCPRemoteServerMenu({
     return (
       <Box flexDirection="column" gap={1} padding={1}>
         <Text color="text">
-          Connecting to <Text bold>{server.name}</Text>…
+          正在连接到 <Text bold>{server.name}</Text>…
         </Text>
         <Box>
           <Spinner />
-          <Text> Establishing connection to MCP server</Text>
+          <Text> 正在建立与 MCP 服务器的连接</Text>
         </Box>
-        <Text dimColor>This may take a few moments.</Text>
+        <Text dimColor>这可能需要一些时间。</Text>
       </Box>
     )
   }
@@ -665,14 +658,14 @@ export function MCPRemoteServerMenu({
   // If server is disabled, show Enable first as the primary action
   if (server.client.type === 'disabled') {
     menuOptions.push({
-      label: 'Enable',
+      label: '启用',
       value: 'toggle-enabled',
     })
   }
 
   if (server.client.type === 'connected' && serverToolsCount > 0) {
     menuOptions.push({
-      label: 'View tools',
+      label: '查看工具',
       value: 'tools',
     })
   }
@@ -680,30 +673,30 @@ export function MCPRemoteServerMenu({
   if (server.config.type === 'claudeai-proxy') {
     if (server.client.type === 'connected') {
       menuOptions.push({
-        label: 'Clear authentication',
+        label: '清除认证',
         value: 'claudeai-clear-auth',
       })
     } else if (server.client.type !== 'disabled') {
       menuOptions.push({
-        label: 'Authenticate',
+        label: '认证',
         value: 'claudeai-auth',
       })
     }
   } else {
     if (isEffectivelyAuthenticated) {
       menuOptions.push({
-        label: 'Re-authenticate',
+        label: '重新认证',
         value: 'reauth',
       })
       menuOptions.push({
-        label: 'Clear authentication',
+        label: '清除认证',
         value: 'clear-auth',
       })
     }
 
     if (!isEffectivelyAuthenticated) {
       menuOptions.push({
-        label: 'Authenticate',
+        label: '认证',
         value: 'auth',
       })
     }
@@ -712,12 +705,12 @@ export function MCPRemoteServerMenu({
   if (server.client.type !== 'disabled') {
     if (server.client.type !== 'needs-auth') {
       menuOptions.push({
-        label: 'Reconnect',
+        label: '重新连接',
         value: 'reconnectMcpServer',
       })
     }
     menuOptions.push({
-      label: 'Disable',
+      label: '禁用',
       value: 'toggle-enabled',
     })
   }
@@ -725,7 +718,7 @@ export function MCPRemoteServerMenu({
   // If there are no other options, add a back option so Select handles escape
   if (menuOptions.length === 0) {
     menuOptions.push({
-      label: 'Back',
+      label: '返回',
       value: 'back',
     })
   }
@@ -738,53 +731,52 @@ export function MCPRemoteServerMenu({
         borderStyle={borderless ? undefined : 'round'}
       >
         <Box marginBottom={1}>
-          <Text bold>{capitalizedServerName} MCP Server</Text>
+          <Text bold>{capitalizedServerName} MCP 服务器</Text>
         </Box>
 
         <Box flexDirection="column" gap={0}>
           <Box>
-            <Text bold>Status: </Text>
+            <Text bold>状态：</Text>
             {server.client.type === 'disabled' ? (
-              <Text>{color('inactive', theme)(figures.radioOff)} disabled</Text>
+              <Text>{color('inactive', theme)(figures.radioOff)} 已禁用</Text>
             ) : server.client.type === 'connected' ? (
-              <Text>{color('success', theme)(figures.tick)} connected</Text>
+              <Text>{color('success', theme)(figures.tick)} 已连接</Text>
             ) : server.client.type === 'pending' ? (
               <>
                 <Text dimColor>{figures.radioOff}</Text>
-                <Text> connecting…</Text>
+                <Text> 连接中…</Text>
               </>
             ) : server.client.type === 'needs-auth' ? (
               <Text>
-                {color('warning', theme)(figures.triangleUpOutline)} needs
-                authentication
+                {color('warning', theme)(figures.triangleUpOutline)} 需要认证
               </Text>
             ) : (
-              <Text>{color('error', theme)(figures.cross)} failed</Text>
+              <Text>{color('error', theme)(figures.cross)} 失败</Text>
             )}
           </Box>
 
           {server.transport !== 'claudeai-proxy' && (
             <Box>
-              <Text bold>Auth: </Text>
+              <Text bold>认证：</Text>
               {isEffectivelyAuthenticated ? (
                 <Text>
-                  {color('success', theme)(figures.tick)} authenticated
+                  {color('success', theme)(figures.tick)} 已认证
                 </Text>
               ) : (
                 <Text>
-                  {color('error', theme)(figures.cross)} not authenticated
+                  {color('error', theme)(figures.cross)} 未认证
                 </Text>
               )}
             </Box>
           )}
 
           <Box>
-            <Text bold>URL: </Text>
+            <Text bold>URL：</Text>
             <Text dimColor>{server.config.url}</Text>
           </Box>
 
           <Box>
-            <Text bold>Config location: </Text>
+            <Text bold>配置位置：</Text>
             <Text dimColor>{describeMcpConfigFilePath(server.scope)}</Text>
           </Box>
 
@@ -798,15 +790,15 @@ export function MCPRemoteServerMenu({
 
           {server.client.type === 'connected' && serverToolsCount > 0 && (
             <Box>
-              <Text bold>Tools: </Text>
-              <Text dimColor>{serverToolsCount} tools</Text>
+              <Text bold>工具：</Text>
+              <Text dimColor>共 {serverToolsCount} 个工具</Text>
             </Box>
           )}
         </Box>
 
         {error && (
           <Box marginTop={1}>
-            <Text color="error">Error: {error}</Text>
+            <Text color="error">错误：{error}</Text>
           </Box>
         )}
 
@@ -874,16 +866,16 @@ export function MCPRemoteServerMenu({
       <Box marginTop={1}>
         <Text dimColor italic>
           {exitState.pending ? (
-            <>Press {exitState.keyName} again to exit</>
+            <>再次按 {exitState.keyName} 退出</>
           ) : (
             <Byline>
-              <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-              <KeyboardShortcutHint shortcut="Enter" action="select" />
+              <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+              <KeyboardShortcutHint shortcut="Enter" action="选择" />
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="back"
+                description="返回"
               />
             </Byline>
           )}

@@ -145,14 +145,14 @@ export function PromptInputFooterLeftSide({
   if (exitMessage.show) {
     return (
       <Text dimColor key="exit-message">
-        Press {exitMessage.key} again to exit
+        再次按 {exitMessage.key} 退出
       </Text>
     )
   }
   if (isPasting) {
     return (
       <Text dimColor key="pasting-message">
-        Pasting text…
+        正在粘贴文本…
       </Text>
     )
   }
@@ -170,7 +170,7 @@ export function PromptInputFooterLeftSide({
       )}
       {showVim ? (
         <Text dimColor key="vim-insert">
-          -- INSERT --
+          -- 插入模式 --
         </Text>
       ) : null}
       <ModeIndicator
@@ -326,7 +326,7 @@ function ModeIndicator({
     count(Object.values(teamContext.teammates), t => t.name !== 'team-lead') > 0
 
   if (mode === 'bash') {
-    return <Text color="bashBorder">! for bash mode</Text>
+    return <Text color="bashBorder">! 进入 bash 模式</Text>
   }
 
   const currentMode = toolPermissionContext?.mode
@@ -383,7 +383,7 @@ function ModeIndicator({
             {' '}
             <KeyboardShortcutHint
               shortcut={modeCycleShortcut}
-              action="cycle"
+              action="切换"
               parens
             />
           </Text>
@@ -398,7 +398,7 @@ function ModeIndicator({
     ...(remoteSessionUrl
       ? [
           <Link url={remoteSessionUrl} key="remote">
-            <Text color="ide">{figures.circleDouble} remote</Text>
+            <Text color="ide">{figures.circleDouble} 远程</Text>
           </Link>,
         ]
       : []),
@@ -458,7 +458,7 @@ function ModeIndicator({
       <Text dimColor key="esc-return">
         <KeyboardShortcutHint
           shortcut={escShortcut}
-          action="return to team lead"
+          action="返回团队领导"
         />
       </Text>,
     )
@@ -521,7 +521,7 @@ function ModeIndicator({
   if (parts.length === 0 && !tasksPart && !modePart && showHint) {
     parts.push(
       <Text dimColor key="shortcuts-hint">
-        ? for shortcuts
+        ? 显示快捷键
       </Text>,
     )
   }
@@ -554,15 +554,15 @@ function ModeIndicator({
       <Text dimColor key="selection-copy">
         <Byline>
           {!copyOnSelect && (
-            <KeyboardShortcutHint shortcut="ctrl+c" action="copy" />
+            <KeyboardShortcutHint shortcut="ctrl+c" action="复制" />
           )}
           {isXtermJs() &&
             (altClickFailed ? (
-              <Text>set macOptionClickForcesSelection in VS Code settings</Text>
+              <Text>在 VS Code 设置中设置 "Option 作为 Meta" 以启用原生选择</Text>
             ) : (
               <KeyboardShortcutHint
                 shortcut={isMac ? 'option+click' : 'shift+click'}
-                action="native select"
+                action="原生选择"
               />
             ))}
         </Byline>
@@ -579,7 +579,7 @@ function ModeIndicator({
   ) {
     parts.push(
       <Text dimColor key="voice-hint">
-        hold {voiceKeyShortcut} to speak
+        按住 {voiceKeyShortcut} 说话
       </Text>,
     )
   }
@@ -588,9 +588,9 @@ function ModeIndicator({
     parts.push(
       <Text dimColor key="manage-tasks">
         {tasksSelected ? (
-          <KeyboardShortcutHint shortcut="Enter" action="view tasks" />
+          <KeyboardShortcutHint shortcut="Enter" action="查看任务" />
         ) : (
-          <KeyboardShortcutHint shortcut="↓" action="manage" />
+          <KeyboardShortcutHint shortcut="↓" action="管理" />
         )}
       </Text>,
     )
@@ -649,17 +649,17 @@ function getSpinnerHintParts(
     // Cycling: none → tasks → teammates → none
     switch (expandedView) {
       case 'none':
-        toggleAction = 'show tasks'
+        toggleAction = '显示任务'
         break
       case 'tasks':
-        toggleAction = 'show teammates'
+        toggleAction = '显示队友'
         break
       case 'teammates':
-        toggleAction = 'hide'
+        toggleAction = '隐藏'
         break
     }
   } else {
-    toggleAction = expandedView === 'tasks' ? 'hide tasks' : 'show tasks'
+    toggleAction = expandedView === 'tasks' ? '隐藏任务' : '显示任务'
   }
 
   // Show the toggle hint only when there are task items to display or
@@ -670,7 +670,7 @@ function getSpinnerHintParts(
     ...(isLoading
       ? [
           <Text dimColor key="esc">
-            <KeyboardShortcutHint shortcut={escShortcut} action="interrupt" />
+            <KeyboardShortcutHint shortcut={escShortcut} action="中断" />
           </Text>,
         ]
       : []),
@@ -679,7 +679,7 @@ function getSpinnerHintParts(
           <Text dimColor key="kill-agents">
             <KeyboardShortcutHint
               shortcut={killAgentsShortcut}
-              action="stop agents"
+              action="停止代理"
             />
           </Text>,
         ]

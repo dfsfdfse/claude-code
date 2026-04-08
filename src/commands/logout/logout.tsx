@@ -78,7 +78,7 @@ export async function call(): Promise<React.ReactNode> {
   await performLogout({ clearOnboarding: true })
 
   const message = (
-    <Text>Successfully logged out from your Anthropic account.</Text>
+    <Text>已成功退出您的 Anthropic 账户。</Text>
   )
 
   setTimeout(() => {

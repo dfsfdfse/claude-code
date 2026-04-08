@@ -29,7 +29,7 @@ function SessionInfo({ onDone }: Props): React.ReactNode {
     }
     // Intentionally silent fail - URL is still shown so QR is non-critical
     generateQRCode().catch(e => {
-      logForDebugging('QR code generation failed', e)
+      logForDebugging('二维码生成失败', e)
     })
   }, [remoteSessionUrl])
 
@@ -41,9 +41,9 @@ function SessionInfo({ onDone }: Props): React.ReactNode {
     return (
       <Pane>
         <Text color="warning">
-          Not in remote mode. Start with `claude --remote` to use this command.
+          不在远程模式。使用 `claude --remote` 启动以使用此命令。
         </Text>
-        <Text dimColor>(press esc to close)</Text>
+        <Text dimColor>(按 ESC 关闭)</Text>
       </Pane>
     )
   }
@@ -54,24 +54,24 @@ function SessionInfo({ onDone }: Props): React.ReactNode {
   return (
     <Pane>
       <Box marginBottom={1}>
-        <Text bold>Remote session</Text>
+        <Text bold>远程会话</Text>
       </Box>
 
       {/* QR Code - silently fails if generation errors, URL is still shown */}
       {isLoading ? (
-        <Text dimColor>Generating QR code…</Text>
+        <Text dimColor>生成二维码…</Text>
       ) : (
         lines.map((line, i) => <Text key={i}>{line}</Text>)
       )}
 
       {/* URL */}
       <Box marginTop={1}>
-        <Text dimColor>Open in browser: </Text>
+        <Text dimColor>在浏览器中打开: </Text>
         <Text color="ide">{remoteSessionUrl}</Text>
       </Box>
 
       <Box marginTop={1}>
-        <Text dimColor>(press esc to close)</Text>
+        <Text dimColor>(按 ESC 关闭)</Text>
       </Box>
     </Pane>
   )

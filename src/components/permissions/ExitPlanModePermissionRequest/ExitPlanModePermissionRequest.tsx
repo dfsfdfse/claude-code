@@ -715,7 +715,7 @@ export function ExitPlanModePermissionRequest({
         borderBottom={false}
         paddingX={1}
       >
-        <Text dimColor>Would you like to proceed?</Text>
+        <Text dimColor>是否继续？</Text>
         <Box marginTop={1}>
           <Select
             options={options}
@@ -728,7 +728,7 @@ export function ExitPlanModePermissionRequest({
         </Box>
         {editorName && (
           <Box flexDirection="row" gap={1} marginTop={1}>
-            <Text dimColor>ctrl-g to edit in </Text>
+            <Text dimColor>ctrl-g 在 {editorName} 中编辑 </Text>
             <Text bold dimColor>
               {editorName}
             </Text>
@@ -738,7 +738,7 @@ export function ExitPlanModePermissionRequest({
             {showSaveMessage && (
               <>
                 <Text dimColor>{' · '}</Text>
-                <Text color="success">{figures.tick}Plan saved!</Text>
+                <Text color="success">{figures.tick}计划已保存！</Text>
               </>
             )}
           </Box>
@@ -808,16 +808,16 @@ export function ExitPlanModePermissionRequest({
     return (
       <PermissionDialog
         color="planMode"
-        title="Exit plan mode?"
+        title="退出计划模式？"
         workerBadge={workerBadge}
       >
         <Box flexDirection="column" paddingX={1} marginTop={1}>
-          <Text>Claude wants to exit plan mode</Text>
+          <Text>Claude 想退出计划模式</Text>
           <Box marginTop={1}>
             <Select
               options={[
-                { label: 'Yes', value: 'yes' as const },
-                { label: 'No', value: 'no' as const },
+                { label: '是', value: 'yes' as const },
+                { label: '否', value: 'no' as const },
               ]}
               onChange={handleEmptyPlanResponse}
               onCancel={() => {
@@ -848,13 +848,13 @@ export function ExitPlanModePermissionRequest({
     >
       <PermissionDialog
         color="planMode"
-        title="Ready to code?"
+        title="准备编码？"
         innerPaddingX={0}
         workerBadge={workerBadge}
       >
         <Box flexDirection="column" marginTop={1}>
           <Box paddingX={1} flexDirection="column">
-            <Text>Here is Claude&apos;s plan:</Text>
+            <Text>以下是 Claude 的计划：</Text>
           </Box>
           <Box
             borderColor="subtle"
@@ -874,11 +874,11 @@ export function ExitPlanModePermissionRequest({
               permissionResult={toolUseConfirm.permissionResult}
               toolType="tool"
             />
-            {isClassifierPermissionsEnabled() &&
+              {isClassifierPermissionsEnabled() &&
               allowedPrompts &&
               allowedPrompts.length > 0 && (
                 <Box flexDirection="column" marginBottom={1}>
-                  <Text bold>Requested permissions:</Text>
+                  <Text bold>请求的权限：</Text>
                   {allowedPrompts.map((p, i) => (
                     <Text key={i} dimColor>
                       {'  '}· {p.tool}({PROMPT_PREFIX} {p.prompt})
@@ -889,8 +889,7 @@ export function ExitPlanModePermissionRequest({
             {!useStickyFooter && (
               <>
                 <Text dimColor>
-                  Claude has written up a plan and is ready to execute. Would
-                  you like to proceed?
+                  Claude 已制定计划并准备执行。是否继续？
                 </Text>
                 <Box marginTop={1}>
                   <Select
@@ -910,7 +909,7 @@ export function ExitPlanModePermissionRequest({
       {!useStickyFooter && editorName && (
         <Box flexDirection="row" gap={1} paddingX={1} marginTop={1}>
           <Box>
-            <Text dimColor>ctrl-g to edit in </Text>
+            <Text dimColor>ctrl-g 在 {editorName} 中编辑 </Text>
             <Text bold dimColor>
               {editorName}
             </Text>
@@ -921,7 +920,7 @@ export function ExitPlanModePermissionRequest({
           {showSaveMessage && (
             <Box>
               <Text dimColor>{' · '}</Text>
-              <Text color="success">{figures.tick}Plan saved!</Text>
+              <Text color="success">{figures.tick}计划已保存！</Text>
             </Box>
           )}
         </Box>
@@ -952,17 +951,17 @@ export function buildPlanApprovalOptions({
   if (showClearContext) {
     if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
       options.push({
-        label: `Yes, clear context${usedLabel} and use auto mode`,
+        label: `是，清空上下文${usedLabel}并使用自动模式`,
         value: 'yes-auto-clear-context',
       })
     } else if (isBypassPermissionsModeAvailable) {
       options.push({
-        label: `Yes, clear context${usedLabel} and bypass permissions`,
+        label: `是，清空上下文${usedLabel}并跳过权限`,
         value: 'yes-bypass-permissions',
       })
     } else {
       options.push({
-        label: `Yes, clear context${usedLabel} and auto-accept edits`,
+        label: `是，清空上下文${usedLabel}并自动接受编辑`,
         value: 'yes-accept-edits',
       })
     }
@@ -971,39 +970,39 @@ export function buildPlanApprovalOptions({
   // Slot 2: keep-context with elevated mode (same priority: auto > bypass > edits).
   if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
     options.push({
-      label: 'Yes, and use auto mode',
+      label: '是，使用自动模式',
       value: 'yes-resume-auto-mode',
     })
   } else if (isBypassPermissionsModeAvailable) {
     options.push({
-      label: 'Yes, and bypass permissions',
+      label: '是，跳过权限',
       value: 'yes-accept-edits-keep-context',
     })
   } else {
     options.push({
-      label: 'Yes, auto-accept edits',
+      label: '是，自动接受编辑',
       value: 'yes-accept-edits-keep-context',
     })
   }
 
   options.push({
-    label: 'Yes, manually approve edits',
+    label: '是，手动批准编辑',
     value: 'yes-default-keep-context',
   })
 
   if (showUltraplan) {
     options.push({
-      label: 'No, refine with Ultraplan on Claude Code on the web',
+      label: '否，使用网页版 Ultraplan 优化',
       value: 'ultraplan',
     })
   }
 
   options.push({
     type: 'input',
-    label: 'No, keep planning',
+    label: '否，继续计划',
     value: 'no',
-    placeholder: 'Tell Claude what to change',
-    description: 'shift+tab to approve with this feedback',
+    placeholder: '告诉 Claude 需要修改什么',
+    description: 'shift+tab 使用此反馈批准',
     onChange: onFeedbackChange,
   })
 

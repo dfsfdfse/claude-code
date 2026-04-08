@@ -31,7 +31,7 @@ export function LanguagePicker({
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Text>Enter your preferred response and voice language:</Text>
+      <Text>输入您偏好的回复和语音语言：</Text>
       <Box flexDirection="row" gap={1}>
         <Text>{figures.pointer}</Text>
         <TextInput
@@ -40,13 +40,13 @@ export function LanguagePicker({
           onSubmit={handleSubmit}
           focus={true}
           showCursor={true}
-          placeholder={`e.g., Japanese, 日本語, Español${figures.ellipsis}`}
+          placeholder={`例如：日语、简体中文、西班牙语${figures.ellipsis}`}
           columns={60}
           cursorOffset={cursorOffset}
           onChangeCursorOffset={setCursorOffset}
         />
       </Box>
-      <Text dimColor>Leave empty for default (English)</Text>
+      <Text dimColor>留空使用默认语言（英文）</Text>
     </Box>
   )
 }

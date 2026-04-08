@@ -38,29 +38,29 @@ const SPECIES_NAMES: Record<string, string> = {
 }
 
 const SPECIES_PERSONALITY: Record<string, string> = {
-  duck: 'Quirky and easily amused. Leaves rubber duck debugging tips everywhere.',
-  goose: 'Assertive and honks at bad code. Takes no prisoners in code reviews.',
-  blob: 'Adaptable and goes with the flow. Sometimes splits into two when confused.',
-  cat: 'Independent and judgmental. Watches you type with mild disdain.',
+  duck: '古怪而易于取悦。在每个地方留下橡胶鸭调试提示。',
+  goose: '果断且在代码审查中不接受失败。',
+  blob: '适应性强，随波逐流。有时在困惑时分裂成两个。',
+  cat: '独立和有判断力。看着你打字时带着轻蔑。',
   dragon:
-    'Fiery and passionate about architecture. Hoards good variable names.',
+    '热情的建筑师。收藏好的变量名。',
   octopus:
-    'Multitasker extraordinaire. Wraps tentacles around every problem at once.',
-  owl: 'Wise but verbose. Always says "let me think about that" for exactly 3 seconds.',
-  penguin: 'Cool under pressure. Slides gracefully through merge conflicts.',
-  turtle: 'Patient and thorough. Believes slow and steady wins the deploy.',
-  snail: 'Methodical and leaves a trail of useful comments. Never rushes.',
+    '多任务专家。同时用触手解决所有问题。',
+  owl: '明智但冗长。总是说“让我想想”正好3秒。',
+  penguin: '在压力下保持冷静。优雅地通过合并冲突。',
+  turtle: '耐心和彻底。相信慢而稳赢得部署。',
+  snail: '有条理且留下有用的评论。从不匆忙。',
   ghost:
-    'Ethereal and appears at the worst possible moments with spooky insights.',
-  axolotl: 'Regenerative and cheerful. Recovers from any bug with a smile.',
-  capybara: 'Zen master. Remains calm while everything around is on fire.',
+    '神秘且在最糟糕的时刻出现，带来可怕的洞察。',
+  axolotl: '再生和快乐。从任何错误中恢复，带着微笑。',
+  capybara: '禅宗大师。在一切都着火时保持冷静。',
   cactus:
-    'Prickly on the outside but full of good intentions. Thrives on neglect.',
-  robot: 'Efficient and literal. Processes feedback in binary.',
-  rabbit: 'Energetic and hops between tasks. Finishes before you start.',
-  mushroom: 'Quietly insightful. Grows on you over time.',
+    '外面有刺，但充满好意。在忽视中茁壮成长。',
+  robot: '高效和字面意思。处理反馈在二进制中。',
+  rabbit: '精力充沛且在任务之间跳跃。在你开始之前完成。',
+  mushroom: '默默地有见地。随着时间的推移成长。',
   chonk:
-    'Big, warm, and takes up the whole couch. Prioritizes comfort over elegance.',
+    '大，温暖，占据整个沙发。优先考虑舒适而不是优雅。',
 }
 
 function speciesLabel(species: string): string {
@@ -78,14 +78,14 @@ export async function call(
   // ── /buddy off — mute companion ──
   if (sub === 'off') {
     saveGlobalConfig(cfg => ({ ...cfg, companionMuted: true }))
-    onDone('companion muted', { display: 'system' })
+    onDone('宠物静音', { display: 'system' })
     return null
   }
 
   // ── /buddy on — unmute companion ──
   if (sub === 'on') {
     saveGlobalConfig(cfg => ({ ...cfg, companionMuted: false }))
-    onDone('companion unmuted', { display: 'system' })
+    onDone('宠物取消静音', { display: 'system' })
     return null
   }
 
@@ -93,7 +93,7 @@ export async function call(
   if (sub === 'pet') {
     const companion = getCompanion()
     if (!companion) {
-      onDone('no companion yet \u00b7 run /buddy first', { display: 'system' })
+      onDone('没有宠物 \u00b7 先运行 /buddy 孵化', { display: 'system' })
       return null
     }
 
@@ -110,7 +110,7 @@ export async function call(
       ),
     )
 
-    onDone(`petted ${companion.name}`, { display: 'system' })
+    onDone(`抚摸了 ${companion.name}`, { display: 'system' })
     return null
   }
 
@@ -153,7 +153,7 @@ export async function call(
   const shiny = r.bones.shiny ? ' \u2728 Shiny!' : ''
 
   const lines = [
-    'A wild companion appeared!',
+    '一只野生宠物出现了！',
     '',
     ...sprite,
     '',
@@ -161,8 +161,8 @@ export async function call(
     `Rarity: ${stars} (${r.bones.rarity})`,
     `"${personality}"`,
     '',
-    'Your companion will now appear beside your input box!',
-    'Say its name to get its take \u00b7 /buddy pet \u00b7 /buddy off',
+    '你的宠物现在会出现在你的输入框旁边！',
+    '说出它的名字来让它说话，或者抚摸它 \u00b7 /buddy pet \u00b7 /buddy off',
   ]
   onDone(lines.join('\n'), { display: 'system' })
   return null

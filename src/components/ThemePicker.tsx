@@ -82,24 +82,24 @@ export function ThemePicker({
 
   const themeOptions: { label: string; value: ThemeSetting }[] = [
     ...(feature('AUTO_THEME')
-      ? [{ label: 'Auto (match terminal)', value: 'auto' as const }]
+      ? [{ label: '自动（跟随终端）', value: 'auto' as const }]
       : []),
-    { label: 'Dark mode', value: 'dark' },
-    { label: 'Light mode', value: 'light' },
+    { label: '深色模式', value: 'dark' },
+    { label: '浅色模式', value: 'light' },
     {
-      label: 'Dark mode (colorblind-friendly)',
+      label: '深色模式（色盲友好）',
       value: 'dark-daltonized',
     },
     {
-      label: 'Light mode (colorblind-friendly)',
+      label: '浅色模式（色盲友好）',
       value: 'light-daltonized',
     },
     {
-      label: 'Dark mode (ANSI colors only)',
+      label: '深色模式（仅 ANSI 颜色）',
       value: 'dark-ansi',
     },
     {
-      label: 'Light mode (ANSI colors only)',
+      label: '浅色模式（仅 ANSI 颜色）',
       value: 'light-ansi',
     },
   ]
@@ -108,15 +108,15 @@ export function ThemePicker({
     <Box flexDirection="column" gap={1}>
       <Box flexDirection="column" gap={1}>
         {showIntroText ? (
-          <Text>Let&apos;s get started.</Text>
+          <Text>让我们开始吧。</Text>
         ) : (
           <Text bold color="permission">
-            Theme
+            主题
           </Text>
         )}
         <Box flexDirection="column">
           <Text bold>
-            Choose the text style that looks best with your terminal
+            选择与您的终端搭配最佳的文本样式
           </Text>
           {helpText && !showHelpTextBelow && <Text dimColor>{helpText}</Text>}
         </Box>
@@ -177,12 +177,12 @@ export function ThemePicker({
         <Text dimColor>
           {' '}
           {colorModuleUnavailableReason === 'env'
-            ? `Syntax highlighting disabled (via CLAUDE_CODE_SYNTAX_HIGHLIGHT=${process.env.CLAUDE_CODE_SYNTAX_HIGHLIGHT})`
+            ? `语法高亮已禁用（通过 CLAUDE_CODE_SYNTAX_HIGHLIGHT=${process.env.CLAUDE_CODE_SYNTAX_HIGHLIGHT}）`
             : syntaxHighlightingDisabled
-              ? `Syntax highlighting disabled (${syntaxToggleShortcut} to enable)`
+              ? `语法高亮已禁用（${syntaxToggleShortcut} 启用）`
               : syntaxTheme
-                ? `Syntax theme: ${syntaxTheme.theme}${syntaxTheme.source ? ` (from ${syntaxTheme.source})` : ''} (${syntaxToggleShortcut} to disable)`
-                : `Syntax highlighting enabled (${syntaxToggleShortcut} to disable)`}
+                ? `语法主题：${syntaxTheme.theme}${syntaxTheme.source ? `（来自 ${syntaxTheme.source}）` : ''}（${syntaxToggleShortcut} 禁用）`
+                : `语法高亮已启用（${syntaxToggleShortcut} 禁用）`}
         </Text>
       </Box>
     </Box>
@@ -203,11 +203,11 @@ export function ThemePicker({
             <Box>
               <Text dimColor italic>
                 {exitState.pending ? (
-                  <>Press {exitState.keyName} again to exit</>
+                  <>再按一次 {exitState.keyName} 退出</>
                 ) : (
                   <Byline>
-                    <KeyboardShortcutHint shortcut="Enter" action="select" />
-                    <KeyboardShortcutHint shortcut="Esc" action="cancel" />
+                    <KeyboardShortcutHint shortcut="Enter" action="选择" />
+                    <KeyboardShortcutHint shortcut="Esc" action="取消" />
                   </Byline>
                 )}
               </Text>

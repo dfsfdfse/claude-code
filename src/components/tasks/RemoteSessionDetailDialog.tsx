@@ -48,7 +48,7 @@ type Props = {
 export function formatToolUseSummary(name: string, input: unknown): string {
   // plan_ready phase is only reached via ExitPlanMode tool
   if (name === EXIT_PLAN_MODE_V2_TOOL_NAME) {
-    return 'Review the plan in Claude Code on the web'
+    return '在 Claude Code 网页版中查看计划'
   }
   if (!input || typeof input !== 'object') return name
   // AskUserQuestion: show the question text as a CTA, not the tool name.
@@ -56,9 +56,6 @@ export function formatToolUseSummary(name: string, input: unknown): string {
   if (name === ASK_USER_QUESTION_TOOL_NAME && 'questions' in input) {
     const qs = input.questions
     if (Array.isArray(qs) && qs[0] && typeof qs[0] === 'object') {
-      // Prefer question (full text) over header (max-12-char tag). header
-      // is a required schema field so checking it first would make the
-      // question fallback dead code.
       const q =
         'question' in qs[0] &&
         typeof qs[0].question === 'string' &&
@@ -69,7 +66,7 @@ export function formatToolUseSummary(name: string, input: unknown): string {
             : null
       if (q) {
         const oneLine = q.replace(/\s+/g, ' ').trim()
-        return `Answer in browser: ${truncateToWidth(oneLine, 50)}`
+        return `在浏览器中回答: ${truncateToWidth(oneLine, 50)}`
       }
     }
   }
@@ -83,13 +80,13 @@ export function formatToolUseSummary(name: string, input: unknown): string {
 }
 
 const PHASE_LABEL = {
-  needs_input: 'input required',
-  plan_ready: 'ready',
+  needs_input: '需要输入',
+  plan_ready: '就绪',
 } as const
 
 const AGENT_VERB = {
-  needs_input: 'waiting',
-  plan_ready: 'done',
+  needs_input: '等待中',
+  plan_ready: '完成',
 } as const
 
 function UltraplanSessionDetail({
@@ -152,18 +149,18 @@ function UltraplanSessionDetail({
   if (confirmingStop) {
     return (
       <Dialog
-        title="Stop ultraplan?"
+        title="停止 ultraplan？"
         onCancel={() => setConfirmingStop(false)}
         color="background"
       >
         <Box flexDirection="column" gap={1}>
           <Text dimColor>
-            This will terminate the Claude Code on the web session.
+            这将终止 Claude Code 网页会话。
           </Text>
           <Select
             options={[
-              { label: 'Terminate session', value: 'stop' as const },
-              { label: 'Back', value: 'back' as const },
+              { label: '终止会话', value: 'stop' as const },
+              { label: '返回', value: 'back' as const },
             ]}
             onChange={v => {
               if (v === 'stop') {
@@ -203,9 +200,9 @@ function UltraplanSessionDetail({
           {phase === 'plan_ready' && (
             <Text color="success">{figures.tick} </Text>
           )}
-          {agentsWorking} {plural(agentsWorking, 'agent')}{' '}
-          {phase ? AGENT_VERB[phase] : 'working'} · {toolCalls} tool{' '}
-          {plural(toolCalls, 'call')}
+          {agentsWorking} 个 {plural(agentsWorking, '智能体')}{' '}
+          {phase ? AGENT_VERB[phase] : '工作中'} · {toolCalls} 个工具{' '}
+          {plural(toolCalls, '调用')}
         </Text>
         {lastToolCall && <Text dimColor>{lastToolCall}</Text>}
         <Link url={sessionUrl}>
@@ -214,21 +211,18 @@ function UltraplanSessionDetail({
         <Select
           options={[
             {
-              label: 'Review in Claude Code on the web',
+              label: '在 Claude Code 网页版中查看',
               value: 'open' as const,
             },
             ...(onKill && running
-              ? [{ label: 'Stop ultraplan', value: 'stop' as const }]
+              ? [{ label: '停止 ultraplan', value: 'stop' as const }]
               : []),
-            { label: 'Back', value: 'back' as const },
+            { label: '返回', value: 'back' as const },
           ]}
           onChange={v => {
             switch (v) {
               case 'open':
                 void openBrowser(sessionUrl)
-                // Close the dialog so the user lands back at the prompt with
-                // any half-written input intact (inputValue persists across
-                // the showBashesDialog toggle).
                 onDone()
                 return
               case 'stop':
@@ -247,9 +241,9 @@ function UltraplanSessionDetail({
 
 const STAGES = ['finding', 'verifying', 'synthesizing'] as const
 const STAGE_LABELS: Record<(typeof STAGES)[number], string> = {
-  finding: 'Find',
-  verifying: 'Verify',
-  synthesizing: 'Dedupe',
+  finding: '查找',
+  verifying: '验证',
+  synthesizing: '去重',
 }
 
 // Setup → Find → Verify → Dedupe pipeline. Current stage in cloud teal,
@@ -271,9 +265,9 @@ function StagePipeline({
   return (
     <Text>
       {inSetup ? (
-        <Text color="background">Setup</Text>
+        <Text color="background">设置中</Text>
       ) : (
-        <Text dimColor>Setup</Text>
+        <Text dimColor>设置中</Text>
       )}
       <Text dimColor> → </Text>
       {STAGES.map((s, i) => {
@@ -303,12 +297,12 @@ function reviewCountsLine(
   const p = session.reviewProgress
   // No progress data — the orchestrator never wrote a snapshot. Don't
   // claim "0 findings" when completed; we just don't know.
-  if (!p) return session.status === 'completed' ? 'done' : 'setting up'
+  if (!p) return session.status === 'completed' ? '完成' : '设置中'
   const verified = p.bugsVerified
   const refuted = p.bugsRefuted ?? 0
   if (session.status === 'completed') {
-    const parts = [`${verified} ${plural(verified, 'finding')}`]
-    if (refuted > 0) parts.push(`${refuted} refuted`)
+    const parts = [`${verified} 个${plural(verified, '发现')}`]
+    if (refuted > 0) parts.push(`${refuted} 已反驳`)
     return parts.join(' · ')
   }
   return formatReviewStageCounts(p.stage, p.bugsFound, verified, refuted)
@@ -343,24 +337,23 @@ function ReviewSessionDetail({
   const goBackOrClose = onBack ?? handleClose
 
   const sessionUrl = getRemoteTaskSessionUrl(session.sessionId)
-  const statusLabel = completed ? 'ready' : running ? 'running' : session.status
+  const statusLabel = completed ? '就绪' : running ? '运行中' : session.status
 
   if (confirmingStop) {
     return (
       <Dialog
-        title="Stop ultrareview?"
+        title="停止 ultrareview？"
         onCancel={() => setConfirmingStop(false)}
         color="background"
       >
         <Box flexDirection="column" gap={1}>
           <Text dimColor>
-            This archives the remote session and stops local tracking. The
-            review will not complete and any findings so far are discarded.
+            这将归档远程会话并停止本地跟踪。审查将不会完成，所有发现的结果将被丢弃。
           </Text>
           <Select
             options={[
-              { label: 'Stop ultrareview', value: 'stop' as const },
-              { label: 'Back', value: 'back' as const },
+              { label: '停止 ultrareview', value: 'stop' as const },
+              { label: '返回', value: 'back' as const },
             ]}
             onChange={v => {
               if (v === 'stop') {
@@ -378,15 +371,15 @@ function ReviewSessionDetail({
 
   const options: { label: string; value: MenuAction }[] = completed
     ? [
-        { label: 'Open in Claude Code on the web', value: 'open' },
-        { label: 'Dismiss', value: 'dismiss' },
+        { label: '在 Claude Code 网页版中打开', value: 'open' },
+        { label: '关闭', value: 'dismiss' },
       ]
     : [
-        { label: 'Open in Claude Code on the web', value: 'open' },
+        { label: '在 Claude Code 网页版中打开', value: 'open' },
         ...(onKill && running
-          ? [{ label: 'Stop ultrareview', value: 'stop' as const }]
+          ? [{ label: '停止 ultrareview', value: 'stop' as const }]
           : []),
-        { label: 'Back', value: 'back' },
+        { label: '返回', value: 'back' },
       ]
 
   const handleSelect = (action: MenuAction) => {
@@ -427,11 +420,11 @@ function ReviewSessionDetail({
       color="background"
       inputGuide={exitState =>
         exitState.pending ? (
-          <Text>Press {exitState.keyName} again to exit</Text>
+          <Text>再次按 {exitState.keyName} 退出</Text>
         ) : (
           <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="select" />
-            <KeyboardShortcutHint shortcut="Esc" action="go back" />
+            <KeyboardShortcutHint shortcut="Enter" action="选择" />
+            <KeyboardShortcutHint shortcut="Esc" action="返回" />
           </Byline>
         )
       }
@@ -542,7 +535,7 @@ export function RemoteSessionDetailDialog({
 
   // Map TaskStatus to display status (handle 'pending')
   const displayStatus =
-    session.status === 'pending' ? 'starting' : session.status
+    session.status === 'pending' ? '启动中' : session.status
 
   return (
     <Box
@@ -552,18 +545,18 @@ export function RemoteSessionDetailDialog({
       onKeyDown={handleKeyDown}
     >
       <Dialog
-        title="Remote session details"
+        title="远程会话详情"
         onCancel={handleClose}
         color="background"
         inputGuide={exitState =>
           exitState.pending ? (
-            <Text>Press {exitState.keyName} again to exit</Text>
+            <Text>再次按 {exitState.keyName} 退出</Text>
           ) : (
             <Byline>
-              {onBack && <KeyboardShortcutHint shortcut="←" action="go back" />}
-              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="close" />
+              {onBack && <KeyboardShortcutHint shortcut="←" action="返回" />}
+              <KeyboardShortcutHint shortcut="Esc/Enter/Space" action="关闭" />
               {!isTeleporting && (
-                <KeyboardShortcutHint shortcut="t" action="teleport" />
+                <KeyboardShortcutHint shortcut="t" action="跳转" />
               )}
             </Byline>
           )
@@ -571,8 +564,8 @@ export function RemoteSessionDetailDialog({
       >
         <Box flexDirection="column">
           <Text>
-            <Text bold>Status</Text>:{' '}
-            {displayStatus === 'running' || displayStatus === 'starting' ? (
+            <Text bold>状态</Text>:{' '}
+            {displayStatus === 'running' || displayStatus === '启动中' ? (
               <Text color="background">{displayStatus}</Text>
             ) : displayStatus === 'completed' ? (
               <Text color="success">{displayStatus}</Text>
@@ -581,20 +574,20 @@ export function RemoteSessionDetailDialog({
             )}
           </Text>
           <Text>
-            <Text bold>Runtime</Text>:{' '}
+            <Text bold>运行时长</Text>:{' '}
             {formatDuration(
               (session.endTime ?? Date.now()) - session.startTime,
             )}
           </Text>
           <Text wrap="truncate-end">
-            <Text bold>Title</Text>: {displayTitle}
+            <Text bold>标题</Text>: {displayTitle}
           </Text>
           <Text>
-            <Text bold>Progress</Text>:{' '}
+            <Text bold>进度</Text>:{' '}
             <RemoteSessionProgress session={session} />
           </Text>
           <Text>
-            <Text bold>Session URL</Text>:{' '}
+            <Text bold>会话链接</Text>:{' '}
             <Link url={getRemoteTaskSessionUrl(session.sessionId)}>
               <Text dimColor>{getRemoteTaskSessionUrl(session.sessionId)}</Text>
             </Link>
@@ -605,7 +598,7 @@ export function RemoteSessionDetailDialog({
         {session.log.length > 0 && (
           <Box flexDirection="column" marginTop={1}>
             <Text>
-              <Text bold>Recent messages</Text>:
+              <Text bold>最近消息</Text>:
             </Text>
             <Box flexDirection="column" height={10} overflowY="hidden">
               {lastMessages.map((msg, i) => (
@@ -629,8 +622,8 @@ export function RemoteSessionDetailDialog({
             </Box>
             <Box marginTop={1}>
               <Text dimColor italic>
-                Showing last {lastMessages.length} of {session.log.length}{' '}
-                messages
+                显示最后 {lastMessages.length} 条，共 {session.log.length}{' '}
+                条消息
               </Text>
             </Box>
           </Box>
@@ -639,13 +632,13 @@ export function RemoteSessionDetailDialog({
         {/* Teleport error message */}
         {teleportError && (
           <Box marginTop={1}>
-            <Text color="error">Teleport failed: {teleportError}</Text>
+            <Text color="error">跳转失败: {teleportError}</Text>
           </Box>
         )}
 
         {/* Teleporting status */}
         {isTeleporting && (
-          <Text color="background">Teleporting to session…</Text>
+          <Text color="background">正在跳转至会话…</Text>
         )}
       </Dialog>
     </Box>

@@ -77,8 +77,8 @@ export function MCPServerMultiselectDialog({
   return (
     <>
       <Dialog
-        title={`${serverNames.length} new MCP servers found in .mcp.json`}
-        subtitle="Select any you wish to enable."
+        title={`在 .mcp.json 中发现 ${serverNames.length} 个新的 MCP 服务器`}
+        subtitle="选择您希望启用的服务器。"
         color="warning"
         onCancel={handleEscRejectAll}
         hideInputGuide
@@ -99,13 +99,13 @@ export function MCPServerMultiselectDialog({
       <Box paddingX={1}>
         <Text dimColor italic>
           <Byline>
-            <KeyboardShortcutHint shortcut="Space" action="select" />
-            <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+            <KeyboardShortcutHint shortcut="空格" action="选择" />
+            <KeyboardShortcutHint shortcut="回车" action="确认" />
             <ConfigurableShortcutHint
               action="confirm:no"
               context="Confirmation"
               fallback="Esc"
-              description="reject all"
+              description="拒绝全部"
             />
           </Byline>
         </Text>

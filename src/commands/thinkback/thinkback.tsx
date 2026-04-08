@@ -91,15 +91,15 @@ export async function playAnimation(skillDir: string): Promise<{
     await readFile(dataPath)
   } catch (e: unknown) {
     if (isENOENT(e)) {
-      return {
-        success: false,
-        message: 'No animation found. Run /think-back first to generate one.',
-      }
+  return {
+    success: false,
+    message: '未找到动画。请先运行 /think-back 生成。',
+  }
     }
     logError(e)
     return {
       success: false,
-      message: `Could not access animation data: ${toError(e).message}`,
+      message: `无法访问动画数据: ${toError(e).message}`,
     }
   }
 
@@ -107,23 +107,23 @@ export async function playAnimation(skillDir: string): Promise<{
     await readFile(playerPath)
   } catch (e: unknown) {
     if (isENOENT(e)) {
-      return {
-        success: false,
-        message:
-          'Player script not found. The player.js file is missing from the thinkback skill.',
-      }
+  return {
+    success: false,
+    message:
+      '播放器脚本未找到。thinkback skill 中缺少 player.js 文件。',
+  }
     }
     logError(e)
     return {
       success: false,
-      message: `Could not access player script: ${toError(e).message}`,
+      message: `无法访问播放器脚本: ${toError(e).message}`,
     }
   }
 
   // Get ink instance for terminal takeover
   const inkInstance = instances.get(process.stdout)
   if (!inkInstance) {
-    return { success: false, message: 'Failed to access terminal instance' }
+    return { success: false, message: '无法访问终端实例' }
   }
 
   inkInstance.enterAlternateScreen()
@@ -152,7 +152,7 @@ export async function playAnimation(skillDir: string): Promise<{
     void execFileNoThrow(openCmd, [htmlPath])
   }
 
-  return { success: true, message: 'Year in review animation complete!' }
+  return { success: true, message: '年度回顾动画完成！' }
 }
 
 type InstallState =
@@ -270,7 +270,7 @@ function ThinkbackInstaller({
   if (state.phase === 'error') {
     return (
       <Box flexDirection="column">
-        <Text color="error">Error: {state.message}</Text>
+        <Text color="error">错误: {state.message}</Text>
       </Box>
     )
   }
@@ -281,12 +281,12 @@ function ThinkbackInstaller({
 
   const statusMessage =
     state.phase === 'checking'
-      ? 'Checking thinkback installation…'
+      ? '正在检查 thinkback 安装…'
       : state.phase === 'installing-marketplace'
-        ? 'Installing marketplace…'
+        ? '正在安装应用市场…'
         : state.phase === 'enabling-plugin'
-          ? 'Enabling thinkback plugin…'
-          : 'Installing thinkback plugin…'
+          ? '正在启用 thinkback 插件…'
+          : '正在安装 thinkback 插件…'
 
   return (
     <Box flexDirection="column">
@@ -320,31 +320,31 @@ function ThinkbackMenu({
   const options = hasGenerated
     ? [
         {
-          label: 'Play animation',
+          label: '播放动画',
           value: 'play' as const,
-          description: 'Watch your year in review',
+          description: '观看您的年度回顾',
         },
         {
-          label: 'Edit content',
+          label: '编辑内容',
           value: 'edit' as const,
-          description: 'Modify the animation',
+          description: '修改动画',
         },
         {
-          label: 'Fix errors',
+          label: '修复错误',
           value: 'fix' as const,
-          description: 'Fix validation or rendering issues',
+          description: '修复验证或渲染问题',
         },
         {
-          label: 'Regenerate',
+          label: '重新生成',
           value: 'regenerate' as const,
-          description: 'Create a new animation from scratch',
+          description: '从头开始创建新动画',
         },
       ]
     : [
         {
-          label: "Let's go!",
+          label: '开始！',
           value: 'regenerate' as const,
-          description: 'Generate your personalized animation',
+          description: '生成您的个性化动画',
         },
       ]
 
@@ -370,8 +370,8 @@ function ThinkbackMenu({
 
   return (
     <Dialog
-      title="Think Back on 2025 with Claude Code"
-      subtitle="Generate your 2025 Claude Code Think Back (takes a few minutes to run)"
+      title="与 Claude Code 一起回顾 2025"
+      subtitle="生成您的 2025 Claude Code 年度回顾（需要几分钟运行）"
       onCancel={handleCancel}
       color="claude"
     >
@@ -379,10 +379,10 @@ function ThinkbackMenu({
         {/* Description for first-time users */}
         {!hasGenerated && (
           <Box flexDirection="column">
-            <Text>Relive your year of coding with Claude.</Text>
+            <Text>与 Claude 一起重温您的编程之年。</Text>
             <Text dimColor>
               {
-                "We'll create a personalized ASCII animation celebrating your journey."
+                "我们将创建一个个性化的 ASCII 动画来庆祝您的历程。"
               }
             </Text>
           </Box>
@@ -481,7 +481,7 @@ function ThinkbackFlow({
       <Box flexDirection="column">
         <Text color="error">Error: {installError}</Text>
         <Text dimColor>
-          Try running /plugin to manually install the think-back plugin.
+          提示: 运行 /plugin 手动安装 think-back 插件。
         </Text>
       </Box>
     )
@@ -495,7 +495,7 @@ function ThinkbackFlow({
     return (
       <Box>
         <Spinner />
-        <Text>Loading thinkback skill…</Text>
+        <Text>正在加载 thinkback skill…</Text>
       </Box>
     )
   }

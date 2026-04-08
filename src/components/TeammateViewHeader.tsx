@@ -23,13 +23,13 @@ export function TeammateViewHeader(): React.ReactNode {
     <OffscreenFreeze>
       <Box flexDirection="column" marginBottom={1}>
         <Box>
-          <Text>Viewing </Text>
+          <Text>正在查看 </Text>
           <Text color={nameColor} bold>
             @{viewedTeammate.identity.agentName}
           </Text>
           <Text dimColor>
             {' · '}
-            <KeyboardShortcutHint shortcut="esc" action="return" />
+            <KeyboardShortcutHint shortcut="esc" action="返回" />
           </Text>
         </Box>
         <Text dimColor>{viewedTeammate.prompt}</Text>

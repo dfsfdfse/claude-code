@@ -36,7 +36,7 @@ export function TeleportStash({
         logForDebugging(`Error getting changed files: ${errorMessage}`, {
           level: 'error',
         })
-        setError('Failed to get changed files')
+        setError('无法获取更改的文件')
       } finally {
         setLoading(false)
       }
@@ -55,7 +55,7 @@ export function TeleportStash({
         logForDebugging('Successfully stashed changes')
         onStashAndContinue()
       } else {
-        setError('Failed to stash changes')
+        setError('暂存更改失败')
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
@@ -81,7 +81,7 @@ export function TeleportStash({
       <Box flexDirection="column" padding={1}>
         <Box marginBottom={1}>
           <Spinner />
-          <Text> Checking git status{figures.ellipsis}</Text>
+          <Text> 正在检查 git 状态</Text>
         </Box>
       </Box>
     )
@@ -94,9 +94,9 @@ export function TeleportStash({
           Error: {error}
         </Text>
         <Box marginTop={1}>
-          <Text dimColor>Press </Text>
+          <Text dimColor>按 </Text>
           <Text bold>Escape</Text>
-          <Text dimColor> to cancel</Text>
+          <Text dimColor> 取消</Text>
         </Box>
       </Box>
     )
@@ -105,39 +105,39 @@ export function TeleportStash({
   const showFileCount = changedFiles.length > 8
 
   return (
-    <Dialog title="Working Directory Has Changes" onCancel={onCancel}>
+    <Dialog title="工作目录有更改" onCancel={onCancel}>
       <Text>
-        Teleport will switch git branches. The following changes were found:
+        Teleport 将切换 git 分支。发现以下更改：
       </Text>
 
       <Box flexDirection="column" paddingLeft={2}>
         {changedFiles.length > 0 ? (
-          showFileCount ? (
-            <Text>{changedFiles.length} files changed</Text>
-          ) : (
+            showFileCount ? (
+              <Text>{changedFiles.length} 个文件已更改</Text>
+            ) : (
             changedFiles.map((file: string, index: number) => (
               <Text key={index}>{file}</Text>
             ))
           )
         ) : (
-          <Text dimColor>No changes detected</Text>
+          <Text dimColor>未检测到更改</Text>
         )}
       </Box>
 
       <Text>
-        Would you like to stash these changes and continue with teleport?
+        是否要暂存这些更改并继续 teleport？
       </Text>
 
       {stashing ? (
         <Box>
           <Spinner />
-          <Text> Stashing changes...</Text>
+          <Text> 正在暂存更改…</Text>
         </Box>
       ) : (
         <Select
           options={[
-            { label: 'Stash changes and continue', value: 'stash' },
-            { label: 'Exit', value: 'exit' },
+            { label: '暂存更改并继续', value: 'stash' },
+            { label: '退出', value: 'exit' },
           ]}
           onChange={handleSelectChange}
         />

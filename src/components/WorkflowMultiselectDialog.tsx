@@ -28,18 +28,18 @@ const WORKFLOWS: WorkflowOption[] = [
 
 function renderInputGuide(exitState: ExitState): React.ReactNode {
   if (exitState.pending) {
-    return <Text>Press {exitState.keyName} again to exit</Text>
+    return <Text>按 {exitState.keyName} 再按一次退出</Text>
   }
   return (
     <Byline>
-      <KeyboardShortcutHint shortcut="↑↓" action="navigate" />
-      <KeyboardShortcutHint shortcut="Space" action="toggle" />
-      <KeyboardShortcutHint shortcut="Enter" action="confirm" />
+      <KeyboardShortcutHint shortcut="↑↓" action="导航" />
+      <KeyboardShortcutHint shortcut="空格" action="切换" />
+      <KeyboardShortcutHint shortcut="回车" action="确认" />
       <ConfigurableShortcutHint
         action="confirm:no"
         context="Confirmation"
         fallback="Esc"
-        description="cancel"
+        description="取消"
       />
     </Byline>
   )
@@ -74,14 +74,14 @@ export function WorkflowMultiselectDialog({
 
   return (
     <Dialog
-      title="Select GitHub workflows to install"
-      subtitle="We'll create a workflow file in your repository for each one you select."
+      title="选择要安装的 GitHub 工作流"
+      subtitle="我们将为您选择的每个工作流在仓库中创建一个工作流文件。"
       onCancel={handleCancel}
       inputGuide={renderInputGuide}
     >
       <Box>
         <Text dimColor>
-          More workflow examples (issue triage, CI fixes, etc.) at:{' '}
+          更多工作流示例（问题分类、CI 修复等）：{' '}
           <Link url="https://github.com/anthropics/claude-code-action/blob/main/examples/">
             https://github.com/anthropics/claude-code-action/blob/main/examples/
           </Link>
@@ -103,7 +103,7 @@ export function WorkflowMultiselectDialog({
       {showError && (
         <Box>
           <Text color="error">
-            You must select at least one workflow to continue
+            必须至少选择一个工作流才能继续
           </Text>
         </Box>
       )}

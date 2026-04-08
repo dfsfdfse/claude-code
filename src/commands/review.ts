@@ -7,34 +7,34 @@ import { isUltrareviewEnabled } from './review/ultrareviewEnabled.js'
 const CCR_TERMS_URL = 'https://code.claude.com/docs/en/claude-code-on-the-web'
 
 const LOCAL_REVIEW_PROMPT = (args: string) => `
-      You are an expert code reviewer. Follow these steps:
+      你是一位专业的代码审查员。按照以下步骤操作：
 
-      1. If no PR number is provided in the args, run \`gh pr list\` to show open PRs
-      2. If a PR number is provided, run \`gh pr view <number>\` to get PR details
-      3. Run \`gh pr diff <number>\` to get the diff
-      4. Analyze the changes and provide a thorough code review that includes:
-         - Overview of what the PR does
-         - Analysis of code quality and style
-         - Specific suggestions for improvements
-         - Any potential issues or risks
+      1. 如果参数中未提供 PR 编号，运行 \`gh pr list\` 显示开放的 PR
+      2. 如果提供了 PR 编号，运行 \`gh pr view <number>\` 获取 PR 详情
+      3. 运行 \`gh pr diff <number>\` 获取差异
+      4. 分析更改并提供彻底的代码审查，包括：
+         - PR 做什么的概述
+         - 代码质量和风格分析
+         - 具体的改进建议
+         - 任何潜在问题或风险
 
-      Keep your review concise but thorough. Focus on:
-      - Code correctness
-      - Following project conventions
-      - Performance implications
-      - Test coverage
-      - Security considerations
+      保持你的审查简洁但彻底。重点关注：
+      - 代码正确性
+      - 遵循项目约定
+      - 性能影响
+      - 测试覆盖率
+      - 安全考虑
 
-      Format your review with clear sections and bullet points.
+      用清晰的章节和项目符号格式化你的审查。
 
-      PR number: ${args}
+      PR 编号: ${args}
     `
 
 const review: Command = {
   type: 'prompt',
   name: 'review',
-  description: 'Review a pull request',
-  progressMessage: 'reviewing pull request',
+  description: '审查 Pull Request',
+  progressMessage: '正在审查 Pull Request',
   contentLength: 0,
   source: 'builtin',
   async getPromptForCommand(args): Promise<ContentBlockParam[]> {

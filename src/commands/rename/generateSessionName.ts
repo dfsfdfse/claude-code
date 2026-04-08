@@ -19,7 +19,7 @@ export async function generateSessionName(
   try {
     const result = await queryHaiku({
       systemPrompt: asSystemPrompt([
-        'Generate a short kebab-case name (2-4 words) that captures the main topic of this conversation. Use lowercase words separated by hyphens. Examples: "fix-login-bug", "add-auth-feature", "refactor-api-client", "debug-test-failures". Return JSON with a "name" field.',
+        '生成一个简短的 kebab-case 名称 (2-4 个单词) 来捕捉这个对话的主要主题。使用小写字母单词并用连字符分隔。示例: "fix-login-bug", "add-auth-feature", "refactor-api-client", "debug-test-failures". 返回 JSON 对象，其中包含 "name" 字段。',
       ]),
       userPrompt: conversationText,
       outputFormat: {
@@ -59,7 +59,7 @@ export async function generateSessionName(
     // Haiku timeout/rate-limit/network are expected operational failures —
     // logForDebugging, not logError. Called automatically on every 3rd bridge
     // message (initReplBridge.ts), so errors here would flood the error file.
-    logForDebugging(`generateSessionName failed: ${errorMessage(error)}`, {
+    logForDebugging(`生成会话名称失败: ${errorMessage(error)}`, {
       level: 'error',
     })
     return null

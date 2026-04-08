@@ -138,10 +138,10 @@ function buildLogLabel(
 
   const sessionCountSuffix =
     isGroupHeader && forkCount > 0
-      ? ` (+${forkCount} other ${forkCount === 1 ? 'session' : 'sessions'})`
+      ? ` (+${forkCount} 个其他会话)`
       : ''
 
-  const sidechainSuffix = log.isSidechain ? ' (sidechain)' : ''
+  const sidechainSuffix = log.isSidechain ? '（旁路）' : ''
 
   const maxSummaryWidth =
     maxLabelWidth -
@@ -304,8 +304,8 @@ export function LogSelector({
   // Compute unique tags from logs (before any filtering)
   const uniqueTags = React.useMemo(() => getUniqueTags(logs), [logs])
   const hasTags = uniqueTags.length > 0
-  const tagTabs = React.useMemo(
-    () => (hasTags ? ['All', ...uniqueTags] : []),
+    const tagTabs = React.useMemo(
+    () => (hasTags ? ['全部', ...uniqueTags] : []),
     [hasTags, uniqueTags],
   )
 
@@ -315,7 +315,7 @@ export function LogSelector({
       ? selectedTagIndex
       : 0
   const selectedTab = tagTabs[effectiveTagIndex]
-  const tagFilter = selectedTab === 'All' ? undefined : selectedTab
+  const tagFilter = selectedTab === '全部' ? undefined : selectedTab
 
   // Tag tabs are now a single line with horizontal scrolling
   const tagTabsLines = hasTags ? 1 : 0
@@ -605,7 +605,7 @@ export function LogSelector({
     return displayedLogs.map((log, index) => {
       const rawSummary = getLogDisplayTitle(log)
       const summaryWithSidechain =
-        rawSummary + (log.isSidechain ? ' (sidechain)' : '')
+        rawSummary + (log.isSidechain ? '（旁路）' : '')
       const summary = normalizeAndTruncateToWidth(
         summaryWithSidechain,
         maxLabelWidth,
@@ -654,10 +654,10 @@ export function LogSelector({
     const isChildNode = sessionLogs.indexOf(focusedLog) > 0
 
     if (isChildNode) {
-      return '← to collapse'
+      return '← 折叠'
     }
 
-    return isExpanded ? '← to collapse' : '→ to expand'
+    return isExpanded ? '← 折叠' : '→ 展开'
   }
 
   const handleRenameSubmit = React.useCallback(async () => {
@@ -727,7 +727,7 @@ export function LogSelector({
       }
       setAgenticSearchState({
         status: 'error',
-        message: error instanceof Error ? error.message : 'Search failed',
+        message: error instanceof Error ? error.message : '搜索失败',
       })
       logEvent('tengu_agentic_search_error', {
         query_length: searchQuery.length,
@@ -926,7 +926,7 @@ export function LogSelector({
               (current + tagTabs.length + offset) % tagTabs.length
             const newTab = tagTabs[newIndex]
             logEvent('tengu_session_tag_filter_changed', {
-              is_all: newTab === 'All',
+              is_all: newTab === '全部',
               tag_count: uniqueTags.length,
             })
             return newIndex
@@ -988,7 +988,7 @@ export function LogSelector({
     filterIndicators.push(currentBranch)
   }
   if (hasMultipleWorktrees && !showAllWorktrees) {
-    filterIndicators.push('current worktree')
+    filterIndicators.push('当前 worktree')
   }
 
   const showAdditionalFilterLine =
@@ -1051,11 +1051,11 @@ export function LogSelector({
       ) : (
         <Box flexShrink={0}>
           <Text bold color="suggestion">
-            Resume Session
+            恢复会话
             {viewMode === 'list' && displayedLogs.length > visibleCount && (
               <Text dimColor>
                 {' '}
-                ({focusedIndex} of {displayedLogs.length})
+                ({focusedIndex} / {displayedLogs.length})
               </Text>
             )}
           </Text>
@@ -1082,7 +1082,7 @@ export function LogSelector({
       {agenticSearchState.status === 'searching' && (
         <Box paddingLeft={1} flexShrink={0}>
           <Spinner />
-          <Text> Searching…</Text>
+          <Text> 搜索中…</Text>
         </Box>
       )}
 
@@ -1091,7 +1091,7 @@ export function LogSelector({
         agenticSearchState.results.length > 0 && (
           <Box paddingLeft={1} marginBottom={1} flexShrink={0}>
             <Text dimColor italic>
-              Claude found these results:
+              Claude 找到了以下结果：
             </Text>
           </Box>
         )}
@@ -1102,7 +1102,7 @@ export function LogSelector({
         filteredLogs.length === 0 && (
           <Box paddingLeft={1} marginBottom={1} flexShrink={0}>
             <Text dimColor italic>
-              No matching sessions found.
+              没有找到匹配的会话。
             </Text>
           </Box>
         )}
@@ -1111,7 +1111,7 @@ export function LogSelector({
       {agenticSearchState.status === 'error' && filteredLogs.length === 0 && (
         <Box paddingLeft={1} marginBottom={1} flexShrink={0}>
           <Text dimColor italic>
-            No matching sessions found.
+            没有找到匹配的会话。
           </Text>
         </Box>
       )}
@@ -1134,7 +1134,7 @@ export function LogSelector({
                 color={isAgenticSearchOptionFocused ? 'suggestion' : undefined}
                 bold={isAgenticSearchOptionFocused}
               >
-                Search deeply using Claude →
+                使用 Claude 深度搜索 →
               </Text>
             </Box>
             <Box height={1} />
@@ -1145,7 +1145,7 @@ export function LogSelector({
       {agenticSearchState.status === 'searching' ? null : viewMode ===
           'rename' && focusedLog ? (
         <Box paddingLeft={2} flexDirection="column">
-          <Text bold>Rename session:</Text>
+          <Text bold>重命名会话：</Text>
           <Box paddingTop={1}>
             <TextInput
               value={renameValue}
@@ -1153,7 +1153,7 @@ export function LogSelector({
               onSubmit={handleRenameSubmit}
               placeholder={getLogDisplayTitle(
                 focusedLog!,
-                'Enter new session name',
+                '输入新会话名称',
               )}
               columns={columns}
               cursorOffset={renameCursorOffset}
@@ -1234,41 +1234,41 @@ export function LogSelector({
       )}
       <Box paddingLeft={2}>
         {exitState.pending ? (
-          <Text dimColor>Press {exitState.keyName} again to exit</Text>
+          <Text dimColor>按 {exitState.keyName} 再按一次退出</Text>
         ) : viewMode === 'rename' ? (
           <Text dimColor>
             <Byline>
-              <KeyboardShortcutHint shortcut="Enter" action="save" />
+              <KeyboardShortcutHint shortcut="Enter" action="保存" />
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
         ) : agenticSearchState.status === 'searching' ? (
           <Text dimColor>
             <Byline>
-              <Text>Searching with Claude…</Text>
+              <Text>正在使用 Claude 搜索…</Text>
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
         ) : isAgenticSearchOptionFocused ? (
           <Text dimColor>
             <Byline>
-              <KeyboardShortcutHint shortcut="Enter" action="search" />
-              <KeyboardShortcutHint shortcut="↓" action="skip" />
+              <KeyboardShortcutHint shortcut="Enter" action="搜索" />
+              <KeyboardShortcutHint shortcut="↓" action="跳过" />
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
             </Byline>
           </Text>
@@ -1277,15 +1277,15 @@ export function LogSelector({
             <Byline>
               <Text>
                 {isSearching && isDeepSearchEnabled
-                  ? 'Searching…'
-                  : 'Type to Search'}
+                  ? '搜索中…'
+                  : '输入以搜索'}
               </Text>
-              <KeyboardShortcutHint shortcut="Enter" action="select" />
+              <KeyboardShortcutHint shortcut="Enter" action="选择" />
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="clear"
+                description="清除"
               />
             </Byline>
           </Text>
@@ -1295,29 +1295,29 @@ export function LogSelector({
               {onToggleAllProjects && (
                 <KeyboardShortcutHint
                   shortcut="Ctrl+A"
-                  action={`show ${showAllProjects ? 'current dir' : 'all projects'}`}
+                  action={`显示 ${showAllProjects ? '当前目录' : '所有项目'}`}
                 />
               )}
               {currentBranch && (
                 <KeyboardShortcutHint
                   shortcut="Ctrl+B"
-                  action="toggle branch"
+                  action="切换分支"
                 />
               )}
               {hasMultipleWorktrees && (
                 <KeyboardShortcutHint
                   shortcut="Ctrl+W"
-                  action={`show ${showAllWorktrees ? 'current worktree' : 'all worktrees'}`}
+                  action={`显示 ${showAllWorktrees ? '当前 worktree' : '所有 worktree'}`}
                 />
               )}
-              <KeyboardShortcutHint shortcut="Ctrl+V" action="preview" />
-              <KeyboardShortcutHint shortcut="Ctrl+R" action="rename" />
-              <Text>Type to search</Text>
+              <KeyboardShortcutHint shortcut="Ctrl+V" action="预览" />
+              <KeyboardShortcutHint shortcut="Ctrl+R" action="重命名" />
+              <Text>输入以搜索</Text>
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="cancel"
+                description="取消"
               />
               {getExpandCollapseHint() && (
                 <Text>{getExpandCollapseHint()}</Text>

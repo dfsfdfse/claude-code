@@ -56,23 +56,23 @@ export function buildPluginDetailsMenuOptions(
   githubRepo: string | null,
 ): PluginDetailsMenuOption[] {
   const options: PluginDetailsMenuOption[] = [
-    { label: 'Install for you (user scope)', action: 'install-user' },
+    { label: '为你安装 (用户范围)', action: 'install-user' },
     {
-      label: 'Install for all collaborators on this repository (project scope)',
+      label: '为这个仓库的所有协作者安装 (项目范围)',
       action: 'install-project',
     },
     {
-      label: 'Install for you, in this repo only (local scope)',
+      label: '为你在这个仓库中安装 (本地范围)',
       action: 'install-local',
     },
   ]
   if (hasHomepage) {
-    options.push({ label: 'Open homepage', action: 'homepage' })
+    options.push({ label: '打开主页', action: 'homepage' })
   }
   if (githubRepo) {
-    options.push({ label: 'View on GitHub', action: 'github' })
+    options.push({ label: '在 GitHub 上查看', action: 'github' })
   }
-  options.push({ label: 'Back to plugin list', action: 'back' })
+  options.push({ label: '返回插件列表', action: 'back' })
   return options
 }
 
@@ -93,7 +93,7 @@ export function PluginSelectionKeyHint({
               action="plugin:install"
               context="Plugin"
               fallback="i"
-              description="install"
+              description="安装"
               bold
             />
           )}
@@ -101,19 +101,19 @@ export function PluginSelectionKeyHint({
             action="plugin:toggle"
             context="Plugin"
             fallback="Space"
-            description="toggle"
+            description="切换"
           />
           <ConfigurableShortcutHint
             action="select:accept"
             context="Select"
             fallback="Enter"
-            description="details"
+            description="详情"
           />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="back"
+            description="返回"
           />
         </Byline>
       </Text>

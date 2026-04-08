@@ -45,7 +45,7 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
       return {
         type: 'message',
         value:
-          'Your organization already has unlimited extra usage. No request needed.',
+          '你的组织已经拥有无限的超额使用。不需要请求。',
       }
     }
 
@@ -54,7 +54,7 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
       if (eligibility?.is_allowed === false) {
         return {
           type: 'message',
-          value: 'Please contact your admin to manage extra usage settings.',
+          value: '请联系你的管理员来管理超额使用设置。',
         }
       }
     } catch (error) {
@@ -71,7 +71,7 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
         return {
           type: 'message',
           value:
-            'You have already submitted a request for extra usage to your admin.',
+            '你已经提交了一个请求来增加超额使用到你的管理员。',
         }
       }
     } catch (error) {
@@ -87,8 +87,8 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
       return {
         type: 'message',
         value: extraUsage?.is_enabled
-          ? 'Request sent to your admin to increase extra usage.'
-          : 'Request sent to your admin to enable extra usage.',
+          ? '请求已发送给你的管理员来增加超额使用。'
+          : '请求已发送给你的管理员来启用超额使用。',
       }
     } catch (error) {
       logError(error as Error)
@@ -97,7 +97,7 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
 
     return {
       type: 'message',
-      value: 'Please contact your admin to manage extra usage settings.',
+      value: '请联系你的管理员来管理超额使用设置。',
     }
   }
 
@@ -112,7 +112,7 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
     logError(error as Error)
     return {
       type: 'message',
-      value: `Failed to open browser. Please visit ${url} to manage extra usage.`,
+      value: `打开浏览器失败。请访问 ${url} 来管理超额使用。`,
     }
   }
 }

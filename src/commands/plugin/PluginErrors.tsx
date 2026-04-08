@@ -3,63 +3,63 @@ import { getPluginErrorMessage, type PluginError } from '../../types/plugin.js'
 export function formatErrorMessage(error: PluginError): string {
   switch (error.type) {
     case 'path-not-found':
-      return `${error.component} path not found: ${error.path}`
+      return `${error.component} 路径未找到: ${error.path}`
     case 'git-auth-failed':
-      return `Git ${error.authType.toUpperCase()} authentication failed for ${error.gitUrl}`
+      return `Git ${error.authType.toUpperCase()} 认证失败 (${error.gitUrl})`
     case 'git-timeout':
-      return `Git ${error.operation} timed out for ${error.gitUrl}`
+      return `Git ${error.operation} 超时 (${error.gitUrl})`
     case 'network-error':
-      return `Network error accessing ${error.url}${error.details ? `: ${error.details}` : ''}`
+      return `网络错误访问 ${error.url}${error.details ? `: ${error.details}` : ''}`
     case 'manifest-parse-error':
-      return `Failed to parse manifest at ${error.manifestPath}: ${error.parseError}`
+      return `解析清单失败 (${error.manifestPath}): ${error.parseError}`
     case 'manifest-validation-error':
-      return `Invalid manifest at ${error.manifestPath}: ${error.validationErrors.join(', ')}`
+      return `清单无效 (${error.manifestPath}): ${error.validationErrors.join(', ')}`
     case 'plugin-not-found':
-      return `Plugin "${error.pluginId}" not found in marketplace "${error.marketplace}"`
+      return `在应用商店 "${error.marketplace}" 中未找到插件 "${error.pluginId}"`
     case 'marketplace-not-found':
-      return `Marketplace "${error.marketplace}" not found`
+      return `未找到应用商店 "${error.marketplace}"`
     case 'marketplace-load-failed':
-      return `Failed to load marketplace "${error.marketplace}": ${error.reason}`
+      return `加载应用商店失败 "${error.marketplace}": ${error.reason}`
     case 'mcp-config-invalid':
-      return `Invalid MCP server config for "${error.serverName}": ${error.validationError}`
+      return `MCP 服务器配置无效 "${error.serverName}": ${error.validationError}`
     case 'mcp-server-suppressed-duplicate': {
       const dup = error.duplicateOf.startsWith('plugin:')
-        ? `server provided by plugin "${error.duplicateOf.split(':')[1] ?? '?'}"`
-        : `already-configured "${error.duplicateOf}"`
-      return `MCP server "${error.serverName}" skipped — same command/URL as ${dup}`
+        ? `插件提供的服务器 "${error.duplicateOf.split(':')[1] ?? '?'}"`
+        : `已配置的 "${error.duplicateOf}"`
+      return `MCP 服务器 "${error.serverName}" 已跳过 — 与 ${dup} 相同命令/URL`
     }
     case 'hook-load-failed':
-      return `Failed to load hooks from ${error.hookPath}: ${error.reason}`
+      return `加载 Hook 失败 (${error.hookPath}): ${error.reason}`
     case 'component-load-failed':
-      return `Failed to load ${error.component} from ${error.path}: ${error.reason}`
+      return `加载 ${error.component} 失败 (${error.path}): ${error.reason}`
     case 'mcpb-download-failed':
-      return `Failed to download MCPB from ${error.url}: ${error.reason}`
+      return `下载 MCPB 失败 (${error.url}): ${error.reason}`
     case 'mcpb-extract-failed':
-      return `Failed to extract MCPB ${error.mcpbPath}: ${error.reason}`
+      return `解压 MCPB 失败 (${error.mcpbPath}): ${error.reason}`
     case 'mcpb-invalid-manifest':
-      return `MCPB manifest invalid at ${error.mcpbPath}: ${error.validationError}`
+      return `MCPB 清单无效 (${error.mcpbPath}): ${error.validationError}`
     case 'marketplace-blocked-by-policy':
       return error.blockedByBlocklist
-        ? `Marketplace "${error.marketplace}" is blocked by enterprise policy`
-        : `Marketplace "${error.marketplace}" is not in the allowed marketplace list`
+        ? `应用商店 "${error.marketplace}" 被企业策略阻止`
+        : `应用商店 "${error.marketplace}" 不在允许的应用商店列表中`
     case 'dependency-unsatisfied':
       return error.reason === 'not-enabled'
-        ? `Dependency "${error.dependency}" is disabled`
-        : `Dependency "${error.dependency}" is not installed`
+        ? `依赖 "${error.dependency}" 已禁用`
+        : `依赖 "${error.dependency}" 未安装`
     case 'lsp-config-invalid':
-      return `Invalid LSP server config for "${error.serverName}": ${error.validationError}`
+      return `LSP 服务器配置无效 "${error.serverName}": ${error.validationError}`
     case 'lsp-server-start-failed':
-      return `LSP server "${error.serverName}" failed to start: ${error.reason}`
+      return `LSP 服务器 "${error.serverName}" 启动失败: ${error.reason}`
     case 'lsp-server-crashed':
       return error.signal
-        ? `LSP server "${error.serverName}" crashed with signal ${error.signal}`
-        : `LSP server "${error.serverName}" crashed with exit code ${error.exitCode ?? 'unknown'}`
+        ? `LSP 服务器 "${error.serverName}" 崩溃 (信号 ${error.signal})`
+        : `LSP 服务器 "${error.serverName}" 崩溃 (退出码 ${error.exitCode ?? 'unknown'})`
     case 'lsp-request-timeout':
-      return `LSP server "${error.serverName}" timed out on ${error.method} after ${error.timeoutMs}ms`
+      return `LSP 服务器 "${error.serverName}" 在 ${error.timeoutMs}ms 后 ${error.method} 超时`
     case 'lsp-request-failed':
-      return `LSP server "${error.serverName}" ${error.method} failed: ${error.error}`
+      return `LSP 服务器 "${error.serverName}" ${error.method} 失败: ${error.error}`
     case 'plugin-cache-miss':
-      return `Plugin "${error.plugin}" not cached at ${error.installPath}`
+      return `插件 "${error.plugin}" 未缓存在 ${error.installPath}`
     case 'generic-error':
       return error.error
   }
@@ -70,26 +70,26 @@ export function formatErrorMessage(error: PluginError): string {
 export function getErrorGuidance(error: PluginError): string | null {
   switch (error.type) {
     case 'path-not-found':
-      return 'Check that the path in your manifest or marketplace config is correct'
+      return '检查清单或应用商店配置中的路径是否正确'
     case 'git-auth-failed':
       return error.authType === 'ssh'
-        ? 'Configure SSH keys or use HTTPS URL instead'
-        : 'Configure credentials or use SSH URL instead'
+        ? '配置 SSH 密钥或改用 HTTPS URL'
+        : '配置凭据或改用 SSH URL'
     case 'git-timeout':
     case 'network-error':
-      return 'Check your internet connection and try again'
+      return '检查网络连接后重试'
     case 'manifest-parse-error':
-      return 'Check manifest file syntax in the plugin directory'
+      return '检查插件目录中的清单文件语法'
     case 'manifest-validation-error':
-      return 'Check manifest file follows the required schema'
+      return '检查清单文件是否符合要求的模式'
     case 'plugin-not-found':
-      return `Plugin may not exist in marketplace "${error.marketplace}"`
+      return `插件可能不存在于应用商店 "${error.marketplace}"`
     case 'marketplace-not-found':
       return error.availableMarketplaces.length > 0
-        ? `Available marketplaces: ${error.availableMarketplaces.join(', ')}`
-        : 'Add the marketplace first using /plugin marketplace add'
+        ? `可用应用商店: ${error.availableMarketplaces.join(', ')}`
+        : '首先使用 /plugin marketplace add 添加应用商店'
     case 'mcp-config-invalid':
-      return 'Check MCP server configuration in .mcp.json or manifest'
+      return '检查 .mcp.json 或清单中的 MCP 服务器配置'
     case 'mcp-server-suppressed-duplicate': {
       // duplicateOf is "plugin:name:srv" when another plugin won dedup —
       // users can't remove plugin-provided servers from their MCP config,
@@ -97,40 +97,40 @@ export function getErrorGuidance(error: PluginError): string | null {
       if (error.duplicateOf.startsWith('plugin:')) {
         const winningPlugin =
           error.duplicateOf.split(':')[1] ?? 'the other plugin'
-        return `Disable plugin "${winningPlugin}" if you want this plugin's version instead`
+        return `如果需要此插件的版本，请禁用插件 "${winningPlugin}"`
       }
-      return `Remove "${error.duplicateOf}" from your MCP config if you want the plugin's version instead`
+      return `如果需要插件版本，请从 MCP 配置中移除 "${error.duplicateOf}"`
     }
     case 'hook-load-failed':
-      return 'Check hooks.json file syntax and structure'
+      return '检查 hooks.json 文件语法和结构'
     case 'component-load-failed':
-      return `Check ${error.component} directory structure and file permissions`
+      return `检查 ${error.component} 目录结构和文件权限`
     case 'mcpb-download-failed':
-      return 'Check your internet connection and URL accessibility'
+      return '检查网络连接和 URL 可访问性'
     case 'mcpb-extract-failed':
-      return 'Verify the MCPB file is valid and not corrupted'
+      return '验证 MCPB 文件有效且未损坏'
     case 'mcpb-invalid-manifest':
-      return 'Contact the plugin author about the invalid manifest'
+      return '联系插件作者报告无效的清单'
     case 'marketplace-blocked-by-policy':
       if (error.blockedByBlocklist) {
-        return 'This marketplace source is explicitly blocked by your administrator'
+        return '此应用商店来源被管理员明确阻止'
       }
       return error.allowedSources.length > 0
-        ? `Allowed sources: ${error.allowedSources.join(', ')}`
-        : 'Contact your administrator to configure allowed marketplace sources'
+        ? `允许的来源: ${error.allowedSources.join(', ')}`
+        : '联系管理员配置允许的应用商店来源'
     case 'dependency-unsatisfied':
       return error.reason === 'not-enabled'
-        ? `Enable "${error.dependency}" or uninstall "${error.plugin}"`
-        : `Install "${error.dependency}" or uninstall "${error.plugin}"`
+        ? `启用 "${error.dependency}" 或卸载 "${error.plugin}"`
+        : `安装 "${error.dependency}" 或卸载 "${error.plugin}"`
     case 'lsp-config-invalid':
-      return 'Check LSP server configuration in the plugin manifest'
+      return '检查插件清单中的 LSP 服务器配置'
     case 'lsp-server-start-failed':
     case 'lsp-server-crashed':
     case 'lsp-request-timeout':
     case 'lsp-request-failed':
-      return 'Check LSP server logs with --debug for details'
+      return '使用 --debug 检查 LSP 服务器日志以获取详情'
     case 'plugin-cache-miss':
-      return 'Run /plugins to refresh the plugin cache'
+      return '运行 /plugins 刷新插件缓存'
     case 'marketplace-load-failed':
     case 'generic-error':
       return null

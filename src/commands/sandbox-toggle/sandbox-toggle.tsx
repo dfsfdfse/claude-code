@@ -28,8 +28,8 @@ export async function call(
     // WSL1 users will see this since isSupportedPlatform returns false for WSL1
     const errorMessage =
       platform === 'wsl'
-        ? 'Error: Sandboxing requires WSL2. WSL1 is not supported.'
-        : 'Error: Sandboxing is currently only supported on macOS, Linux, and WSL2.'
+        ? '错误: 沙盒需要 WSL2。WSL1 不受支持。'
+        : '错误: 沙盒目前仅支持 macOS、Linux 和 WSL2。'
     const message = color('error', themeName)(errorMessage)
     onDone(message)
     return null
@@ -44,7 +44,7 @@ export async function call(
       'error',
       themeName,
     )(
-      `Error: Sandboxing is disabled for this platform (${platform}) via the enabledPlatforms setting.`,
+      `错误: 沙盒已通过 enabledPlatforms 设置对此平台 (${platform}) 禁用。`,
     )
     onDone(message)
     return null
@@ -56,7 +56,7 @@ export async function call(
       'error',
       themeName,
     )(
-      'Error: Sandbox settings are overridden by a higher-priority configuration and cannot be changed locally.',
+      '错误: 沙盒设置被更高优先级的配置覆盖，无法在本地更改。',
     )
     onDone(message)
     return null
@@ -84,7 +84,7 @@ export async function call(
           'error',
           themeName,
         )(
-          'Error: Please provide a command pattern to exclude (e.g., /sandbox exclude "npm run test:*")',
+          '错误: 请提供要排除的命令模式（例如 /sandbox exclude "npm run test:*"）',
         )
         onDone(message)
         return null
@@ -105,7 +105,7 @@ export async function call(
       const message = color(
         'success',
         themeName,
-      )(`Added "${cleanPattern}" to excluded commands in ${relativePath}`)
+      )(`已将 "${cleanPattern}" 添加到 ${relativePath} 中的排除命令`)
 
       onDone(message)
       return null
@@ -115,7 +115,7 @@ export async function call(
         'error',
         themeName,
       )(
-        `Error: Unknown subcommand "${subcommand}". Available subcommand: exclude`,
+        `错误: 未知的子命令 "${subcommand}"。可用子命令: exclude`,
       )
       onDone(message)
       return null

@@ -56,13 +56,13 @@ async function checkLoginState(): Promise<CheckResult> {
 function errorMessage(err: ImportTokenError, codeUrl: string): string {
   switch (err.kind) {
     case 'not_signed_in':
-      return `Login failed. Please visit ${codeUrl} and login using the GitHub App`
+      return `登录失败。请访问 ${codeUrl} 并使用 GitHub App 登录`
     case 'invalid_token':
-      return 'GitHub rejected that token. Run `gh auth login` and try again.'
+      return 'GitHub 拒绝该令牌。运行 `gh auth login` 后重试。'
     case 'server':
-      return `Server error (${err.status}). Try again in a moment.`
+      return `服务器错误（${err.status}）。请稍后重试。`
     case 'network':
-      return "Couldn't reach the server. Check your connection."
+      return "无法连接服务器。请检查网络连接。"
   }
 }
 
@@ -93,8 +93,8 @@ function Web({ onDone }: { onDone: LocalJSXCommandOnDone }) {
           })
           onDone(
             result.status === 'gh_not_installed'
-              ? `GitHub CLI not found. Install it via https://cli.github.com/, then run \`gh auth login\`, or connect GitHub on the web: ${url}`
-              : `GitHub CLI not authenticated. Run \`gh auth login\` and try again, or connect GitHub on the web: ${url}`,
+              ? `未找到 GitHub CLI。请通过 https://cli.github.com/ 安装，然后运行 \`gh auth login\`，或通过网页连接 GitHub：${url}`
+              : `GitHub CLI 未认证。请运行 \`gh auth login\` 后重试，或通过网页连接 GitHub：${url}`,
           )
           return
         }
@@ -137,37 +137,36 @@ function Web({ onDone }: { onDone: LocalJSXCommandOnDone }) {
     logEvent('tengu_remote_setup_result', {
       result: 'success' as SafeString,
     })
-    onDone(`Connected as ${result.result.github_username}. Opened ${url}`)
+    onDone(`已连接为 ${result.result.github_username}。已打开 ${url}`)
   }
 
   if (step.name === 'checking') {
-    return <LoadingState message="Checking login status…" />
+    return <LoadingState message="正在检查登录状态…" />
   }
 
   if (step.name === 'uploading') {
-    return <LoadingState message="Connecting GitHub to Claude…" />
+    return <LoadingState message="正在将 GitHub 连接到 Claude…" />
   }
 
   const token = step.token
   return (
     <Dialog
-      title="Connect Claude on the web to GitHub?"
+      title="将 Claude 网页版连接到 GitHub？"
       onCancel={handleCancel}
       hideInputGuide
     >
       <Box flexDirection="column">
         <Text>
-          Claude on the web requires connecting to your GitHub account to clone
-          and push code on your behalf.
+          Claude 网页版需要连接到您的 GitHub 账户以代表您克隆和推送代码。
         </Text>
         <Text dimColor>
-          Your local credentials are used to authenticate with GitHub
+          使用您的本地凭证与 GitHub 进行身份验证
         </Text>
       </Box>
       <Select
         options={[
-          { label: 'Continue', value: 'send' },
-          { label: 'Cancel', value: 'cancel' },
+          { label: '继续', value: 'send' },
+          { label: '取消', value: 'cancel' },
         ]}
         onChange={value => {
           if (value === 'send') {

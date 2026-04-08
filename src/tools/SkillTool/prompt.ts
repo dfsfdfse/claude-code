@@ -171,27 +171,27 @@ export function formatCommandsWithinBudget(
 }
 
 export const getPrompt = memoize(async (_cwd: string): Promise<string> => {
-  return `Execute a skill within the main conversation
+  return `在主对话中执行技能
 
-When users ask you to perform tasks, check if any of the available skills match. Skills provide specialized capabilities and domain knowledge.
+当用户请求你执行任务时，请检查是否有可用的技能匹配该请求。技能提供专业能力和领域知识。
 
-When users reference a "slash command" or "/<something>" (e.g., "/commit", "/review-pr"), they are referring to a skill. Use this tool to invoke it.
+当用户提到"斜杠命令"或"/<something>"（例如 "/commit"、"、/review-pr"）时，他们指的是一个技能。使用此工具来调用它。
 
-How to invoke:
-- Use this tool with the skill name and optional arguments
-- Examples:
-  - \`skill: "pdf"\` - invoke the pdf skill
-  - \`skill: "commit", args: "-m 'Fix bug'"\` - invoke with arguments
-  - \`skill: "review-pr", args: "123"\` - invoke with arguments
-  - \`skill: "ms-office-suite:pdf"\` - invoke using fully qualified name
+如何调用：
+- 使用此工具，并提供技能名称和可选参数
+- 示例：
+  - \`skill: "pdf"\` - 调用 pdf 技能
+  - \`skill: "commit", args: "-m 'Fix bug'"\` - 带参数调用
+  - \`skill: "review-pr", args: "123"\` - 带参数调用
+  - \`skill: "ms-office-suite:pdf"\` - 使用完全限定名称调用
 
-Important:
-- Available skills are listed in system-reminder messages in the conversation
-- When a skill matches the user's request, this is a BLOCKING REQUIREMENT: invoke the relevant Skill tool BEFORE generating any other response about the task
-- NEVER mention a skill without actually calling this tool
-- Do not invoke a skill that is already running
-- Do not use this tool for built-in CLI commands (like /help, /clear, etc.)
-- If you see a <${COMMAND_NAME_TAG}> tag in the current conversation turn, the skill has ALREADY been loaded - follow the instructions directly instead of calling this tool again
+重要提示：
+- 可用技能列在对话中的 system-reminder 消息中
+- 当技能匹配用户请求时，这是阻塞性要求：在生成任何其他关于任务的响应之前，必须先调用相关的 Skill 工具
+- 永远不要在实际上不调用此工具的情况下提及某个技能
+- 不要调用正在运行的技能
+- 不要将此工具用于内置 CLI 命令（如 /help、/clear 等）
+- 如果在当前对话轮次中看到 <${COMMAND_NAME_TAG}> 标签，说明该技能已经加载——请直接按照指示操作，而不是再次调用此工具
 `
 })
 

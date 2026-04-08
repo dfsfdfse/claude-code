@@ -616,9 +616,9 @@ export function DiscoverPlugins({
 
         <Box flexDirection="column" marginBottom={1}>
           <Text bold>{selectedPlugin.entry.name}</Text>
-          <Text dimColor>from {selectedPlugin.marketplaceName}</Text>
+          <Text dimColor>来自 {selectedPlugin.marketplaceName}</Text>
           {selectedPlugin.entry.version && (
-            <Text dimColor>Version: {selectedPlugin.entry.version}</Text>
+            <Text dimColor>版本: {selectedPlugin.entry.version}</Text>
           )}
           {selectedPlugin.entry.description && (
             <Box marginTop={1}>
@@ -628,7 +628,7 @@ export function DiscoverPlugins({
           {selectedPlugin.entry.author && (
             <Box marginTop={1}>
               <Text dimColor>
-                By:{' '}
+                作者:{' '}
                 {typeof selectedPlugin.entry.author === 'string'
                   ? selectedPlugin.entry.author
                   : selectedPlugin.entry.author.name}
@@ -641,7 +641,7 @@ export function DiscoverPlugins({
 
         {installError && (
           <Box marginBottom={1}>
-            <Text color="error">Error: {installError}</Text>
+            <Text color="error">错误: {installError}</Text>
           </Box>
         )}
 
@@ -652,7 +652,7 @@ export function DiscoverPlugins({
               {detailsMenuIndex !== index && <Text>{'  '}</Text>}
               <Text bold={detailsMenuIndex === index}>
                 {isInstalling && option.action.startsWith('install-')
-                  ? 'Installing…'
+                  ? '安装中…'
                   : option.label}
               </Text>
             </Box>
@@ -666,13 +666,13 @@ export function DiscoverPlugins({
                 action="select:accept"
                 context="Select"
                 fallback="Enter"
-                description="select"
+                description="选择"
               />
               <ConfigurableShortcutHint
                 action="confirm:no"
                 context="Confirmation"
                 fallback="Esc"
-                description="back"
+                description="返回"
               />
             </Byline>
           </Text>
@@ -686,12 +686,12 @@ export function DiscoverPlugins({
     return (
       <Box flexDirection="column">
         <Box marginBottom={1}>
-          <Text bold>Discover plugins</Text>
+          <Text bold>发现插件</Text>
         </Box>
         <EmptyStateMessage reason={emptyReason} />
         <Box marginTop={1}>
           <Text dimColor italic>
-            Esc to go back
+            按 Esc 返回
           </Text>
         </Box>
       </Box>
@@ -704,7 +704,7 @@ export function DiscoverPlugins({
   return (
     <Box flexDirection="column">
       <Box>
-        <Text bold>Discover plugins</Text>
+        <Text bold>发现插件</Text>
         {pagination.needsPagination && (
           <Text dimColor>
             {' '}
@@ -737,14 +737,14 @@ export function DiscoverPlugins({
       {/* No search results */}
       {filteredPlugins.length === 0 && searchQuery && (
         <Box marginBottom={1}>
-          <Text dimColor>No plugins match &quot;{searchQuery}&quot;</Text>
+          <Text dimColor>没有插件匹配 "{searchQuery}"</Text>
         </Box>
       )}
 
       {/* Scroll up indicator */}
       {pagination.scrollPosition.canScrollUp && (
         <Box>
-          <Text dimColor> {figures.arrowUp} more above</Text>
+          <Text dimColor> {figures.arrowUp} 上方还有</Text>
         </Box>
       )}
 
@@ -777,7 +777,7 @@ export function DiscoverPlugins({
                 {plugin.entry.name}
                 <Text dimColor> · {plugin.marketplaceName}</Text>
                 {plugin.entry.tags?.includes('community-managed') && (
-                  <Text dimColor> [Community Managed]</Text>
+                  <Text dimColor> [社区托管]</Text>
                 )}
                 {installCounts &&
                   plugin.marketplaceName === OFFICIAL_MARKETPLACE_NAME && (
@@ -786,7 +786,7 @@ export function DiscoverPlugins({
                       {formatInstallCount(
                         installCounts.get(plugin.pluginId) ?? 0,
                       )}{' '}
-                      installs
+                      次安装
                     </Text>
                   )}
               </Text>
@@ -805,7 +805,7 @@ export function DiscoverPlugins({
       {/* Scroll down indicator */}
       {pagination.scrollPosition.canScrollDown && (
         <Box>
-          <Text dimColor> {figures.arrowDown} more below</Text>
+          <Text dimColor> {figures.arrowDown} 下方还有</Text>
         </Box>
       )}
 
@@ -845,30 +845,30 @@ function DiscoverPluginsKeyHint({
               action="plugin:install"
               context="Plugin"
               fallback="i"
-              description="install"
+              description="安装"
               bold
             />
           )}
-          <Text>type to search</Text>
+          <Text>输入以搜索</Text>
           {canToggle && (
             <ConfigurableShortcutHint
               action="plugin:toggle"
               context="Plugin"
               fallback="Space"
-              description="toggle"
+              description="切换"
             />
           )}
           <ConfigurableShortcutHint
             action="select:accept"
             context="Select"
             fallback="Enter"
-            description="details"
+            description="详情"
           />
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="back"
+            description="返回"
           />
         </Byline>
       </Text>
@@ -888,43 +888,43 @@ function EmptyStateMessage({
     case 'git-not-installed':
       return (
         <>
-          <Text dimColor>Git is required to install marketplaces.</Text>
-          <Text dimColor>Please install git and restart Claude Code.</Text>
+          <Text dimColor>安装应用商店需要 Git。</Text>
+          <Text dimColor>请安装 Git 后重启 Claude Code。</Text>
         </>
       )
     case 'all-blocked-by-policy':
       return (
         <>
           <Text dimColor>
-            Your organization policy does not allow any external marketplaces.
+            组织策略不允许任何外部应用商店。
           </Text>
-          <Text dimColor>Contact your administrator.</Text>
+          <Text dimColor>请联系管理员。</Text>
         </>
       )
     case 'policy-restricts-sources':
       return (
         <>
           <Text dimColor>
-            Your organization restricts which marketplaces can be added.
+            组织限制了可添加的应用商店。
           </Text>
           <Text dimColor>
-            Switch to the Marketplaces tab to view allowed sources.
+            切换到应用商店标签查看允许的来源。
           </Text>
         </>
       )
     case 'all-marketplaces-failed':
       return (
         <>
-          <Text dimColor>Failed to load marketplace data.</Text>
-          <Text dimColor>Check your network connection.</Text>
+          <Text dimColor>加载应用商店数据失败。</Text>
+          <Text dimColor>检查网络连接。</Text>
         </>
       )
     case 'all-plugins-installed':
       return (
         <>
-          <Text dimColor>All available plugins are already installed.</Text>
+          <Text dimColor>所有可用插件已安装。</Text>
           <Text dimColor>
-            Check for new plugins later or add more marketplaces.
+            稍后检查新插件或添加更多应用商店。
           </Text>
         </>
       )
@@ -932,9 +932,9 @@ function EmptyStateMessage({
     default:
       return (
         <>
-          <Text dimColor>No plugins available.</Text>
+          <Text dimColor>没有可用插件。</Text>
           <Text dimColor>
-            Add a marketplace first using the Marketplaces tab.
+            使用应用商店标签首先添加一个应用商店。
           </Text>
         </>
       )

@@ -766,7 +766,7 @@ export function useTypeahead({
             members.push({
               id: `dm-${t.name}`,
               displayText: `@${t.name}`,
-              description: 'send message',
+              description: '发送消息',
             })
           }
         }
@@ -778,7 +778,7 @@ export function useTypeahead({
           members.push({
             id: `dm-${name}`,
             displayText: `@${name}`,
-            description: status ? `send message · ${status}` : 'send message',
+            description: status ? `发送消息 · ${status}` : '发送消息',
           })
         }
 
@@ -1819,7 +1819,7 @@ export function useTypeahead({
           key: 'thinking-toggle-hint',
           jsx: (
             <Text dimColor>
-              Use {thinkingToggleShortcut} to toggle thinking
+              使用 {thinkingToggleShortcut} 切换思考模式
             </Text>
           ),
           priority: 'immediate',

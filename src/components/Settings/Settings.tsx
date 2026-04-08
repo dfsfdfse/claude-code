@@ -67,7 +67,7 @@ export function Settings({
       return
     }
     // TODO: Update to "Settings" dialog once we define '/settings'.
-    onClose('Status dialog dismissed', { display: 'system' })
+    onClose('状态对话框已关闭', { display: 'system' })
   }
 
   // Disable when submenu is open so the submenu's Dialog can handle ESC,
@@ -81,10 +81,10 @@ export function Settings({
   })
 
   const tabs = [
-    <Tab key="status" title="Status">
+    <Tab key="status" title="状态">
       <Status context={context} diagnosticsPromise={diagnosticsPromise} />
     </Tab>,
-    <Tab key="config" title="Config">
+    <Tab key="config" title="配置">
       <Suspense fallback={null}>
         <Config
           context={context}
@@ -95,7 +95,7 @@ export function Settings({
         />
       </Suspense>
     </Tab>,
-    <Tab key="usage" title="Usage">
+    <Tab key="usage" title="用量">
       <Usage />
     </Tab>,
   ]

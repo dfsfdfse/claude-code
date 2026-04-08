@@ -197,15 +197,15 @@ export function PluginOptionsDialog({
 
       <Box flexDirection="column">
         <Text dimColor={true}>
-          Field {currentFieldIndex + 1} of {fields.length}
+          字段 {currentFieldIndex + 1} / {fields.length}
         </Text>
         {currentFieldIndex < fields.length - 1 && (
           <Text dimColor={true}>
-            Tab: Next field · Enter: Save and continue
+            Tab: 下一字段 · Enter: 保存并继续
           </Text>
         )}
         {currentFieldIndex === fields.length - 1 && (
-          <Text dimColor={true}>Enter: Save configuration</Text>
+          <Text dimColor={true}>Enter: 保存配置</Text>
         )}
       </Box>
     </Dialog>

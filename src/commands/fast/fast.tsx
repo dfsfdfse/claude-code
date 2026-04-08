@@ -89,10 +89,10 @@ export function FastModePicker({
       const modelUpdated = !isFastModeSupportedByModel(model)
         ? ` · model set to ${FAST_MODE_MODEL_DISPLAY}`
         : ''
-      onDone(`${fastIcon} Fast mode ON${modelUpdated} · ${pricing}`)
+      onDone(`${fastIcon} 快速模式开启${modelUpdated} · ${pricing}`)
     } else {
       setAppState(prev => ({ ...prev, fastMode: false }))
-      onDone(`Fast mode OFF`)
+      onDone(`快速模式关闭`)
     }
   }
 
@@ -102,12 +102,12 @@ export function FastModePicker({
       if (initialFastMode) {
         applyFastMode(false, setAppState)
       }
-      onDone('Fast mode OFF', { display: 'system' })
+      onDone('快速模式关闭', { display: 'system' })
       return
     }
     const message = initialFastMode
-      ? `${getFastIconString()} Kept Fast mode ON`
-      : `Kept Fast mode OFF`
+      ? `${getFastIconString()} 保持快速模式开启`
+      : `保持快速模式关闭`
     onDone(message, { display: 'system' })
   }
 
@@ -130,23 +130,23 @@ export function FastModePicker({
 
   const title = (
     <Text>
-      <FastIcon cooldown={isCooldown} /> Fast mode (research preview)
+      <FastIcon cooldown={isCooldown} /> 快速模式（研究预览）
     </Text>
   )
 
   return (
     <Dialog
       title={title}
-      subtitle={`High-speed mode for ${FAST_MODE_MODEL_DISPLAY}. Billed as extra usage at a premium rate. Separate rate limits apply.`}
+      subtitle={`${FAST_MODE_MODEL_DISPLAY} 的高速模式。按额外用量以溢价计费。适用独立速率限制。`}
       onCancel={handleCancel}
       color="fastMode"
       inputGuide={exitState =>
         exitState.pending ? (
-          <Text>Press {exitState.keyName} again to exit</Text>
+          <Text>再次按 {exitState.keyName} 退出</Text>
         ) : isUnavailable ? (
-          <Text>Esc to cancel</Text>
+          <Text>Esc 取消</Text>
         ) : (
-          <Text>Tab to toggle · Enter to confirm · Esc to cancel</Text>
+          <Text>Tab 切换 · Enter 确认 · Esc 取消</Text>
         )
       }
     >
@@ -158,12 +158,12 @@ export function FastModePicker({
         <>
           <Box flexDirection="column" gap={0} marginLeft={2}>
             <Box flexDirection="row" gap={2}>
-              <Text bold>Fast mode</Text>
+              <Text bold>快速模式</Text>
               <Text
                 color={enableFastMode ? 'fastMode' : undefined}
                 bold={enableFastMode}
               >
-                {enableFastMode ? 'ON ' : 'OFF'}
+                {enableFastMode ? '开启 ' : '关闭'}
               </Text>
               <Text dimColor>{pricing}</Text>
             </Box>
@@ -173,9 +173,9 @@ export function FastModePicker({
             <Box marginLeft={2}>
               <Text color="warning">
                 {runtimeState.reason === 'overloaded'
-                  ? 'Fast mode overloaded and is temporarily unavailable'
-                  : "You've hit your fast limit"}
-                {' · resets in '}
+                  ? '快速模式负载过高，暂不可用'
+                  : "已达到快速模式限制"}
+                {' · 重置于 '}
                 {formatDuration(runtimeState.resetAt - Date.now(), {
                   hideTrailingZeros: true,
                 })}
@@ -185,7 +185,7 @@ export function FastModePicker({
         </>
       )}
       <Text dimColor>
-        Learn more:{' '}
+        了解更多：{' '}
         <Link url="https://code.claude.com/docs/en/fast-mode">
           https://code.claude.com/docs/en/fast-mode
         </Link>
@@ -201,7 +201,7 @@ async function handleFastModeShortcut(
 ): Promise<string> {
   const unavailableReason = getFastModeUnavailableReason()
   if (unavailableReason) {
-    return `Fast mode unavailable: ${unavailableReason}`
+    return `快速模式不可用：${unavailableReason}`
   }
 
   const { mainLoopModel } = getAppState()
@@ -215,12 +215,12 @@ async function handleFastModeShortcut(
   if (enable) {
     const fastIcon = getFastIconString(true)
     const modelUpdated = !isFastModeSupportedByModel(mainLoopModel)
-      ? ` · model set to ${FAST_MODE_MODEL_DISPLAY}`
+      ? ` · 模型已设置为 ${FAST_MODE_MODEL_DISPLAY}`
       : ''
     const pricing = formatModelPricing(getOpus46CostTier(true))
-    return `${fastIcon} Fast mode ON${modelUpdated} · ${pricing}`
+    return `${fastIcon} 快速模式开启${modelUpdated} · ${pricing}`
   } else {
-    return `Fast mode OFF`
+    return `快速模式关闭`
   }
 }
 

@@ -35,36 +35,36 @@ function CollapseStatus(): React.ReactNode {
     const parts: string[] = []
     if (s.collapsedSpans > 0) {
       parts.push(
-        `${s.collapsedSpans} ${plural(s.collapsedSpans, 'span')} summarized (${s.collapsedMessages} msgs)`,
+        `${s.collapsedSpans} 个 ${plural(s.collapsedSpans, 'span')} 已摘要（${s.collapsedMessages} 条消息）`,
       )
     }
-    if (s.stagedSpans > 0) parts.push(`${s.stagedSpans} staged`)
+    if (s.stagedSpans > 0) parts.push(`${s.stagedSpans} 个待处理`)
     const summary =
       parts.length > 0
         ? parts.join(', ')
         : h.totalSpawns > 0
-          ? `${h.totalSpawns} ${plural(h.totalSpawns, 'spawn')}, nothing staged yet`
-          : 'waiting for first trigger'
+          ? `${h.totalSpawns} 个 ${plural(h.totalSpawns, 'spawn')}，尚无待处理`
+          : '等待首次触发'
 
     let line2: React.ReactNode = null
     if (h.totalErrors > 0) {
       line2 = (
         <Text color="warning">
-          Collapse errors: {h.totalErrors}/{h.totalSpawns} spawns failed
-          {h.lastError ? ` (last: ${h.lastError.slice(0, 60)})` : ''}
+          折叠错误：{h.totalErrors}/{h.totalSpawns} 个 spawn 失败
+          {h.lastError ? `（最后：${h.lastError.slice(0, 60)}）` : ''}
         </Text>
       )
     } else if (h.emptySpawnWarningEmitted) {
       line2 = (
         <Text color="warning">
-          Collapse idle: {h.totalEmptySpawns} consecutive empty runs
+          折叠空闲：{h.totalEmptySpawns} 次连续空运行
         </Text>
       )
     }
 
     return (
       <>
-        <Text dimColor>Context strategy: collapse ({summary})</Text>
+        <Text dimColor>上下文策略：折叠（{summary}）</Text>
         {line2}
       </>
     )
@@ -152,7 +152,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
 
   return (
     <Box flexDirection="column" paddingLeft={1}>
-      <Text bold>Context Usage</Text>
+      <Text bold>上下文使用情况</Text>
       <Box flexDirection="row" gap={2}>
         {/* Fixed size grid */}
         <Box flexDirection="column" flexShrink={0}>
@@ -187,12 +187,12 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
         <Box flexDirection="column" gap={0} flexShrink={0}>
           <Text dimColor>
             {model} · {formatTokens(totalTokens)}/{formatTokens(rawMaxTokens)}{' '}
-            tokens ({percentage}%)
+            tokens（{percentage}%）
           </Text>
           <CollapseStatus />
           <Text> </Text>
           <Text dimColor italic>
-            Estimated usage by category
+            按分类估算使用量
           </Text>
           {visibleCategories.map((cat, index) => {
             const tokenDisplay = formatTokens(cat.tokens)
@@ -208,9 +208,9 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
             return (
               <Box key={index}>
                 <Text color={cat.color}>{symbol}</Text>
-                <Text> {displayName}: </Text>
+                <Text> {displayName}：</Text>
                 <Text dimColor>
-                  {tokenDisplay} tokens ({percentDisplay})
+                  {tokenDisplay} tokens（{percentDisplay}）
                 </Text>
               </Box>
             )
@@ -218,30 +218,29 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
           {(categories.find(c => c.name === 'Free space')?.tokens ?? 0) > 0 && (
             <Box>
               <Text dimColor>⛶</Text>
-              <Text> Free space: </Text>
+              <Text> 剩余空间：</Text>
               <Text dimColor>
                 {formatTokens(
                   categories.find(c => c.name === 'Free space')?.tokens || 0,
                 )}{' '}
-                (
-                {(
+                （{(
                   ((categories.find(c => c.name === 'Free space')?.tokens ||
                     0) /
                     rawMaxTokens) *
                   100
                 ).toFixed(1)}
-                %)
+                %）
               </Text>
             </Box>
           )}
           {autocompactCategory && autocompactCategory.tokens > 0 && (
             <Box>
               <Text color={autocompactCategory.color}>⛝</Text>
-              <Text dimColor> {autocompactCategory.name}: </Text>
+              <Text dimColor> {autocompactCategory.name}：</Text>
               <Text dimColor>
-                {formatTokens(autocompactCategory.tokens)} tokens (
+                {formatTokens(autocompactCategory.tokens)} tokens （
                 {((autocompactCategory.tokens / rawMaxTokens) * 100).toFixed(1)}
-                %)
+                %）
               </Text>
             </Box>
           )}
@@ -252,21 +251,21 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
         {mcpTools.length > 0 && (
           <Box flexDirection="column" marginTop={1}>
             <Box>
-              <Text bold>MCP tools</Text>
+              <Text bold>MCP 工具</Text>
               <Text dimColor>
                 {' '}
-                · /mcp{hasDeferredMcpTools ? ' (loaded on-demand)' : ''}
+                · /mcp{hasDeferredMcpTools ? '（按需加载）' : ''}
               </Text>
             </Box>
             {/* Show loaded tools first */}
             {mcpTools.some(t => t.isLoaded) && (
               <Box flexDirection="column" marginTop={1}>
-                <Text dimColor>Loaded</Text>
+                <Text dimColor>已加载</Text>
                 {mcpTools
                   .filter(t => t.isLoaded)
                   .map((tool, i) => (
                     <Box key={i}>
-                      <Text>└ {tool.name}: </Text>
+                      <Text>└ {tool.name}：</Text>
                       <Text dimColor>{formatTokens(tool.tokens)} tokens</Text>
                     </Box>
                   ))}
@@ -275,7 +274,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
             {/* Show available (deferred) tools */}
             {hasDeferredMcpTools && mcpTools.some(t => !t.isLoaded) && (
               <Box flexDirection="column" marginTop={1}>
-                <Text dimColor>Available</Text>
+                <Text dimColor>可用</Text>
                 {mcpTools
                   .filter(t => !t.isLoaded)
                   .map((tool, i) => (
@@ -308,10 +307,10 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
               </Box>
               {/* Always-loaded + deferred-but-loaded tools */}
               <Box flexDirection="column" marginTop={1}>
-                <Text dimColor>Loaded</Text>
+                <Text dimColor>已加载</Text>
                 {systemTools?.map((tool, i) => (
                   <Box key={`sys-${i}`}>
-                    <Text>└ {tool.name}: </Text>
+                    <Text>└ {tool.name}：</Text>
                     <Text dimColor>{formatTokens(tool.tokens)} tokens</Text>
                   </Box>
                 ))}
@@ -328,7 +327,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
               {hasDeferredBuiltinTools &&
                 deferredBuiltinTools.some(t => !t.isLoaded) && (
                   <Box flexDirection="column" marginTop={1}>
-                    <Text dimColor>Available</Text>
+                    <Text dimColor>可用</Text>
                     {deferredBuiltinTools
                       .filter(t => !t.isLoaded)
                       .map((tool, i) => (
@@ -345,7 +344,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
           systemPromptSections.length > 0 &&
           process.env.USER_TYPE === 'ant' && (
             <Box flexDirection="column" marginTop={1}>
-              <Text bold>[ANT-ONLY] System prompt sections</Text>
+              <Text bold>【仅内部】系统提示词部分</Text>
               {systemPromptSections.map((section, i) => (
                 <Box key={i}>
                   <Text>└ {section.name}: </Text>
@@ -358,7 +357,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
         {agents.length > 0 && (
           <Box flexDirection="column" marginTop={1}>
             <Box>
-              <Text bold>Custom agents</Text>
+              <Text bold>自定义代理</Text>
               <Text dimColor> · /agents</Text>
             </Box>
             {Array.from(groupBySource(agents).entries()).map(
@@ -380,7 +379,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
         {memoryFiles.length > 0 && (
           <Box flexDirection="column" marginTop={1}>
             <Box>
-              <Text bold>Memory files</Text>
+              <Text bold>记忆文件</Text>
               <Text dimColor> · /memory</Text>
             </Box>
             {memoryFiles.map((file, i) => (
@@ -395,7 +394,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
         {skills && skills.tokens > 0 && (
           <Box flexDirection="column" marginTop={1}>
             <Box>
-              <Text bold>Skills</Text>
+              <Text bold>技能</Text>
               <Text dimColor> · /skills</Text>
             </Box>
             {Array.from(groupBySource(skills.skillFrontmatter).entries()).map(
@@ -416,39 +415,39 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
 
         {messageBreakdown && process.env.USER_TYPE === 'ant' && (
           <Box flexDirection="column" marginTop={1}>
-            <Text bold>[ANT-ONLY] Message breakdown</Text>
+            <Text bold>【仅内部】消息分析</Text>
 
             <Box flexDirection="column" marginLeft={1}>
               <Box>
-                <Text>Tool calls: </Text>
+                <Text>工具调用：</Text>
                 <Text dimColor>
                   {formatTokens(messageBreakdown.toolCallTokens)} tokens
                 </Text>
               </Box>
 
               <Box>
-                <Text>Tool results: </Text>
+                <Text>工具结果：</Text>
                 <Text dimColor>
                   {formatTokens(messageBreakdown.toolResultTokens)} tokens
                 </Text>
               </Box>
 
               <Box>
-                <Text>Attachments: </Text>
+                <Text>附件：</Text>
                 <Text dimColor>
                   {formatTokens(messageBreakdown.attachmentTokens)} tokens
                 </Text>
               </Box>
 
               <Box>
-                <Text>Assistant messages (non-tool): </Text>
+                <Text>助手消息（非工具）：</Text>
                 <Text dimColor>
                   {formatTokens(messageBreakdown.assistantMessageTokens)} tokens
                 </Text>
               </Box>
 
               <Box>
-                <Text>User messages (non-tool-result): </Text>
+                <Text>用户消息（非工具结果）：</Text>
                 <Text dimColor>
                   {formatTokens(messageBreakdown.userMessageTokens)} tokens
                 </Text>
@@ -457,12 +456,12 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
 
             {messageBreakdown.toolCallsByType.length > 0 && (
               <Box flexDirection="column" marginTop={1}>
-                <Text bold>[ANT-ONLY] Top tools</Text>
+                <Text bold>【仅内部】使用最多的工具</Text>
                 {messageBreakdown.toolCallsByType.slice(0, 5).map((tool, i) => (
                   <Box key={i} marginLeft={1}>
-                    <Text>└ {tool.name}: </Text>
+                    <Text>└ {tool.name}：</Text>
                     <Text dimColor>
-                      calls {formatTokens(tool.callTokens)}, results{' '}
+                      调用 {formatTokens(tool.callTokens)}，结果{' '}
                       {formatTokens(tool.resultTokens)}
                     </Text>
                   </Box>
@@ -472,7 +471,7 @@ export function ContextVisualization({ data }: Props): React.ReactNode {
 
             {messageBreakdown.attachmentsByType.length > 0 && (
               <Box flexDirection="column" marginTop={1}>
-                <Text bold>[ANT-ONLY] Top attachments</Text>
+                <Text bold>【仅内部】使用最多的附件</Text>
                 {messageBreakdown.attachmentsByType
                   .slice(0, 5)
                   .map((attachment, i) => (

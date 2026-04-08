@@ -38,12 +38,12 @@ type Props = {
 
 function getSourceTitle(source: SkillSource): string {
   if (source === 'plugin') {
-    return 'Plugin skills'
+    return '插件技能'
   }
   if (source === 'mcp') {
-    return 'MCP skills'
+    return 'MCP 技能'
   }
-  return `${capitalize(getSettingSourceName(source))} skills`
+  return `${capitalize(getSettingSourceName(source))} 技能`
 }
 
 function getSourceSubtitle(
@@ -119,20 +119,20 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   if (skills.length === 0) {
     return (
       <Dialog
-        title="Skills"
-        subtitle="No skills found"
+        title="技能"
+        subtitle="未找到技能"
         onCancel={handleCancel}
         hideInputGuide
       >
         <Text dimColor>
-          Create skills in .claude/skills/ or ~/.claude/skills/
+          在 .claude/skills/ 或 ~/.claude/skills/ 中创建技能
         </Text>
         <Text dimColor italic>
           <ConfigurableShortcutHint
             action="confirm:no"
             context="Confirmation"
             fallback="Esc"
-            description="close"
+            description="关闭"
           />
         </Text>
       </Dialog>
@@ -145,11 +145,11 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
     switch (source) {
       case 'projectSettings':
       case 'localSettings':
-        return { label: 'local', color: 'yellow' }
+        return { label: '本地', color: 'yellow' }
       case 'userSettings':
-        return { label: 'global', color: 'cyan' }
+        return { label: '全局', color: 'cyan' }
       case 'policySettings':
-        return { label: 'managed', color: 'magenta' }
+        return { label: '托管', color: 'magenta' }
       default:
         return undefined
     }
@@ -171,8 +171,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
           <Text color={scopeTag.color}> [{scopeTag.label}]</Text>
         )}
         <Text dimColor>
-          {pluginName ? ` · ${pluginName}` : ''} · {tokenDisplay} description
-          tokens
+          {pluginName ? ` · ${pluginName}` : ''} · {tokenDisplay} 描述 tokens
         </Text>
       </Box>
     )
@@ -200,8 +199,8 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
 
   return (
     <Dialog
-      title="Skills"
-      subtitle={`${skills.length} ${plural(skills.length, 'skill')}`}
+      title="技能"
+      subtitle={`${skills.length} ${plural(skills.length, '技能')}`}
       onCancel={handleCancel}
       hideInputGuide
     >
@@ -219,7 +218,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
           action="confirm:no"
           context="Confirmation"
           fallback="Esc"
-          description="close"
+          description="关闭"
         />
       </Text>
     </Dialog>

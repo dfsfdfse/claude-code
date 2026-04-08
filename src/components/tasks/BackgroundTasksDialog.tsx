@@ -594,24 +594,24 @@ export function BackgroundTasksDialog({
       ...(runningTeammateCount > 0
         ? [
             <Text key="teammates">
-              {runningTeammateCount}{' '}
-              {runningTeammateCount !== 1 ? 'agents' : 'agent'}
+              {runningTeammateCount} 个
+              {runningTeammateCount !== 1 ? '智能体' : '智能体'}
             </Text>,
           ]
         : []),
       ...(runningBashCount > 0
         ? [
             <Text key="shells">
-              {runningBashCount}{' '}
-              {runningBashCount !== 1 ? 'active shells' : 'active shell'}
+              {runningBashCount} 个
+              {runningBashCount !== 1 ? '运行中终端' : '运行中终端'}
             </Text>,
           ]
         : []),
       ...(runningAgentCount > 0
         ? [
             <Text key="agents">
-              {runningAgentCount}{' '}
-              {runningAgentCount !== 1 ? 'active agents' : 'active agent'}
+              {runningAgentCount} 个
+              {runningAgentCount !== 1 ? '运行中智能体' : '运行中智能体'}
             </Text>,
           ]
         : []),
@@ -620,15 +620,15 @@ export function BackgroundTasksDialog({
   )
 
   const actions = [
-    <KeyboardShortcutHint key="upDown" shortcut="↑/↓" action="select" />,
-    <KeyboardShortcutHint key="enter" shortcut="Enter" action="view" />,
+    <KeyboardShortcutHint key="upDown" shortcut="↑/↓" action="选择" />,
+    <KeyboardShortcutHint key="enter" shortcut="Enter" action="查看" />,
     ...(currentSelection?.type === 'in_process_teammate' &&
     currentSelection.status === 'running'
       ? [
           <KeyboardShortcutHint
             key="foreground"
             shortcut="f"
-            action="foreground"
+            action="调至前台"
           />,
         ]
       : []),
@@ -640,18 +640,18 @@ export function BackgroundTasksDialog({
       currentSelection?.type === 'dream' ||
       currentSelection?.type === 'remote_agent') &&
     currentSelection.status === 'running'
-      ? [<KeyboardShortcutHint key="kill" shortcut="x" action="stop" />]
+      ? [<KeyboardShortcutHint key="kill" shortcut="x" action="停止" />]
       : []),
     ...(agentTasks.some(t => t.status === 'running')
       ? [
           <KeyboardShortcutHint
             key="kill-all"
             shortcut={killAgentsShortcut}
-            action="stop all agents"
+            action="停止所有智能体"
           />,
         ]
       : []),
-    <KeyboardShortcutHint key="esc" shortcut="←/Esc" action="close" />,
+    <KeyboardShortcutHint key="esc" shortcut="←/Esc" action="关闭" />,
   ]
 
   const handleCancel = () =>
@@ -659,7 +659,7 @@ export function BackgroundTasksDialog({
 
   function renderInputGuide(exitState: ExitState): React.ReactNode {
     if (exitState.pending) {
-      return <Text>Press {exitState.keyName} again to exit</Text>
+      return <Text>再次按 {exitState.keyName} 退出</Text>
     }
     return <Byline>{actions}</Byline>
   }
@@ -672,14 +672,14 @@ export function BackgroundTasksDialog({
       onKeyDown={handleKeyDown}
     >
       <Dialog
-        title="Background tasks"
+        title="后台任务"
         subtitle={<>{subtitle}</>}
         onCancel={handleCancel}
         color="background"
         inputGuide={renderInputGuide}
       >
         {allSelectableItems.length === 0 ? (
-          <Text dimColor>No tasks currently running</Text>
+          <Text dimColor>当前没有运行中的任务</Text>
         ) : (
           <Box flexDirection="column">
             {teammateTasks.length > 0 && (
@@ -688,7 +688,7 @@ export function BackgroundTasksDialog({
                   remoteSessions.length > 0 ||
                   agentTasks.length > 0) && (
                   <Text dimColor>
-                    <Text bold>{'  '}Agents</Text> (
+                    <Text bold>{'  '}智能体</Text> (
                     {count(teammateTasks, i => i.type !== 'leader')})
                   </Text>
                 )}
@@ -710,7 +710,7 @@ export function BackgroundTasksDialog({
                   remoteSessions.length > 0 ||
                   agentTasks.length > 0) && (
                   <Text dimColor>
-                    <Text bold>{'  '}Shells</Text> ({bashTasks.length})
+                    <Text bold>{'  '}终端</Text> ({bashTasks.length})
                   </Text>
                 )}
                 <Box flexDirection="column">
@@ -733,7 +733,7 @@ export function BackgroundTasksDialog({
                 }
               >
                 <Text dimColor>
-                  <Text bold>{'  '}Monitors</Text> ({mcpMonitors.length})
+                  <Text bold>{'  '}监控</Text> ({mcpMonitors.length})
                 </Text>
                 <Box flexDirection="column">
                   {mcpMonitors.map(item => (
@@ -759,7 +759,7 @@ export function BackgroundTasksDialog({
                 }
               >
                 <Text dimColor>
-                  <Text bold>{'  '}Remote agents</Text> ({remoteSessions.length}
+                  <Text bold>{'  '}远程智能体</Text> ({remoteSessions.length}
                   )
                 </Text>
                 <Box flexDirection="column">
@@ -787,7 +787,7 @@ export function BackgroundTasksDialog({
                 }
               >
                 <Text dimColor>
-                  <Text bold>{'  '}Local agents</Text> ({agentTasks.length})
+                  <Text bold>{'  '}本地智能体</Text> ({agentTasks.length})
                 </Text>
                 <Box flexDirection="column">
                   {agentTasks.map(item => (
@@ -815,7 +815,7 @@ export function BackgroundTasksDialog({
                 }
               >
                 <Text dimColor>
-                  <Text bold>{'  '}Workflows</Text> ({workflowTasks.length})
+                  <Text bold>{'  '}工作流</Text> ({workflowTasks.length})
                 </Text>
                 <Box flexDirection="column">
                   {workflowTasks.map(item => (
@@ -984,7 +984,7 @@ function TeammateTaskGroups({
         return (
           <Box key={teamName} flexDirection="column">
             <Text dimColor>
-              {'  '}Team: {teamName} ({memberCount})
+              {'  '}团队: {teamName} ({memberCount})
             </Text>
             {/* Render leader first within each team */}
             {leaderItems.map(item => (

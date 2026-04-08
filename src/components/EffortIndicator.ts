@@ -12,7 +12,7 @@ import {
 } from '../utils/effort.js'
 
 /**
- * Build the text for the effort-changed notification, e.g. "◐ medium · /effort".
+ * 构建 effort-changed 通知的文本，例如 "◐ medium · /effort"。
  * Returns undefined if the model doesn't support effort.
  */
 export function getEffortNotificationText(

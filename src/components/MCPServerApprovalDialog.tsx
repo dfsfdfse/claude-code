@@ -67,7 +67,7 @@ export function MCPServerApprovalDialog({
 
   return (
     <Dialog
-      title={`New MCP server found in .mcp.json: ${serverName}`}
+      title={`在 .mcp.json 中发现新的 MCP 服务器：${serverName}`}
       color="warning"
       onCancel={() => onChange('no')}
     >
@@ -76,11 +76,11 @@ export function MCPServerApprovalDialog({
       <Select
         options={[
           {
-            label: `Use this and all future MCP servers in this project`,
+            label: `使用此服务器以及此项目中所有未来的 MCP 服务器`,
             value: 'yes_all',
           },
-          { label: `Use this MCP server`, value: 'yes' },
-          { label: `Continue without using this MCP server`, value: 'no' },
+          { label: `使用此 MCP 服务器`, value: 'yes' },
+          { label: `不使用此 MCP 服务器继续`, value: 'no' },
         ]}
         onChange={value => onChange(value as 'yes_all' | 'yes' | 'no')}
         onCancel={() => onChange('no')}

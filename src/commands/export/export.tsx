@@ -84,11 +84,11 @@ export async function call(
         encoding: 'utf-8',
         flush: true,
       })
-      onDone(`Conversation exported to: ${filepath}`)
+      onDone(`会话已导出至: ${filepath}`)
       return null
     } catch (error) {
       onDone(
-        `Failed to export conversation: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `导出会话失败: ${error instanceof Error ? error.message : '未知错误'}`,
       )
       return null
     }

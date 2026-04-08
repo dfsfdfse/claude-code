@@ -39,7 +39,7 @@ export function deriveFirstPrompt(
   firstUserMessage: Extract<SerializedMessage, { type: 'user' }> | undefined,
 ): string {
   const content = (firstUserMessage as any)?.message?.content
-  if (!content) return 'Branched conversation'
+  if (!content) return '分支对话'
   const raw =
     typeof content === 'string'
       ? content
@@ -47,9 +47,9 @@ export function deriveFirstPrompt(
           (block): block is { type: 'text'; text: string } =>
             block.type === 'text',
         )?.text
-  if (!raw) return 'Branched conversation'
+  if (!raw) return '分支对话'
   return (
-    raw.replace(/\s+/g, ' ').trim().slice(0, 100) || 'Branched conversation'
+    raw.replace(/\s+/g, ' ').trim().slice(0, 100) || '分支对话'
   )
 }
 
@@ -79,11 +79,11 @@ async function createFork(customTitle?: string): Promise<{
   try {
     transcriptContent = await readFile(currentTranscriptPath)
   } catch {
-    throw new Error('No conversation to branch')
+    throw new Error('没有对话可以分支')
   }
 
   if (transcriptContent.length === 0) {
-    throw new Error('No conversation to branch')
+    throw new Error('没有对话可以分支')
   }
 
   // Parse all transcript entries (messages + metadata entries like content-replacement)
@@ -111,7 +111,7 @@ async function createFork(customTitle?: string): Promise<{
     .flatMap(entry => entry.replacements)
 
   if (mainConversationEntries.length === 0) {
-    throw new Error('No messages to branch')
+    throw new Error('没有消息可以分支')
   }
 
   // Build forked entries with new sessionId and preserved metadata
@@ -273,8 +273,8 @@ export async function call(
 
     // Resume into the fork
     const titleInfo = title ? ` "${title}"` : ''
-    const resumeHint = `\nTo resume the original: claude -r ${originalSessionId}`
-    const successMessage = `Branched conversation${titleInfo}. You are now in the branch.${resumeHint}`
+    const resumeHint = `\n恢复原始对话: claude -r ${originalSessionId}`
+    const successMessage = `分支对话${titleInfo}. 您现在在分支中。${resumeHint}`
 
     if (context.resume) {
       await context.resume(sessionId, forkLog, 'fork')
@@ -282,15 +282,15 @@ export async function call(
     } else {
       // Fallback if resume not available
       onDone(
-        `Branched conversation${titleInfo}. Resume with: /resume ${sessionId}`,
+        `分支对话${titleInfo}. 恢复使用: /resume ${sessionId}`,
       )
     }
 
     return null
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : 'Unknown error occurred'
-    onDone(`Failed to branch conversation: ${message}`)
+      error instanceof Error ? error.message : '未知错误发生'
+    onDone(`分支对话失败: ${message}`)
     return null
   }
 }

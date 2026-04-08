@@ -17,48 +17,48 @@ export function SuccessStep({
   return (
     <>
       <Box flexDirection="column" borderStyle="round" paddingX={1}>
-        <Box flexDirection="column" marginBottom={1}>
-          <Text bold>Install GitHub App</Text>
-          <Text dimColor>Success</Text>
-        </Box>
+      <Box flexDirection="column" marginBottom={1}>
+        <Text bold>安装 GitHub App</Text>
+        <Text dimColor>成功</Text>
+      </Box>
         {!skipWorkflow && (
-          <Text color="success">✓ GitHub Actions workflow created!</Text>
+          <Text color="success">✓ GitHub Actions 工作流已创建！</Text>
         )}
         {secretExists && useExistingSecret && (
           <Box marginTop={1}>
             <Text color="success">
-              ✓ Using existing ANTHROPIC_API_KEY secret
+              ✓ 使用现有的 ANTHROPIC_API_KEY 密钥
             </Text>
           </Box>
         )}
         {(!secretExists || !useExistingSecret) && (
           <Box marginTop={1}>
-            <Text color="success">✓ API key saved as {secretName} secret</Text>
+            <Text color="success">✓ API 密钥已保存为 {secretName} 密钥</Text>
           </Box>
         )}
         <Box marginTop={1}>
-          <Text>Next steps:</Text>
+          <Text>后续步骤：</Text>
         </Box>
         {skipWorkflow ? (
           <>
             <Text>
-              1. Install the Claude GitHub App if you haven&apos;t already
+              1. 如果尚未安装，请安装 Claude GitHub App
             </Text>
-            <Text>2. Your workflow file was kept unchanged</Text>
-            <Text>3. API key is configured and ready to use</Text>
+            <Text>2. 您的工作流文件保持不变</Text>
+            <Text>3. API 密钥已配置，可随时使用</Text>
           </>
         ) : (
           <>
-            <Text>1. A pre-filled PR page has been created</Text>
+            <Text>1. 已创建预填写的 PR 页面</Text>
             <Text>
-              2. Install the Claude GitHub App if you haven&apos;t already
+              2. 如果尚未安装，请安装 Claude GitHub App
             </Text>
-            <Text>3. Merge the PR to enable Claude PR assistance</Text>
+            <Text>3. 合并 PR 以启用 Claude PR 协助</Text>
           </>
         )}
       </Box>
       <Box marginLeft={3}>
-        <Text dimColor>Press any key to exit</Text>
+        <Text dimColor>按任意键退出</Text>
       </Box>
     </>
   )
