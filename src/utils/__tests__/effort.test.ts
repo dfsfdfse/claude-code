@@ -206,22 +206,22 @@ describe("convertEffortValueToLevel", () => {
 describe("getEffortLevelDescription", () => {
   test("returns description for 'low'", () => {
     const desc = getEffortLevelDescription("low");
-    expect(desc).toContain("Quick");
+    expect(desc).toContain("快速");
   });
 
   test("returns description for 'medium'", () => {
     const desc = getEffortLevelDescription("medium");
-    expect(desc).toContain("Balanced");
+    expect(desc).toContain("平衡");
   });
 
   test("returns description for 'high'", () => {
     const desc = getEffortLevelDescription("high");
-    expect(desc).toContain("Comprehensive");
+    expect(desc).toContain("全面");
   });
 
   test("returns description for 'max'", () => {
     const desc = getEffortLevelDescription("max");
-    expect(desc).toContain("Maximum");
+    expect(desc).toContain("最强");
   });
 });
 
