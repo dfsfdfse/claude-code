@@ -226,13 +226,13 @@ export function convertEffortValueToLevel(value: EffortValue): EffortLevel {
 export function getEffortLevelDescription(level: EffortLevel): string {
   switch (level) {
     case 'low':
-      return 'Quick, straightforward implementation with minimal overhead'
+      return '快速、直接的实现，最少开销'
     case 'medium':
-      return 'Balanced approach with standard implementation and testing'
+      return '平衡方案，标准实现与测试'
     case 'high':
-      return 'Comprehensive implementation with extensive testing and documentation'
+      return '全面实现，充分测试与文档'
     case 'max':
-      return 'Maximum capability with deepest reasoning (Opus 4.6 only)'
+      return '最强能力，最深推理（仅限 Opus 4.6）'
   }
 }
 
@@ -244,13 +244,13 @@ export function getEffortLevelDescription(level: EffortLevel): string {
  */
 export function getEffortValueDescription(value: EffortValue): string {
   if (process.env.USER_TYPE === 'ant' && typeof value === 'number') {
-    return `[ANT-ONLY] Numeric effort value of ${value}`
+    return `[ANT-ONLY] 数值努力度：${value}`
   }
 
   if (typeof value === 'string') {
     return getEffortLevelDescription(value)
   }
-  return 'Balanced approach with standard implementation and testing'
+  return '平衡方案，标准实现与测试'
 }
 
 export type OpusDefaultEffortConfig = {
@@ -261,9 +261,9 @@ export type OpusDefaultEffortConfig = {
 
 const OPUS_DEFAULT_EFFORT_CONFIG_DEFAULT: OpusDefaultEffortConfig = {
   enabled: true,
-  dialogTitle: 'We recommend medium effort for Opus',
+  dialogTitle: '建议 Opus 使用 medium 努力度',
   dialogDescription:
-    'Effort determines how long Claude thinks for when completing your task. We recommend medium effort for most tasks to balance speed and intelligence and maximize rate limits. Use ultrathink to trigger high effort when needed.',
+    '努力度决定 Claude 完成任务时的思考时长。建议大多数任务使用 medium，平衡速度与智能，并最大化速率限制。需要时可用 ultrathink 触发 high 努力度。',
 }
 
 export function getOpusDefaultEffortConfig(): OpusDefaultEffortConfig {

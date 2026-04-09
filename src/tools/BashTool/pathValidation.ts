@@ -89,10 +89,10 @@ function checkDangerousRemovalPaths(
     if (isDangerousRemovalPath(absolutePath)) {
       return {
         behavior: 'ask',
-        message: `Dangerous ${command} operation detected: '${absolutePath}'\n\nThis command would remove a critical system directory. This requires explicit approval and cannot be auto-allowed by permission rules.`,
+        message: `检测到危险的 ${command} 操作: '${absolutePath}'\n\n此命令将删除关键系统目录，需要显式批准，无法通过权限规则自动允许。`,
         decisionReason: {
           type: 'other',
-          reason: `Dangerous ${command} operation on critical path: ${absolutePath}`,
+          reason: `危险的 ${command} 操作作用于关键路径: ${absolutePath}`,
         },
         // Don't provide suggestions - we don't want to encourage saving dangerous commands
         suggestions: [],
@@ -103,7 +103,7 @@ function checkDangerousRemovalPaths(
   // No dangerous paths found
   return {
     behavior: 'passthrough',
-    message: `No dangerous removals detected for ${command} command`,
+    message: `${command} 命令未检测到危险删除`,
   }
 }
 
@@ -511,42 +511,42 @@ export const PATH_EXTRACTORS: Record<
 const SUPPORTED_PATH_COMMANDS = Object.keys(PATH_EXTRACTORS) as PathCommand[]
 
 const ACTION_VERBS: Record<PathCommand, string> = {
-  cd: 'change directories to',
-  ls: 'list files in',
-  find: 'search files in',
-  mkdir: 'create directories in',
-  touch: 'create or modify files in',
-  rm: 'remove files from',
-  rmdir: 'remove directories from',
-  mv: 'move files to/from',
-  cp: 'copy files to/from',
-  cat: 'concatenate files from',
-  head: 'read the beginning of files from',
-  tail: 'read the end of files from',
-  sort: 'sort contents of files from',
-  uniq: 'filter duplicate lines from files in',
-  wc: 'count lines/words/bytes in files from',
-  cut: 'extract columns from files in',
-  paste: 'merge files from',
-  column: 'format files from',
-  tr: 'transform text from files in',
-  file: 'examine file types in',
-  stat: 'read file stats from',
-  diff: 'compare files from',
-  awk: 'process text from files in',
-  strings: 'extract strings from files in',
-  hexdump: 'display hex dump of files from',
-  od: 'display octal dump of files from',
-  base64: 'encode/decode files from',
-  nl: 'number lines in files from',
-  grep: 'search for patterns in files from',
-  rg: 'search for patterns in files from',
-  sed: 'edit files in',
-  git: 'access files with git from',
-  jq: 'process JSON from files in',
-  sha256sum: 'compute SHA-256 checksums for files in',
-  sha1sum: 'compute SHA-1 checksums for files in',
-  md5sum: 'compute MD5 checksums for files in',
+  cd: '切换目录到',
+  ls: '列出文件于',
+  find: '搜索文件于',
+  mkdir: '创建目录于',
+  touch: '创建或修改文件于',
+  rm: '删除文件于',
+  rmdir: '删除目录于',
+  mv: '移动文件到/从',
+  cp: '复制文件到/从',
+  cat: '连接文件于',
+  head: '读取文件开头于',
+  tail: '读取文件结尾于',
+  sort: '排序文件内容于',
+  uniq: '去重文件行于',
+  wc: '统计行/词/字节于',
+  cut: '提取列于',
+  paste: '合并文件于',
+  column: '格式化文件于',
+  tr: '转换文本于',
+  file: '检查文件类型于',
+  stat: '读取文件状态于',
+  diff: '比较文件于',
+  awk: '处理文本于',
+  strings: '提取字符串于',
+  hexdump: '显示十六进制于',
+  od: '显示八进制于',
+  base64: '编解码文件于',
+  nl: '编号行于',
+  grep: '搜索模式于',
+  rg: '搜索模式于',
+  sed: '编辑文件于',
+  git: '访问文件于',
+  jq: '处理 JSON 于',
+  sha256sum: '计算 SHA-256 校验和于',
+  sha1sum: '计算 SHA-1 校验和于',
+  md5sum: '计算 MD5 校验和于',
 }
 
 export const COMMAND_OPERATION_TYPE: Record<PathCommand, FileOperationType> = {
@@ -619,10 +619,10 @@ function validateCommandPaths(
   if (validator && !validator(args)) {
     return {
       behavior: 'ask',
-      message: `${command} with flags requires manual approval to ensure path safety. For security, Claude Code cannot automatically validate ${command} commands that use flags, as some flags like --target-directory=PATH can bypass path validation.`,
+      message: `带参数的 ${command} 命令需要手动批准以确保路径安全。出于安全考虑，Claude Code 无法自动验证带参数的 ${command} 命令，因为某些参数如 --target-directory=PATH 可以绕过路径验证。`,
       decisionReason: {
         type: 'other',
-        reason: `${command} command with flags requires manual approval`,
+        reason: `带参数的 ${command} 命令需要手动批准`,
       },
     }
   }
@@ -645,11 +645,11 @@ function validateCommandPaths(
   if (compoundCommandHasCd && operationType !== 'read') {
     return {
       behavior: 'ask',
-      message: `Commands that change directories and perform write operations require explicit approval to ensure paths are evaluated correctly. For security, Claude Code cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
+      message: `包含目录切换和写入操作的命令需要显式批准，以确保路径正确评估。出于安全考虑，当复合命令中使用 'cd' 时，Claude Code 无法自动确定最终工作目录。`,
       decisionReason: {
         type: 'other',
         reason:
-          'Compound command contains cd with write operation - manual approval required to prevent path resolution bypass',
+          '复合命令包含 cd 和写入操作 - 需要手动批准以防止路径解析绕过',
       },
     }
   }
@@ -674,7 +674,7 @@ function validateCommandPaths(
         decisionReason?.type === 'other' ||
         decisionReason?.type === 'safetyCheck'
           ? decisionReason.reason
-          : `${command} in '${resolvedPath}' was blocked. For security, Claude Code may only ${ACTION_VERBS[command]} the allowed working directories for this session: ${dirListStr}.`
+          : `'${resolvedPath}' 中的 ${command} 被阻止。出于安全考虑，Claude Code 只能在本会话允许的工作目录中${ACTION_VERBS[command]}: ${dirListStr}。`
 
       if (decisionReason?.type === 'rule') {
         return {
@@ -696,7 +696,7 @@ function validateCommandPaths(
   // All paths are valid - return passthrough
   return {
     behavior: 'passthrough',
-    message: `Path validation passed for ${command} command`,
+    message: `${command} 命令路径验证通过`,
   }
 }
 
@@ -849,7 +849,7 @@ function validateSinglePathCommand(
   if (extractedArgs.length === 0) {
     return {
       behavior: 'passthrough',
-      message: 'Empty command - no paths to validate',
+      message: '空命令 - 无路径需要验证',
     }
   }
 
@@ -858,7 +858,7 @@ function validateSinglePathCommand(
   if (!baseCmd || !SUPPORTED_PATH_COMMANDS.includes(baseCmd as PathCommand)) {
     return {
       behavior: 'passthrough',
-      message: `Command '${baseCmd}' is not a path-restricted command`,
+      message: `命令 '${baseCmd}' 不是受路径限制的命令`,
     }
   }
 
@@ -895,14 +895,14 @@ function validateSinglePathCommandArgv(
   if (argv.length === 0) {
     return {
       behavior: 'passthrough',
-      message: 'Empty command - no paths to validate',
+      message: '空命令 - 无路径需要验证',
     }
   }
   const [baseCmd, ...args] = argv
   if (!baseCmd || !SUPPORTED_PATH_COMMANDS.includes(baseCmd as PathCommand)) {
     return {
       behavior: 'passthrough',
-      message: `Command '${baseCmd}' is not a path-restricted command`,
+      message: `命令 '${baseCmd}' 不是受路径限制的命令`,
     }
   }
   // sed read-only override: use .text for the allowlist check since
@@ -935,11 +935,11 @@ function validateOutputRedirections(
   if (compoundCommandHasCd && redirections.length > 0) {
     return {
       behavior: 'ask',
-      message: `Commands that change directories and write via output redirection require explicit approval to ensure paths are evaluated correctly. For security, Claude Code cannot automatically determine the final working directory when 'cd' is used in compound commands.`,
+      message: `包含目录切换和输出重定向的命令需要显式批准，以确保路径正确评估。出于安全考虑，当复合命令中使用 'cd' 时，Claude Code 无法自动确定最终工作目录。`,
       decisionReason: {
         type: 'other',
         reason:
-          'Compound command contains cd with output redirection - manual approval required to prevent path resolution bypass',
+          '复合命令包含 cd 和输出重定向 - 需要手动批准以防止路径解析绕过',
       },
     }
   }
@@ -968,8 +968,8 @@ function validateOutputRedirections(
         decisionReason?.type === 'safetyCheck'
           ? decisionReason.reason
           : decisionReason?.type === 'rule'
-            ? `Output redirection to '${resolvedPath}' was blocked by a deny rule.`
-            : `Output redirection to '${resolvedPath}' was blocked. For security, Claude Code may only write to files in the allowed working directories for this session: ${dirListStr}.`
+            ? `输出重定向到 '${resolvedPath}' 被阻止规则拦截。`
+            : `输出重定向到 '${resolvedPath}' 被阻止。出于安全考虑，Claude Code 只能写入本会话允许的工作目录中的文件: ${dirListStr}。`
 
       // If denied by a deny rule, return 'deny' behavior
       if (decisionReason?.type === 'rule') {
@@ -998,7 +998,7 @@ function validateOutputRedirections(
 
   return {
     behavior: 'passthrough',
-    message: 'No unsafe redirections found',
+    message: '未检测到不安全的重定向',
   }
 }
 
@@ -1029,10 +1029,10 @@ export function checkPathConstraints(
     return {
       behavior: 'ask',
       message:
-        'Process substitution (>(...) or <(...)) can execute arbitrary commands and requires manual approval',
+        '进程替换 (>(...) 或 <(...)) 可执行任意命令，需要手动批准',
       decisionReason: {
         type: 'other',
-        reason: 'Process substitution requires manual approval',
+        reason: '进程替换需要手动批准',
       },
     }
   }
@@ -1052,10 +1052,10 @@ export function checkPathConstraints(
   if (hasDangerousRedirection) {
     return {
       behavior: 'ask',
-      message: 'Shell expansion syntax in paths requires manual approval',
+      message: '路径中的 Shell 扩展语法需要手动批准',
       decisionReason: {
         type: 'other',
-        reason: 'Shell expansion syntax in paths requires manual approval',
+        reason: '路径中的 Shell 扩展语法需要手动批准',
       },
     }
   }
@@ -1104,7 +1104,7 @@ export function checkPathConstraints(
   // Always return passthrough to let other permission checks handle the command
   return {
     behavior: 'passthrough',
-    message: 'All path commands validated successfully',
+    message: '所有路径命令验证成功',
   }
 }
 

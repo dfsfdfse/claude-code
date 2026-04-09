@@ -1,12 +1,12 @@
-// Past tense verbs for turn completion messages
-// These verbs work naturally with "for [duration]" (e.g., "Worked for 5s")
+// 回合完成消息的动词（过去式）
+// 这些动词与"耗时X秒"搭配自然（如"处理了 5秒"）
 export const TURN_COMPLETION_VERBS = [
-  'Baked',
-  'Brewed',
-  'Churned',
-  'Cogitated',
-  'Cooked',
-  'Crunched',
-  'Sautéed',
-  'Worked',
+  '烘焙了',
+  '冲泡了',
+  '搅拌了',
+  '思考了',
+  '烹制了',
+  '运算了',
+  '煎炒了',
+  '处理了',
 ]
