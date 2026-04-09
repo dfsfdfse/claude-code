@@ -1441,9 +1441,11 @@ export function isMemoryFilePath(filePath: string): boolean {
   }
 
   // .md files in .claude/rules/ directories
+  // Support both Unix (/) and Windows (\) path separators for cross-platform compatibility
   if (
     name.endsWith('.md') &&
-    filePath.includes(`${sep}.claude${sep}rules${sep}`)
+    (filePath.includes(`${sep}.claude${sep}rules${sep}`) ||
+      filePath.includes(`/.claude/rules/`))
   ) {
     return true
   }
