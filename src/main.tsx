@@ -2393,7 +2393,7 @@ async function run(): Promise<CommanderCommand> {
 							`警告：企业策略阻止了 MCP ${plural(blocked.length, "服务器")}：${blocked.join(", ")}\n`,
 						);
 					}
-					dynamicMcpConfig = { ...dynamicMcpConfig, ...allowed } as Record<string, ScopedMcpServerConfig>;
+					dynamicMcpConfig = { ...dynamicMcpConfig, ...(allowed as Record<string, ScopedMcpServerConfig>) };
 				}
 			}
 
@@ -3473,7 +3473,7 @@ async function run(): Promise<CommanderCommand> {
 				// login state are fully loaded.
 				const orgValidation = await validateForceLoginOrg();
 				if (!orgValidation.valid) {
-					await exitWithError(root, (orgValidation as { message: string }).message);
+					await exitWithError(root, (orgValidation as { valid: false; message: string }).message);
 				}
 			}
 
@@ -3850,7 +3850,7 @@ async function run(): Promise<CommanderCommand> {
 				// Validate org restriction for non-interactive sessions
 				const orgValidation = await validateForceLoginOrg();
 				if (!orgValidation.valid) {
-					process.stderr.write((orgValidation as { message: string }).message + "\n");
+					process.stderr.write((orgValidation as { valid: false; message: string }).message + "\n");
 					process.exit(1);
 				}
 
@@ -4389,14 +4389,9 @@ async function run(): Promise<CommanderCommand> {
 				activeOverlays: new Set<string>(),
 				fastMode: getInitialFastModeSetting(resolvedInitialModel),
 				...(isAdvisorEnabled() && advisorModel && { advisorModel }),
-				// Compute teamContext synchronously to avoid useEffect setState during render.
-				// KAIROS: assistantTeamContext takes precedence — set earlier in the
-				// KAIROS block so Agent(name: "foo") can spawn in-process teammates
-				// without TeamCreate. computeInitialTeamContext() is for tmux-spawned
-				// teammates reading their own identity, not the assistant-mode leader.
 				teamContext: feature("KAIROS")
-					? (assistantTeamContext as unknown as AppState['teamContext'] | undefined) ?? (computeInitialTeamContext?.() as unknown as AppState['teamContext'] | undefined)
-					: (computeInitialTeamContext?.() as AppState['teamContext'] | undefined),
+					? (assistantTeamContext ?? computeInitialTeamContext())
+					: computeInitialTeamContext()) as AppState["teamContext"],
 			};
 
 			// Add CLI initial prompt to history
@@ -6018,14 +6013,14 @@ async function run(): Promise<CommanderCommand> {
 				"输出格式: text, json, stream-json",
 				"text",
 			)
-			.action(
-				async (
-					ccUrl: string,
-					opts: {
-						print?: string | boolean;
-						outputFormat?: string;
-					},
-				) => {
+.action(
+			async (
+				ccUrl: string,
+				opts: {
+					print?: string | true;
+					outputFormat?: string;
+				},
+			) => {
 					const { parseConnectUrl } =
 						await import("./server/parseConnectUrl.js");
 					const { serverUrl, authToken } = parseConnectUrl(ccUrl);

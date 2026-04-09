@@ -136,7 +136,7 @@ function ClaudeInChromeMenu({
   )
 
   const isDisabled =
-    isWSL || (process.env.USER_TYPE !== 'ant' && !isClaudeAISubscriber)
+    isWSL || ((process.env.USER_TYPE as string) !== 'ant' && !isClaudeAISubscriber)
 
   return (
     <Dialog
@@ -156,8 +156,7 @@ function ClaudeInChromeMenu({
           </Text>
         )}
 
-
-        {process.env.USER_TYPE === 'external' && !isClaudeAISubscriber && (
+        {(process.env.USER_TYPE as string) !== 'ant' && !isClaudeAISubscriber && (
           <Text color="error">
             Chrome 中的 Claude 需要 claude.ai 订阅。
           </Text>

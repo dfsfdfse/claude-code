@@ -152,16 +152,15 @@ function ResumeCommand({
       }
 
       // Different project - show command instead of resuming
-      const raw = await setClipboard(crossProjectCheck.command)
+      const raw = await setClipboard((crossProjectCheck as { command: string }).command)
       if (raw) process.stdout.write(raw)
 
       // Format the output message
       const message = [
         '',
         '此对话来自不同的目录。',
-        '',
-        '要恢复对话，请运行：',
-        `  ${crossProjectCheck.command}`,
+        '',        '要恢复对话，请运行：',
+        `  ${(crossProjectCheck as { command: string }).command}`,
         '',
         '（命令已复制到剪贴板）',
         '',

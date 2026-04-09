@@ -344,7 +344,7 @@ export class StructuredIO {
         // 由 bridge 会话运行器用于 auth token 刷新
         // (CLAUDE_CODE_SESSION_ACCESS_TOKEN)，必须可由 REPL 进程本身读取，
         // 而不仅仅是子 Bash 命令。
-        const variables = message.variables as Record<string, string>
+        const variables = message.variables ?? {}
         const keys = Object.keys(variables)
         for (const [key, value] of Object.entries(variables)) {
           process.env[key] = value
@@ -365,14 +365,15 @@ export class StructuredIO {
         if (uuid) {
           notifyCommandLifecycle(uuid, 'completed')
         }
-        const request = this.pendingRequests.get(message.response.request_id)
+        const resp = message.response as { request_id: string; subtype: string; response?: Record<string, unknown>; error?: string }
+        const request = this.pendingRequests.get(resp.request_id)
         if (!request) {
           // 检查此 tool_use 是否已通过正常权限流程解析。
           // 重复的 control_response 传递（例如来自 WebSocket 重连）
           // 在原始请求已处理后到达，重新处理会将重复的助手消息推入对话，导致 API 400 错误。
           const responsePayload =
-            message.response.subtype === 'success'
-              ? message.response.response
+            resp.subtype === 'success'
+              ? resp.response
               : undefined
           const toolUseID = responsePayload?.toolUseID
           if (
@@ -380,31 +381,31 @@ export class StructuredIO {
             this.resolvedToolUseIds.has(toolUseID)
           ) {
             logForDebugging(
-              `Ignoring duplicate control_response for already-resolved toolUseID=${toolUseID} request_id=${message.response.request_id}`,
+              `Ignoring duplicate control_response for already-resolved toolUseID=${toolUseID} request_id=${resp.request_id}`,
             )
             return undefined
           }
           if (this.unexpectedResponseCallback) {
-            await this.unexpectedResponseCallback(message)
+            await this.unexpectedResponseCallback(message as SDKControlResponse & { uuid?: string })
           }
           return undefined // 忽略对我们不知道的请求的响应
         }
         this.trackResolvedToolUseId(request.request)
-        this.pendingRequests.delete(message.response.request_id)
-        // 当 SDK 消费者解析 can_use_tool 请求时通知 bridge，
-        // 以便它可以取消 claude.ai 上的过时权限提示。
+        this.pendingRequests.delete(resp.request_id)
+        // Notify the bridge when the SDK consumer resolves a can_use_tool
+        // request, so it can cancel the stale permission prompt on claude.ai.
         if (
           (request.request.request as { subtype?: string }).subtype === 'can_use_tool' &&
           this.onControlRequestResolved
         ) {
-          this.onControlRequestResolved(message.response.request_id)
+          this.onControlRequestResolved(resp.request_id)
         }
 
-        if (message.response.subtype === 'error') {
-          request.reject(new Error(message.response.error))
+        if (resp.subtype === 'error') {
+          request.reject(new Error(resp.error ?? 'Unknown error'))
           return undefined
         }
-        const result = message.response.response
+        const result = resp.response
         if (request.schema) {
           try {
             request.resolve(request.schema.parse(result))
@@ -440,9 +441,9 @@ export class StructuredIO {
       if (message.type === 'assistant' || message.type === 'system') {
         return message
       }
-      if (message.message.role !== 'user') {
+      if ((message as { message?: { role?: string } }).message?.role !== 'user') {
         exitWithMessage(
-          `Error: Expected message role 'user', got '${message.message.role}'`,
+          `Error: Expected message role 'user', got '${(message as { message?: { role?: string } }).message?.role}'`,
         )
       }
       return message
@@ -662,7 +663,7 @@ export class StructuredIO {
             {
               subtype: 'hook_callback',
               callback_id: callbackId,
-              input,
+              input: input as Parameters<HookCallback['callback']>[0],
               tool_use_id: toolUseID || undefined,
             },
             hookJSONOutputSchema(),

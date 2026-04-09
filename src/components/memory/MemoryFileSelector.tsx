@@ -43,9 +43,11 @@ type Props = {
   onSelect: (path: string) => void;
   onCancel: () => void;
 };
-
-export function MemoryFileSelector({ onSelect, onCancel }: Props): React.ReactNode {
-  const existingMemoryFiles = use(getMemoryFiles());
+export function MemoryFileSelector({
+  onSelect,
+  onCancel,
+}: Props): React.ReactNode {
+  const existingMemoryFiles = use(getMemoryFiles()) as MemoryFileInfo[]
 
   // 即使不存在，也创建用户和项目 CLAUDE.md 条目
   const userMemoryPath = join(getClaudeConfigHomeDir(), 'CLAUDE.md');
