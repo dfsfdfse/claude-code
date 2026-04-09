@@ -61,7 +61,7 @@ export function AutoModeOptInDialog({
 
       <Select
         options={[
-          ...(process.env.USER_TYPE !== 'ant'
+          ...((process.env.USER_TYPE as string) !== 'ant'
             ? [
                 {
                   label: '是，并设为默认模式',

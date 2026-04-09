@@ -148,8 +148,8 @@ function ServerManagementDialog({ onDone }: Props): React.ReactNode {
       <Box flexDirection="column" gap={1}>
         <Text>
           远程控制服务器{' '}
-          <Text bold color="green">
-            运行中
+          <Text bold color="success">
+            running
           </Text>
           {daemonProcess ? `（PID：${daemonProcess.pid}）` : ''}
         </Text>
@@ -233,10 +233,10 @@ function startDaemon(): void {
     }
   });
 
-  child.on('exit', (code, signal) => {
+  child.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
     daemonProcess = null;
     daemonStatus = 'stopped';
-    daemonLogs.push(`[daemon] exited (code=${code}, signal=${signal})`);
+    daemonLogs.push(`[daemon] exited (code=${code ?? 'unknown'}, signal=${signal})`);
   });
 
   child.on('error', (err: Error) => {
