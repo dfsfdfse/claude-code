@@ -15,7 +15,7 @@ describe("formatCompactSummary", () => {
   test("replaces <summary>...</summary> with 'Summary:\\n' prefix", () => {
     const input = "<summary>key points here</summary>";
     const result = formatCompactSummary(input);
-    expect(result).toContain("Summary:");
+    expect(result).toContain("摘要：");
     expect(result).toContain("key points here");
     expect(result).not.toContain("<summary>");
   });

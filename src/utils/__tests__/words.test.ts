@@ -43,7 +43,7 @@ describe("generateWordSlug", () => {
 
   test("slug matches adjective-verb-noun pattern", () => {
     const slug = generateWordSlug();
-    expect(slug).toMatch(/^[a-z]+-[a-z]+-[a-z]+$/);
+    expect(slug).toMatch(/^[a-z\u4e00-\u9fa5]+-[a-z\u4e00-\u9fa5]+-[a-z\u4e00-\u9fa5]+$/);
   });
 });
 
@@ -73,7 +73,7 @@ describe("generateShortWordSlug", () => {
 
   test("slug matches adjective-noun pattern", () => {
     const slug = generateShortWordSlug();
-    expect(slug).toMatch(/^[a-z]+-[a-z]+$/);
+    expect(slug).toMatch(/^[a-z\u4e00-\u9fa5]+-[a-z\u4e00-\u9fa5]+$/);
   });
 
   test("no consecutive hyphens", () => {
