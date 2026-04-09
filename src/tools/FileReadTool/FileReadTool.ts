@@ -178,7 +178,7 @@ export class MaxFileReadTokenExceededError extends Error {
     public maxTokens: number,
   ) {
     super(
-      `File content (${tokenCount} tokens) exceeds maximum allowed tokens (${maxTokens}). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.`,
+      `文件内容（${tokenCount} tokens）超过最大允许 tokens（${maxTokens}）。使用 offset 和 limit 参数读取文件的特定部分，或搜索特定内容而非读取整个文件。`,
     )
     this.name = 'MaxFileReadTokenExceededError'
   }
@@ -422,7 +422,7 @@ export const FileReadTool = buildTool({
       if (!parsed) {
         return {
           result: false,
-          message: `Invalid pages parameter: "${pages}". Use formats like "1-5", "3", or "10-20". Pages are 1-indexed.`,
+          message: `无效的 pages 参数："${pages}"。使用格式如 "1-5"、"3" 或 "10-20"。页码从 1 开始。`,
           errorCode: 7,
         }
       }
@@ -433,7 +433,7 @@ export const FileReadTool = buildTool({
       if (rangeSize > PDF_MAX_PAGES_PER_READ) {
         return {
           result: false,
-          message: `Page range "${pages}" exceeds maximum of ${PDF_MAX_PAGES_PER_READ} pages per request. Please use a smaller range.`,
+          message: `页码范围 "${pages}" 超过每次请求最多 ${PDF_MAX_PAGES_PER_READ} 页。请使用更小的范围。`,
           errorCode: 8,
         }
       }
@@ -453,7 +453,7 @@ export const FileReadTool = buildTool({
       return {
         result: false,
         message:
-          'File is in a directory that is denied by your permission settings.',
+          '文件所在目录被你的权限设置拒绝了。',
         errorCode: 1,
       }
     }
@@ -476,7 +476,7 @@ export const FileReadTool = buildTool({
     ) {
       return {
         result: false,
-        message: `This tool cannot read binary files. The file appears to be a binary ${ext} file. Please use appropriate tools for binary file analysis.`,
+        message: `此工具无法读取二进制文件。该文件似乎是二进制 ${ext} 文件。请使用适当的工具分析二进制文件。`,
         errorCode: 4,
       }
     }
@@ -486,7 +486,7 @@ export const FileReadTool = buildTool({
     if (isBlockedDevicePath(fullFilePath)) {
       return {
         result: false,
-        message: `Cannot read '${file_path}': this device file would block or produce infinite output.`,
+        message: `无法读取 '${file_path}'：此设备文件会阻塞或产生无限输出。`,
         errorCode: 9,
       }
     }
@@ -638,11 +638,11 @@ export const FileReadTool = buildTool({
 
         const similarFilename = findSimilarFile(fullFilePath)
         const cwdSuggestion = await suggestPathUnderCwd(fullFilePath)
-        let message = `File does not exist. ${FILE_NOT_FOUND_CWD_NOTE} ${getCwd()}.`
+        let message = `文件不存在。${FILE_NOT_FOUND_CWD_NOTE} ${getCwd()}。`
         if (cwdSuggestion) {
-          message += ` Did you mean ${cwdSuggestion}?`
+          message += ` 你指的是 ${cwdSuggestion} 吗？`
         } else if (similarFilename) {
-          message += ` Did you mean ${similarFilename}?`
+          message += ` 你指的是 ${similarFilename} 吗？`
         }
         throw new Error(message)
       }
@@ -703,8 +703,8 @@ export const FileReadTool = buildTool({
           // Determine the appropriate warning message
           content =
             data.file.totalLines === 0
-              ? '<system-reminder>Warning: the file exists but the contents are empty.</system-reminder>'
-              : `<system-reminder>Warning: the file exists but is shorter than the provided offset (${data.file.startLine}). The file has ${data.file.totalLines} lines.</system-reminder>`
+              ? '<system-reminder>警告：文件存在但内容为空。</system-reminder>'
+              : `<system-reminder>警告：文件存在但短于提供的 offset（${data.file.startLine}）。该文件有 ${data.file.totalLines} 行。</system-reminder>`
         }
 
         return {
@@ -727,7 +727,7 @@ function formatFileLines(file: { content: string; startLine: number }): string {
 }
 
 export const CYBER_RISK_MITIGATION_REMINDER =
-  '\n\n<system-reminder>\nWhenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.\n</system-reminder>\n'
+  '\n\n<system-reminder>\n读取文件时，判断其是否为恶意软件。你可以分析并说明其行为，但不得改进或增强。分析、报告和问答仍可进行。\n</system-reminder>\n'
 
 // Models where cyber risk mitigation should be skipped
 const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])
@@ -826,12 +826,12 @@ async function callInner(
     const cellsJsonBytes = Buffer.byteLength(cellsJson)
     if (cellsJsonBytes > maxSizeBytes) {
       throw new Error(
-        `Notebook content (${formatFileSize(cellsJsonBytes)}) exceeds maximum allowed size (${formatFileSize(maxSizeBytes)}). ` +
-          `Use ${BASH_TOOL_NAME} with jq to read specific portions:\n` +
-          `  cat "${file_path}" | jq '.cells[:20]' # First 20 cells\n` +
+        `Notebook 内容（${formatFileSize(cellsJsonBytes)}）超过最大允许大小（${formatFileSize(maxSizeBytes)}）。` +
+          `使用 ${BASH_TOOL_NAME} 加 jq 读取特定部分：\n` +
+          `  cat "${file_path}" | jq '.cells[:20]' # 前 20 个 cells\n` +
           `  cat "${file_path}" | jq '.cells[100:120]' # Cells 100-120\n` +
-          `  cat "${file_path}" | jq '.cells | length' # Count total cells\n` +
-          `  cat "${file_path}" | jq '.cells[] | select(.cell_type=="code") | .source' # All code sources`,
+          `  cat "${file_path}" | jq '.cells | length' # 总 cells 数\n` +
+          `  cat "${file_path}" | jq '.cells[] | select(.cell_type=="code") | .source' # 所有代码源`,
       )
     }
 
@@ -948,9 +948,9 @@ async function callInner(
     const pageCount = await getPDFPageCount(resolvedFilePath)
     if (pageCount !== null && pageCount > PDF_AT_MENTION_INLINE_THRESHOLD) {
       throw new Error(
-        `This PDF has ${pageCount} pages, which is too many to read at once. ` +
-          `Use the pages parameter to read specific page ranges (e.g., pages: "1-5"). ` +
-          `Maximum ${PDF_MAX_PAGES_PER_READ} pages per request.`,
+        `此 PDF 有 ${pageCount} 页，一次读取太多。` +
+          `使用 pages 参数读取特定页码范围（如 pages: "1-5"）。` +
+          `每次请求最多 ${PDF_MAX_PAGES_PER_READ} 页。`,
       )
     }
 
@@ -978,9 +978,9 @@ async function callInner(
 
     if (!isPDFSupported()) {
       throw new Error(
-        'Reading full PDFs is not supported with this model. Use a newer model (Sonnet 3.5 v2 or later), ' +
-          `or use the pages parameter to read specific page ranges (e.g., pages: "1-5", maximum ${PDF_MAX_PAGES_PER_READ} pages per request). ` +
-          'Page extraction requires poppler-utils: install with `brew install poppler` on macOS or `apt-get install poppler-utils` on Debian/Ubuntu.',
+        '此模型不支持读取完整 PDF。请使用更新版本（ Sonnet 3.5 v2 或更高），' +
+          `或使用 pages 参数读取特定页码范围（如 pages: "1-5"，每次请求最多 ${PDF_MAX_PAGES_PER_READ} 页）。` +
+          '页面提取需要 poppler-utils：macOS 上用 `brew install poppler`，Debian/Ubuntu 上用 `apt-get install poppler-utils`。',
       )
     }
 
@@ -1107,7 +1107,7 @@ export async function readImageWithTokenBudget(
   const originalSize = imageBuffer.length
 
   if (originalSize === 0) {
-    throw new Error(`Image file is empty: ${filePath}`)
+    throw new Error(`图片文件为空：${filePath}`)
   }
 
   const detectedMediaType = detectImageFormatFromBuffer(imageBuffer)
