@@ -1,6 +1,6 @@
 /**
- * PowerShell-specific permission checking, adapted from bashPermissions.ts
- * for case-insensitive cmdlet matching.
+ * PowerShell 特定权限检查，适配自 bashPermissions.ts，
+ * 用于不区分大小写的 cmdlet 匹配。
  */
 
 import { resolve } from 'path'
@@ -62,10 +62,10 @@ import { POWERSHELL_TOOL_NAME } from './toolName.js'
 const PS_ASSIGN_PREFIX_RE = /^\$[\w:]+\s*(?:[+\-*/%]|\?\?)?\s*=\s*/
 
 /**
- * Cmdlets that can place a file at a caller-specified path. The
- * git-internal-paths guard checks whether any arg is a git-internal path
- * (hooks/, refs/, objects/, HEAD). Non-creating writers (remove-item,
- * clear-content) are intentionally absent — they can't plant new hooks.
+ * 可以将文件放置在调用者指定路径的 cmdlet。
+ * git-internal-paths 防护检查任何参数是否为 git 内部路径
+ * （hooks/、refs/、objects/、HEAD）。有意排除非创建性写入命令
+ * （remove-item、clear-content），因为它们无法植入新的 hooks。
  */
 const GIT_SAFETY_WRITE_CMDLETS = new Set([
   'new-item',
@@ -84,14 +84,14 @@ const GIT_SAFETY_WRITE_CMDLETS = new Set([
 ])
 
 /**
- * External archive-extraction applications that write files to cwd with
- * archive-controlled paths. `tar -xf payload.tar; git status` defeats
- * isCurrentDirectoryBareGitRepo (TOCTOU): the check runs at
- * permission-eval time, tar extracts HEAD/hooks/refs/ AFTER the check and
- * BEFORE git runs. Unlike GIT_SAFETY_WRITE_CMDLETS (where we can inspect
- * args for git-internal paths), archive contents are opaque — any
- * extraction preceding git must ask. Matched by name only (lowercase,
- * with and without .exe).
+ * 将文件写入 cwd 的外部归档解压应用程序，路径由归档控制。
+ * `tar -xf payload.tar; git status` 会击败
+ * isCurrentDirectoryBareGitRepo（TOCTOU）：检查在
+ * 权限评估时运行，tar 在检查之后、git 之前
+ * 提取 HEAD/hooks/refs/。与 GIT_SAFETY_WRITE_CMDLETS 不同（我们检查
+ * 参数中是否有 git 内部路径），归档内容是不透明的 —— 任何
+ * 在 git 之前进行的解压都必须询问。按名称匹配（不区分大小写，
+ * 带或不带 .exe）。
  */
 const GIT_SAFETY_ARCHIVE_EXTRACTORS = new Set([
   'tar',
@@ -112,8 +112,8 @@ const GIT_SAFETY_ARCHIVE_EXTRACTORS = new Set([
 ])
 
 /**
- * Extract the command name from a PowerShell command string.
- * Uses the parser to get the first command name from the AST.
+ * 从 PowerShell 命令字符串中提取命令名称。
+ * 使用解析器从 AST 获取第一个命令名称。
  */
 async function extractCommandName(command: string): Promise<string> {
   const trimmed = command.trim()
@@ -126,8 +126,8 @@ async function extractCommandName(command: string): Promise<string> {
 }
 
 /**
- * Parse a permission rule string into a structured rule object.
- * Delegates to shared parsePermissionRule.
+ * 将权限规则字符串解析为结构化规则对象。
+ * 委托给共享的 parsePermissionRule。
  */
 export function powershellPermissionRule(
   permissionRule: string,
@@ -155,7 +155,7 @@ function suggestionForExactCommand(command: string): PermissionUpdate[] {
 }
 
 /**
- * PowerShell input schema type - simplified for initial implementation
+ * PowerShell 输入模式类型 - 简化的初始实现
  */
 type PowerShellInput = {
   command: string
@@ -163,9 +163,9 @@ type PowerShellInput = {
 }
 
 /**
- * Filter rules by contents matching an input command.
- * PowerShell-specific: uses case-insensitive matching throughout.
- * Follows the same structure as BashTool's local filterRulesByContentsMatchingInput.
+ * 按内容过滤与输入命令匹配的规则。
+ * PowerShell 特定：全程使用不区分大小写的匹配。
+ * 遵循与 BashTool 的 local filterRulesByContentsMatchingInput 相同的结构。
  */
 function filterRulesByContentsMatchingInput(
   input: PowerShellInput,
@@ -333,7 +333,7 @@ function filterRulesByContentsMatchingInput(
 }
 
 /**
- * Get matching rules for input across all rule types (deny, ask, allow)
+ * 获取输入在所有规则类型（deny、ask、allow）中匹配的规则
  */
 function matchingRulesForInput(
   input: PowerShellInput,
@@ -380,7 +380,7 @@ function matchingRulesForInput(
 }
 
 /**
- * Check if the command is an exact match for a permission rule.
+ * 检查命令是否与权限规则的精确匹配。
  */
 export function powershellToolCheckExactMatchPermission(
   input: PowerShellInput,
@@ -430,7 +430,7 @@ export function powershellToolCheckExactMatchPermission(
 }
 
 /**
- * Check permission for a PowerShell command including prefix matches.
+ * 检查 PowerShell 命令的权限，包括前缀匹配。
  */
 export function powershellToolCheckPermission(
   input: PowerShellInput,
@@ -460,8 +460,8 @@ export function powershellToolCheckPermission(
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${command} has been denied.`,
-      decisionReason: {
+      message: `已拒绝使用 ${POWERSHELL_TOOL_NAME} 执行命令：${command}`,
+       decisionReason: {
         type: 'rule',
         rule: matchingDenyRules[0],
       },
@@ -500,7 +500,7 @@ export function powershellToolCheckPermission(
   // 5. Passthrough since no rules match, will trigger permission prompt
   const decisionReason = {
     type: 'other' as const,
-    reason: 'This command requires approval',
+    reason: '此命令需要批准',
   }
   return {
     behavior: 'passthrough',
@@ -514,7 +514,7 @@ export function powershellToolCheckPermission(
 }
 
 /**
- * Information about a sub-command for permission checking.
+ * 用于权限检查的子命令信息。
  */
 type SubCommandInfo = {
   text: string
@@ -524,17 +524,16 @@ type SubCommandInfo = {
 }
 
 /**
- * Extract sub-commands that need independent permission checking from a parsed command.
- * Safe output cmdlets (Format-Table, Select-Object, etc.) are flagged but NOT
- * filtered out — step 4.4 still checks deny rules against them (deny always
- * wins), step 5 skips them for approval collection (they inherit the permission
- * of the preceding command).
+ * 从解析后的命令中提取需要独立权限检查的子命令。
+ * 安全输出 cmdlet（Format-Table、Select-Object 等）被标记但不会
+ * 被过滤 —— 第 4.4 步仍会对其检查 deny 规则（deny 始终
+ * 获胜），第 5 步跳过它们的审批收集（它们继承前面命令的权限）。
  *
- * Also includes nested commands from control flow statements (if, for, foreach, etc.)
- * to ensure commands hidden inside control flow are checked.
+ * 还包括控制流语句中的嵌套命令（if、for、foreach 等），
+ * 以确保隐藏在控制流中的命令被检查。
  *
- * Returns sub-command info including both text and the parsed element for accurate
- * suggestion generation.
+ * 返回子命令信息，包括文本和解析后的元素，用于准确的
+ * 建议生成。
  */
 async function getSubCommandsForPermissionCheck(
   parsed: ParsedPowerShellCommand,
@@ -650,7 +649,7 @@ export async function powershellToolHasPermission(
       updatedInput: input,
       decisionReason: {
         type: 'other',
-        reason: 'Empty command is safe',
+        reason: '空命令是安全的',
       },
     }
   }
@@ -683,7 +682,7 @@ export async function powershellToolHasPermission(
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${command} has been denied.`,
+      message: `权限使用 ${POWERSHELL_TOOL_NAME} 命令 ${command} 已被拒绝。`,
       decisionReason: {
         type: 'rule',
         rule: matchingDenyRules[0],
@@ -718,7 +717,7 @@ export async function powershellToolHasPermission(
     preParseAskDecision = {
       behavior: 'ask',
       message:
-        'Command contains a UNC path that could trigger network requests',
+        '命令包含 UNC 路径，可能触发网络请求',
     }
   }
 
@@ -846,7 +845,7 @@ export async function powershellToolHasPermission(
       if (fragDenyRules[0] !== undefined) {
         return {
           behavior: 'deny',
-          message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${command} has been denied.`,
+          message: `权限使用 ${POWERSHELL_TOOL_NAME} 命令 ${command} 已被拒绝。`,
           decisionReason: { type: 'rule', rule: fragDenyRules[0] },
         }
       }
@@ -860,7 +859,7 @@ export async function powershellToolHasPermission(
     }
     const decisionReason = {
       type: 'other' as const,
-      reason: `Command contains malformed syntax that cannot be parsed: ${parsed.errors[0]?.message ?? 'unknown error'}`,
+      reason: `命令包含无法解析的语法：${parsed.errors[0]?.message ?? '未知错误'}`,
     }
     return {
       behavior: 'ask',
@@ -916,7 +915,7 @@ export async function powershellToolHasPermission(
       reason:
         safetyResult.behavior === 'ask' && safetyResult.message
           ? safetyResult.message
-          : 'This command contains patterns that could pose security risks and requires approval',
+          : '此命令包含可能构成安全风险的模式，需要批准',
     }
     decisions.push({
       behavior: 'ask',
@@ -941,7 +940,7 @@ export async function powershellToolHasPermission(
     const decisionReason: PermissionDecisionReason = {
       type: 'other' as const,
       reason:
-        'Command contains a `using` statement that may load external code (module or assembly)',
+        '命令包含 `using` 语句，可能加载外部代码（模块或程序集）',
     }
     decisions.push({
       behavior: 'ask',
@@ -957,7 +956,7 @@ export async function powershellToolHasPermission(
     const decisionReason: PermissionDecisionReason = {
       type: 'other' as const,
       reason:
-        'Command contains a `#Requires` directive that may trigger module loading',
+        '命令包含 `#Requires` 指令，可能触发模块加载',
     }
     decisions.push({
       behavior: 'ask',
@@ -1005,13 +1004,13 @@ export async function powershellToolHasPermission(
     if (NON_FS_PROVIDER_PATTERN.test(value)) {
       return {
         behavior: 'ask',
-        message: `Command argument '${arg}' uses a non-filesystem provider path and requires approval`,
+        message: `命令参数 '${arg}' 使用非文件系统提供者路径，需要批准`,
       }
     }
     if (containsVulnerableUncPath(value)) {
       return {
         behavior: 'ask',
-        message: `Command argument '${arg}' contains a UNC path that could trigger network requests`,
+        message: `命令参数 '${arg}' 包含 UNC 路径，可能触发网络请求`,
       }
     }
     return null
@@ -1088,7 +1087,7 @@ export async function powershellToolHasPermission(
     if (matchedDenyRule !== undefined) {
       decisions.push({
         behavior: 'deny',
-        message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${command} has been denied.`,
+        message: `权限使用 ${POWERSHELL_TOOL_NAME} 命令 ${command} 已被拒绝。`,
         decisionReason: {
           type: 'rule',
           rule: matchedDenyRule,
@@ -1140,7 +1139,7 @@ export async function powershellToolHasPermission(
     decisions.push({
       behavior: 'ask',
       message:
-        'Compound commands with cd/Set-Location and git require approval to prevent bare repository attacks',
+        '复合命令包含 cd/Set-Location 和 git，需要批准以防止裸仓库攻击',
     })
   }
 
@@ -1161,7 +1160,7 @@ export async function powershellToolHasPermission(
     decisions.push({
       behavior: 'ask',
       message:
-        'Git command in a directory with bare-repository indicators (HEAD, objects/, refs/ in cwd without .git/HEAD). Git may execute hooks from cwd.',
+        'Git 命令在一个包含裸仓库指示器的目录中（cwd 中没有 .git/HEAD 的 HEAD、objects/、refs/）。Git 可能从 cwd 执行钩子。',
     })
   }
 
@@ -1213,7 +1212,7 @@ export async function powershellToolHasPermission(
       decisions.push({
         behavior: 'ask',
         message:
-          'Command writes to a git-internal path (HEAD, objects/, refs/, hooks/, .git/) and runs git. This could plant a malicious hook that git then executes.',
+          '命令写入 git-内部路径（HEAD、objects/、refs/、hooks/、.git/）并运行 git。这可能会在 git 中植入恶意钩子，然后执行。',
       })
     }
     // SECURITY: Archive-extraction TOCTOU. isCurrentDirectoryBareGitRepo
@@ -1228,7 +1227,7 @@ export async function powershellToolHasPermission(
       decisions.push({
         behavior: 'ask',
         message:
-          'Compound command extracts an archive and runs git. Archive contents may plant bare-repository indicators (HEAD, hooks/, refs/) that git then treats as the repository root.',
+          '复合命令提取一个归档并运行 git。归档内容可能会在 git 中植入裸仓库指示器（HEAD、hooks/、refs/），然后 git 将其视为仓库根目录。',
       })
     }
   }
@@ -1251,7 +1250,7 @@ export async function powershellToolHasPermission(
       decisions.push({
         behavior: 'ask',
         message:
-          'Command writes to .git/ — hooks or config planted there execute on the next git operation.',
+          '命令写入 .git/ — 钩子或配置植入其中，将在下一个 git 操作中执行。',
       })
     }
   }
@@ -1325,7 +1324,7 @@ export async function powershellToolHasPermission(
       updatedInput: input,
       decisionReason: {
         type: 'other',
-        reason: 'Command is read-only and safe to execute',
+        reason: '命令是只读的，可以安全执行',
       },
     })
   }
@@ -1339,7 +1338,7 @@ export async function powershellToolHasPermission(
     decisions.push({
       behavior: 'ask',
       message:
-        'Command contains file redirections that could write to arbitrary paths',
+        '命令包含文件重定向，可能写入任意路径',
       suggestions: suggestionForExactCommand(command),
     })
   }
@@ -1442,7 +1441,7 @@ export async function powershellToolHasPermission(
     if (subResult.behavior === 'deny') {
       return {
         behavior: 'deny',
-        message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${command} has been denied.`,
+        message: `权限使用 ${POWERSHELL_TOOL_NAME} 命令 ${command} 已被拒绝。`,
         decisionReason: subResult.decisionReason,
       }
     }
@@ -1611,7 +1610,7 @@ export async function powershellToolHasPermission(
         decisionReason: {
           type: 'other',
           reason:
-            'Pipeline consists of output-formatting cmdlets with script blocks — block content cannot be verified',
+            '管道包含输出格式化 cmdlets 和脚本块 — 块内容无法验证',
         },
       }
     }
@@ -1620,7 +1619,8 @@ export async function powershellToolHasPermission(
       updatedInput: input,
       decisionReason: {
         type: 'other',
-        reason: 'All pipeline commands are individually allowed',
+        reason: '所有管道命令均已单独允许',
+   
       },
     }
   }
@@ -1628,7 +1628,7 @@ export async function powershellToolHasPermission(
   // 6. Some sub-commands need approval — build suggestions
   const decisionReason = {
     type: 'other' as const,
-    reason: 'This command requires approval',
+    reason: '此命令需要批准',
   }
 
   const pendingSuggestions: PermissionUpdate[] = []

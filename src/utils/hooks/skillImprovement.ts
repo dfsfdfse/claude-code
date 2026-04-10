@@ -100,8 +100,8 @@ function createSkillImprovementHook() {
 
       return [
         createUserMessage({
-          content: `You are analyzing a conversation where a user is executing a skill (a repeatable process).
-Your job: identify if the user's recent messages contain preferences, requests, or corrections that should be permanently added to the skill definition for future runs.
+          content: `你正在分析一段用户执行技能（可复用流程）的对话。
+你的任务：判断用户最近的消息中，是否包含应当被永久加入该技能定义的偏好、请求或修正，以便今后运行时自动记住。
 
 <skill_definition>
 ${projectSkill.content}
@@ -111,23 +111,24 @@ ${projectSkill.content}
 ${formatRecentMessages(newMessages)}
 </recent_messages>
 
-Look for:
-- Requests to add, change, or remove steps: "can you also ask me X", "please do Y too", "don't do Z"
-- Preferences about how steps should work: "ask me about energy levels", "note the time", "use a casual tone"
-- Corrections: "no, do X instead", "always use Y", "make sure to..."
+请关注：
+- 涉及添加、变更、删除步骤的请求，如：“能不能也问我X”、“请再做Y”、“不要做Z”
+- 关于步骤如何执行的偏好，例如：“问我能量水平”、“记录下时间”、“用随意的语气”
+- 修正和订正的话，如：“不，应该做X”、“务必使用Y”、“一定要……”
 
-Ignore:
-- Routine conversation that doesn't generalize (one-time answers, chitchat)
-- Things the skill already does
+忽略：
+- 一次性的临时对话、闲聊等无法泛化的内容
+- 技能中已实现的内容
 
-Output a JSON array inside <updates> tags. Each item: {"section": "which step/section to modify or 'new step'", "change": "what to add/modify", "reason": "which user message prompted this"}.
-Output <updates>[]</updates> if no updates are needed.`,
+输出格式：在<updates>标签内输出JSON数组。每一项形如：{"section": "修改或添加的是哪一步/部分，如'new step'", "change": "具体增加/修改内容", "reason": "触发这项变更的用户消息"}
+如果没有应当更新的内容，就输出 <updates>[]</updates>。`,
         }),
       ]
     },
 
     systemPrompt:
-      'You detect user preferences and process improvements during skill execution. Flag anything the user asks for that should be remembered for next time.',
+      '你会在技能执行过程中自动检测用户的偏好和过程改进建议。用户任何需要记住到下次的请求，都应被标记出来。',
+ 
 
     useTools: false,
 
@@ -182,8 +183,8 @@ export function initSkillImprovement(): void {
 }
 
 /**
- * Apply skill improvements by calling a side-channel LLM to rewrite the skill file.
- * Fire-and-forget — does not block the main conversation.
+ * 通过调用辅助渠道 LLM 重写技能文件来应用技能改进。
+ * 触发后不管——不会阻塞主对话。
  */
 export async function applySkillImprovement(
   skillName: string,
@@ -202,7 +203,8 @@ export async function applySkillImprovement(
     currentContent = await fs.readFile(filePath, 'utf-8')
   } catch {
     logError(
-      new Error(`Failed to read skill file for improvement: ${filePath}`),
+      new Error(`读取待改进技能文件失败: ${filePath}`),
+ 
     )
     return
   }
@@ -212,7 +214,7 @@ export async function applySkillImprovement(
   const response = await queryModelWithoutStreaming({
     messages: [
       createUserMessage({
-        content: `You are editing a skill definition file. Apply the following improvements to the skill.
+        content: `你正在编辑一个技能定义文件。请将以下改进应用到该技能上。
 
 <current_skill_file>
 ${currentContent}
@@ -222,16 +224,16 @@ ${currentContent}
 ${updateList}
 </improvements>
 
-Rules:
-- Integrate the improvements naturally into the existing structure
-- Preserve frontmatter (--- block) exactly as-is
-- Preserve the overall format and style
-- Do not remove existing content unless an improvement explicitly replaces it
-- Output the complete updated file inside <updated_file> tags`,
+要求：
+- 将改进内容自然地融合到现有结构中
+- 完全保留 frontmatter（即 --- 包裹的部分）原样不动
+- 保持整体格式和风格一致
+- 除非改进明确要求替换，否则不要删除已有内容
+- 输出完整更新后的文件，放在 <updated_file> 标签内`,
       }),
     ],
     systemPrompt: asSystemPrompt([
-      'You edit skill definition files to incorporate user preferences. Output only the updated file content.',
+      '你负责编辑技能定义文件，将用户的偏好融入其中。只输出已更新的文件内容。',
     ]),
     thinkingConfig: { type: 'disabled' as const },
     tools: [],
@@ -254,7 +256,7 @@ Rules:
   const updatedContent = extractTag(responseText, 'updated_file')
   if (!updatedContent) {
     logError(
-      new Error('Skill improvement apply: no updated_file tag in response'),
+      new Error('技能改进应用失败: 响应中没有 <updated_file> 标签'),
     )
     return
   }

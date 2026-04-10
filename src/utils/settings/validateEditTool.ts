@@ -3,13 +3,13 @@ import { isClaudeSettingsPath } from '../permissions/filesystem.js'
 import { validateSettingsFileContent } from './validation.js'
 
 /**
- * Validates settings file edits to ensure the result conforms to SettingsSchema.
- * This is used by FileEditTool to avoid code duplication.
+ * 验证设置文件编辑，确保结果符合 SettingsSchema。
+ * FileEditTool 使用此函数以避免代码重复。
  *
- * @param filePath - The file path being edited
- * @param originalContent - The original file content before edits
- * @param getUpdatedContent - A closure that returns the content after applying edits
- * @returns Validation result with error details if validation fails
+ * @param filePath - 被编辑的文件路径
+ * @param originalContent - 编辑前的原始文件内容
+ * @param getUpdatedContent - 返回应用编辑后内容的闭包
+ * @returns 如果验证失败，返回带有错误详情的验证结果
  */
 export function validateInputForSettingsFileEdit(
   filePath: string,
@@ -36,7 +36,8 @@ export function validateInputForSettingsFileEdit(
   if (!afterValidation.isValid) {
     return {
       result: false,
-      message: `Claude Code settings.json validation failed after edit:\n${(afterValidation as any).error}\n\nFull schema:\n${(afterValidation as any).fullSchema}\nIMPORTANT: Do not update the env unless explicitly instructed to do so.`,
+      message: `编辑后 Claude Code settings.json 校验未通过：\n${(afterValidation as any).error}\n\n完整校验规则：\n${(afterValidation as any).fullSchema}\n注意：除非有明确要求，请勿修改 env 字段。`,
+ 
       errorCode: 10,
     }
   }
