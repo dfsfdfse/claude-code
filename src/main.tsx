@@ -4391,7 +4391,7 @@ async function run(): Promise<CommanderCommand> {
 				...(isAdvisorEnabled() && advisorModel && { advisorModel }),
 				teamContext: feature("KAIROS")
 					? (assistantTeamContext ?? computeInitialTeamContext())
-					: computeInitialTeamContext()) as AppState["teamContext"],
+					: computeInitialTeamContext() as AppState["teamContext"],
 			};
 
 			// Add CLI initial prompt to history
