@@ -194,18 +194,32 @@ export function getEffortSuffix(
   if (effortValue === undefined) return ''
   const resolved = resolveAppliedEffort(model, effortValue)
   if (resolved === undefined) return ''
-  return ` with ${convertEffortValueToLevel(resolved)} effort`
+  const level = convertEffortValueToLevel(resolved)
+  return ` 思考: ${convertEffortLevelToChinese(level)}`
 }
 
 export function isValidNumericEffort(value: number): boolean {
   return Number.isInteger(value)
 }
 
+/**
+ * Convert effort level to Chinese display text
+ */
+export function convertEffortLevelToChinese(level: EffortLevel): string {
+  switch (level) {
+    case 'low':
+      return '低'
+    case 'medium':
+      return '中'
+    case 'high':
+      return '高'
+    case 'max':
+      return '最高'
+  }
+}
+
 export function convertEffortValueToLevel(value: EffortValue): EffortLevel {
   if (typeof value === 'string') {
-    // Runtime guard: value may come from remote config (GrowthBook) where
-    // TypeScript types can't help us. Coerce unknown strings to 'high'
-    // rather than passing them through unchecked.
     return isEffortLevel(value) ? value : 'high'
   }
   if (process.env.USER_TYPE === 'ant' && typeof value === 'number') {
