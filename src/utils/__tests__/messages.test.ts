@@ -414,7 +414,7 @@ describe("isClassifierDenial", () => {
   test("returns true for classifier denial prefix", () => {
     expect(
       isClassifierDenial(
-        "Permission for this action has been denied. Reason: unsafe"
+        "此操作的权限已被拒绝。原因: unsafe"
       )
     ).toBe(true);
   });
@@ -430,7 +430,7 @@ describe("AUTO_REJECT_MESSAGE", () => {
   test("includes tool name", () => {
     const msg = AUTO_REJECT_MESSAGE("Bash");
     expect(msg).toContain("Bash");
-    expect(msg).toContain("denied");
+    expect(msg).toContain("被拒绝");
   });
 });
 
@@ -438,15 +438,15 @@ describe("DONT_ASK_REJECT_MESSAGE", () => {
   test("includes tool name and dont ask mode", () => {
     const msg = DONT_ASK_REJECT_MESSAGE("Write");
     expect(msg).toContain("Write");
-    expect(msg).toContain("don't ask mode");
+    expect(msg).toContain("免询问模式");
   });
 });
 
 describe("buildYoloRejectionMessage", () => {
   test("includes reason", () => {
-    const msg = buildYoloRejectionMessage("potentially destructive");
-    expect(msg).toContain("potentially destructive");
-    expect(msg).toContain("denied");
+    const msg = buildYoloRejectionMessage("潜在破坏性操作");
+    expect(msg).toContain("潜在破坏性操作");
+    expect(msg).toContain("被拒绝");
   });
 });
 
