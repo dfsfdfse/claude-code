@@ -51,7 +51,8 @@
     "health": "bun run scripts/health-check.ts",
     "postinstall": "node scripts/postinstall.cjs",
     "docs:dev": "npx mintlify dev",
-    "rcs": "bun run scripts/rcs.ts"
+    "rcs": "bun run scripts/rcs.ts",
+    "package": "bun build --compile --target=bun-windows-x64 --outfile=build/ccb.exe --windows-icon=icon/ide.ico src/entrypoints/cli.tsx"
   },
   "dependencies": {},
   "devDependencies": {
