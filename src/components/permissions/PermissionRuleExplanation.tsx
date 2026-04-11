@@ -36,35 +36,35 @@ function stringsForDecisionReason(
   ) {
     if (reason.classifier === 'auto-mode') {
       return {
-        reasonString: `Auto mode classifier requires confirmation for this ${toolType}.\n${reason.reason}`,
+        reasonString: `自动模式分类器要求确认此${toolType}。\n${reason.reason}`,
         configString: undefined,
         themeColor: 'error',
       }
     }
     return {
-      reasonString: `Classifier ${chalk.bold(reason.classifier)} requires confirmation for this ${toolType}.\n${reason.reason}`,
+      reasonString: `分类器 ${chalk.bold(reason.classifier)} 要求确认此${toolType}。\n${reason.reason}`,
       configString: undefined,
     }
   }
   switch (reason.type) {
     case 'rule':
       return {
-        reasonString: `Permission rule ${chalk.bold(
+        reasonString: `权限规则 ${chalk.bold(
           permissionRuleValueToString(reason.rule.ruleValue),
-        )} requires confirmation for this ${toolType}.`,
+        )} 要求确认此${toolType}。`,
         configString:
           reason.rule.source === 'policySettings'
             ? undefined
-            : '/permissions to update rules',
+            : '运行 /permissions 更新规则',
       }
     case 'hook': {
-      const hookReasonString = reason.reason ? `:\n${reason.reason}` : '.'
+      const hookReasonString = reason.reason ? `:\n${reason.reason}` : '。'
       const sourceLabel = reason.hookSource
         ? ` ${chalk.dim(`[${reason.hookSource}]`)}`
         : ''
       return {
-        reasonString: `Hook ${chalk.bold(reason.hookName)} requires confirmation for this ${toolType}${hookReasonString}${sourceLabel}`,
-        configString: '/hooks to update',
+        reasonString: `钩子 ${chalk.bold(reason.hookName)} 要求确认此${toolType}${hookReasonString}${sourceLabel}`,
+        configString: '运行 /hooks 更新',
       }
     }
     case 'safetyCheck':
@@ -76,7 +76,7 @@ function stringsForDecisionReason(
     case 'workingDir':
       return {
         reasonString: reason.reason,
-        configString: '/permissions to update rules',
+        configString: '运行 /permissions 更新规则',
       }
     default:
       return null

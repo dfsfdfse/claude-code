@@ -393,7 +393,7 @@ export function powershellToolCheckExactMatchPermission(
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${POWERSHELL_TOOL_NAME} with command ${trimmedCommand} has been denied.`,
+      message: `已拒绝使用 ${POWERSHELL_TOOL_NAME} 执行命令：${trimmedCommand}`,
       decisionReason: { type: 'rule', rule: matchingDenyRules[0] },
     }
   }
@@ -416,7 +416,7 @@ export function powershellToolCheckExactMatchPermission(
 
   const decisionReason: PermissionDecisionReason = {
     type: 'other' as const,
-    reason: 'This command requires approval',
+    reason: '此命令需要批准',
   }
   return {
     behavior: 'passthrough',

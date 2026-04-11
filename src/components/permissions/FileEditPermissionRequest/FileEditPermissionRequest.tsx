@@ -54,12 +54,11 @@ export function FileEditPermissionRequest(
       onDone={props.onDone}
       onReject={props.onReject}
       workerBadge={props.workerBadge}
-      title="Edit file"
+      title="编辑文件"
       subtitle={relative(getCwd(), file_path)}
       question={
         <Text>
-          Do you want to make this edit to{' '}
-          <Text bold>{basename(file_path)}</Text>?
+          是否要编辑 <Text bold>{basename(file_path)}</Text>？
         </Text>
       }
       content={

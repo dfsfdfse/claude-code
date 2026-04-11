@@ -73,15 +73,15 @@ export function bashToolUseOptions({
   if (yesInputMode) {
     options.push({
       type: 'input',
-      label: 'Yes',
+      label: '是',
       value: 'yes',
-      placeholder: 'and tell Claude what to do next',
+      placeholder: '并告诉 Claude 接下来要做什么',
       onChange: onAcceptFeedbackChange,
       allowEmptySubmitToCancel: true,
     })
   } else {
     options.push({
-      label: 'Yes',
+      label: '是',
       value: 'yes',
     })
   }
@@ -106,14 +106,14 @@ export function bashToolUseOptions({
     ) {
       options.push({
         type: 'input',
-        label: 'Yes, and don\u2019t ask again for',
+        label: '是，不再询问此命令前缀',
         value: 'yes-prefix-edited',
-        placeholder: 'command prefix (e.g., npm run:*)',
+        placeholder: '命令前缀（例如：npm run:*）',
         initialValue: editablePrefix,
         onChange: onEditablePrefixChange,
         allowEmptySubmitToCancel: true,
         showLabelWithValue: true,
-        labelValueSeparator: ': ',
+        labelValueSeparator: '：',
         resetCursorOnUpdate: true,
       })
     } else if (suggestions.length > 0) {
@@ -154,14 +154,14 @@ export function bashToolUseOptions({
     ) {
       options.push({
         type: 'input',
-        label: 'Yes, and don\u2019t ask again for',
+        label: '是，不再询问此类描述',
         value: 'yes-classifier-reviewed',
-        placeholder: 'describe what to allow...',
+        placeholder: '描述允许的内容...',
         initialValue: classifierDescription ?? '',
         onChange: onClassifierDescriptionChange,
         allowEmptySubmitToCancel: true,
         showLabelWithValue: true,
-        labelValueSeparator: ': ',
+        labelValueSeparator: '：',
         resetCursorOnUpdate: true,
       })
     }
@@ -170,15 +170,15 @@ export function bashToolUseOptions({
   if (noInputMode) {
     options.push({
       type: 'input',
-      label: 'No',
+      label: '否',
       value: 'no',
-      placeholder: 'and tell Claude what to do differently',
+      placeholder: '并告诉 Claude 换个方式',
       onChange: onRejectFeedbackChange,
       allowEmptySubmitToCancel: true,
     })
   } else {
     options.push({
-      label: 'No',
+      label: '否',
       value: 'no',
     })
   }

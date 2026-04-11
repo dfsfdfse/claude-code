@@ -1000,7 +1000,7 @@ export const bashToolCheckExactMatchPermission = (
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${BashTool.name} with command ${command} has been denied.`,
+      message: `已拒绝使用 ${BashTool.name} 执行命令：${command}`,
       decisionReason: {
         type: 'rule',
         rule: matchingDenyRules[0],
@@ -1035,7 +1035,7 @@ export const bashToolCheckExactMatchPermission = (
   // 4. Otherwise, passthrough
   const decisionReason = {
     type: 'other' as const,
-    reason: 'This command requires approval',
+    reason: '此命令需要批准',
   }
   return {
     behavior: 'passthrough',
@@ -1083,7 +1083,7 @@ export const bashToolCheckPermission = (
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${BashTool.name} with command ${command} has been denied.`,
+      message: `已拒绝使用 ${BashTool.name} 执行命令：${command}`,
       decisionReason: {
         type: 'rule',
         rule: matchingDenyRules[0],
@@ -1165,7 +1165,7 @@ export const bashToolCheckPermission = (
   // 8. Passthrough since no rules match, will trigger permission prompt
   const decisionReason = {
     type: 'other' as const,
-    reason: 'This command requires approval',
+    reason: '此命令需要批准',
   }
   return {
     behavior: 'passthrough',
@@ -1226,7 +1226,7 @@ export async function checkCommandAndSuggestRules(
         reason:
           safetyResult.behavior === 'ask' && safetyResult.message
             ? safetyResult.message
-            : 'This command contains patterns that could pose security risks and requires approval',
+            : '此命令包含可能构成安全风险的模式，需要批准',
       }
 
       return {
@@ -1284,7 +1284,7 @@ function checkSandboxAutoAllow(
   if (matchingDenyRules[0] !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${BashTool.name} with command ${command} has been denied.`,
+      message: `已拒绝使用 ${BashTool.name} 执行命令：${command}`,
       decisionReason: {
         type: 'rule',
         rule: matchingDenyRules[0],
@@ -1313,7 +1313,7 @@ function checkSandboxAutoAllow(
       if (subResult.matchingDenyRules[0] !== undefined) {
         return {
           behavior: 'deny',
-          message: `Permission to use ${BashTool.name} with command ${command} has been denied.`,
+          message: `已拒绝使用 ${BashTool.name} 执行命令：${command}`,
           decisionReason: {
             type: 'rule',
             rule: subResult.matchingDenyRules[0],
@@ -1407,7 +1407,7 @@ function checkEarlyExitDeny(
   if (denyMatch !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${BashTool.name} with command ${input.command} has been denied.`,
+      message: `已拒绝使用 ${BashTool.name} 执行命令：${input.command}`,
       decisionReason: { type: 'rule', rule: denyMatch },
     }
   }
@@ -1444,7 +1444,7 @@ function checkSemanticsDeny(
     if (subDeny !== undefined) {
       return {
         behavior: 'deny',
-        message: `Permission to use ${BashTool.name} with command ${input.command} has been denied.`,
+        message: `已拒绝使用 ${BashTool.name} 执行命令：${input.command}`,
         decisionReason: { type: 'rule', rule: subDeny },
       }
     }
@@ -1580,7 +1580,7 @@ export async function awaitClassifierAutoApproval(
     return {
       type: 'classifier',
       classifier: 'bash_allow',
-      reason: `Allowed by prompt rule: "${classifierResult.matchedDescription}"`,
+      reason: `已被提示规则允许：${classifierResult.matchedDescription}`,
     }
   }
   return undefined
@@ -1649,7 +1649,7 @@ export async function executeAsyncClassifierCheck(
     callbacks.onAllow({
       type: 'classifier',
       classifier: 'bash_allow',
-      reason: `Allowed by prompt rule: "${classifierResult.matchedDescription}"`,
+      reason: `已被提示规则允许：${classifierResult.matchedDescription}`,
     })
   } else {
     // No match — notify so the checking indicator is cleared
@@ -1924,7 +1924,7 @@ export async function bashToolHasPermission(
           message: `Denied by Bash prompt rule: "${denyResult.matchedDescription}"`,
           decisionReason: {
             type: 'other',
-            reason: `Denied by Bash prompt rule: "${denyResult.matchedDescription}"`,
+            reason: `已被 Bash 提示规则拒绝：${denyResult.matchedDescription}`,
           },
         }
       }
@@ -1954,7 +1954,7 @@ export async function bashToolHasPermission(
           message: createPermissionRequestMessage(BashTool.name),
           decisionReason: {
             type: 'other',
-            reason: `Required by Bash prompt rule: "${askResult.matchedDescription}"`,
+            reason: `需要 Bash 提示规则：${askResult.matchedDescription}`,
           },
           suggestions,
           ...(feature('BASH_CLASSIFIER')
@@ -2016,13 +2016,13 @@ export async function bashToolHasPermission(
             type: 'other',
             reason:
               safetyResult.message ??
-              'Command contains patterns that require approval',
+              '此命令包含可能构成安全风险的模式，需要批准',
           }),
           decisionReason: {
             type: 'other',
             reason:
               safetyResult.message ??
-              'Command contains patterns that require approval',
+              '此命令包含可能构成安全风险的模式，需要批准',
           },
           ...(feature('BASH_CLASSIFIER')
             ? {
@@ -2169,7 +2169,7 @@ export async function bashToolHasPermission(
     )
     const decisionReason = {
       type: 'other' as const,
-      reason: `Command splits into ${subcommands.length} subcommands, too many to safety-check individually`,
+      reason: `命令拆分为 ${subcommands.length} 个子命令，数量过多无法单独进行安全检查`,
     }
     return {
       behavior: 'ask',
@@ -2186,7 +2186,7 @@ export async function bashToolHasPermission(
     const decisionReason = {
       type: 'other' as const,
       reason:
-        'Multiple directory changes in one command require approval for clarity',
+        '复合命令中包含多个目录切换，需要批准以确保清晰',
     }
     return {
       behavior: 'ask',
@@ -2214,7 +2214,7 @@ export async function bashToolHasPermission(
       const decisionReason = {
         type: 'other' as const,
         reason:
-          'Compound commands with cd and git require approval to prevent bare repository attacks',
+          '复合命令包含 cd 和 git，需要批准以防止裸仓库攻击',
       }
       return {
         behavior: 'ask',
@@ -2252,7 +2252,7 @@ export async function bashToolHasPermission(
   if (deniedSubresult !== undefined) {
     return {
       behavior: 'deny',
-      message: `Permission to use ${BashTool.name} with command ${input.command} has been denied.`,
+      message: `已拒绝使用 ${BashTool.name} 执行命令：${input.command}`,
       decisionReason: {
         type: 'subcommandResults',
         reasons: new Map(
