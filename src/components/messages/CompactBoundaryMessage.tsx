@@ -12,7 +12,7 @@ export function CompactBoundaryMessage(): React.ReactNode {
   return (
     <Box marginY={1}>
       <Text dimColor>
-        ✻ Conversation compacted ({historyShortcut} for history)
+        ✻ 对话已压缩（按 {historyShortcut} 查看历史记录）
       </Text>
     </Box>
   )

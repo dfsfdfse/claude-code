@@ -66,7 +66,7 @@ export function SkillPermissionRequest(
   const options = useMemo((): PermissionPromptOption<SkillOptionValue>[] => {
     const baseOptions: PermissionPromptOption<SkillOptionValue>[] = [
       {
-        label: 'Yes',
+        label: '是',
         value: 'yes',
         feedbackConfig: { type: 'accept' },
       },
@@ -79,7 +79,7 @@ export function SkillPermissionRequest(
       alwaysAllowOptions.push({
         label: (
           <Text>
-            Yes, and don&apos;t ask again for <Text bold>{skill}</Text> in{' '}
+            是，不再询问此 skill <Text bold>{skill}</Text> 在{' '}
             <Text bold>{originalCwd}</Text>
           </Text>
         ),
@@ -93,8 +93,7 @@ export function SkillPermissionRequest(
         alwaysAllowOptions.push({
           label: (
             <Text>
-              Yes, and don&apos;t ask again for{' '}
-              <Text bold>{commandPrefix + ':*'}</Text> commands in{' '}
+              是，不再询问 <Text bold>{commandPrefix}:*</Text> 命令在{' '}
               <Text bold>{originalCwd}</Text>
             </Text>
           ),
@@ -104,7 +103,7 @@ export function SkillPermissionRequest(
     }
 
     const noOption: PermissionPromptOption<SkillOptionValue> = {
-      label: 'No',
+      label: '否',
       value: 'no',
       feedbackConfig: { type: 'reject' },
     }
@@ -230,8 +229,8 @@ export function SkillPermissionRequest(
   }, [toolUseConfirm, onDone, onReject])
 
   return (
-    <PermissionDialog title={`Use skill "${skill}"?`} workerBadge={workerBadge}>
-      <Text>Claude may use instructions, code, or files from this Skill.</Text>
+    <PermissionDialog title={`使用 skill "${skill}"？`} workerBadge={workerBadge}>
+      <Text>Claude 可能会使用此 Skill 中的指令、代码或文件。</Text>
       <Box flexDirection="column" paddingX={2} paddingY={1}>
         <Text dimColor>{commandObj?.description}</Text>
       </Box>

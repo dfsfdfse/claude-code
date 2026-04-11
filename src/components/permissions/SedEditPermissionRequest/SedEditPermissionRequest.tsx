@@ -91,9 +91,9 @@ function SedEditPermissionRequestInner({
   // Determine appropriate message when no changes
   const noChangesMessage = useMemo(() => {
     if (!fileExists) {
-      return 'File does not exist'
+      return '文件不存在'
     }
-    return 'Pattern did not match any content'
+    return '模式未匹配任何内容'
   }, [fileExists])
 
   // Parse input and add _simulatedSedEdit to ensure what user previewed
@@ -115,12 +115,11 @@ function SedEditPermissionRequestInner({
       toolUseContext={props.toolUseContext}
       onDone={props.onDone}
       onReject={props.onReject}
-      title="Edit file"
+      title="编辑文件"
       subtitle={relative(getCwd(), filePath)}
       question={
         <Text>
-          Do you want to make this edit to{' '}
-          <Text bold>{basename(filePath)}</Text>?
+          是否要编辑 <Text bold>{basename(filePath)}</Text>？
         </Text>
       }
       content={
