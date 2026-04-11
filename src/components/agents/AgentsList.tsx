@@ -55,7 +55,7 @@ export function AgentsList({
           {isCreateNewSelected ? `${figures.pointer} ` : '  '}
         </Text>
         <Text color={isCreateNewSelected ? 'suggestion' : undefined}>
-          Create new agent
+          创建新智能体
         </Text>
       </Box>
     )
@@ -92,7 +92,7 @@ export function AgentsList({
         {agent.memory && (
           <Text dimColor={true} color={textColor}>
             {' · '}
-            {agent.memory} memory
+            {agent.memory} 内存
           </Text>
         )}
         {overriddenBy && (
@@ -101,7 +101,7 @@ export function AgentsList({
             color={isSelected ? 'warning' : undefined}
           >
             {' '}
-            {figures.warning} shadowed by {getOverrideSourceLabel(overriddenBy)}
+            {figures.warning} 被 {getOverrideSourceLabel(overriddenBy)} 遮蔽
           </Text>
         )}
       </Box>
@@ -193,7 +193,7 @@ export function AgentsList({
   }
 
   const renderBuiltInAgentsSection = (
-    title = 'Built-in (always available):',
+    title = '内置（始终可用）：',
   ) => {
     const builtInAgents = sortedAgents.filter(a => a.source === 'built-in')
     return (
@@ -236,7 +236,7 @@ export function AgentsList({
     return (
       <Dialog
         title={sourceTitle}
-        subtitle="No agents found"
+        subtitle="未找到智能体"
         onCancel={onBack}
         hideInputGuide
       >
@@ -249,16 +249,13 @@ export function AgentsList({
         >
           {onCreateNew && <Box>{renderCreateNewOption()}</Box>}
           <Text dimColor>
-            No agents found. Create specialized subagents that Claude can
-            delegate to.
+            未找到智能体。创建 Claude 可以委托的专业子智能体。
           </Text>
           <Text dimColor>
-            Each subagent has its own context window, custom system prompt, and
-            specific tools.
+            每个子智能体都有自己独立的上下文窗口、自定义系统提示和特定工具。
           </Text>
           <Text dimColor>
-            Try creating: Code Reviewer, Code Simplifier, Security Reviewer,
-            Tech Lead, or UX Reviewer.
+            试试创建：代码审查员、代码简化器、安全审查员、技术主管或 UX 审查员。
           </Text>
           {source !== 'built-in' &&
             sortedAgents.some(a => a.source === 'built-in') && (
@@ -275,7 +272,7 @@ export function AgentsList({
   return (
     <Dialog
       title={sourceTitle}
-      subtitle={`${count(sortedAgents, a => !a.overriddenBy)} agents`}
+      subtitle={`${count(sortedAgents, a => !a.overriddenBy)} 个智能体`}
       onCancel={onBack}
       hideInputGuide
     >
@@ -306,7 +303,7 @@ export function AgentsList({
             {builtInAgents.length > 0 && (
               <Box flexDirection="column" marginBottom={1} paddingLeft={2}>
                 <Text dimColor>
-                  <Text bold>Built-in agents</Text> (always available)
+                  <Text bold>内置智能体</Text>（始终可用）
                 </Text>
                 {builtInAgents.map(renderAgent)}
               </Box>
@@ -315,7 +312,7 @@ export function AgentsList({
         ) : source === 'built-in' ? (
           <>
             <Text dimColor italic>
-              Built-in agents are provided by default and cannot be modified.
+              内置智能体由系统默认提供，无法修改。
             </Text>
             <Box marginTop={1} flexDirection="column">
               {sortedAgents.map(agent => renderAgent(agent))}

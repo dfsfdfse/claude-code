@@ -191,9 +191,9 @@ import stats from './commands/stats/index.js'
 const usageReport: Command = {
   type: 'prompt',
   name: 'insights',
-  description: 'Generate a report analyzing your Claude Code sessions',
+  description: '生成分析 Claude Code 会话的报告',
   contentLength: 0,
-  progressMessage: 'analyzing your sessions',
+  progressMessage: '正在分析会话',
   source: 'builtin',
   async getPromptForCommand(args, context) {
     const real = (await import('./commands/insights.js')).default
@@ -362,14 +362,12 @@ async function getSkills(cwd: string): Promise<{
     const [skillDirCommands, pluginSkills] = await Promise.all([
       getSkillDirCommands(cwd).catch(err => {
         logError(toError(err))
-        logForDebugging(
-          'Skill directory commands failed to load, continuing without them',
-        )
+        logForDebugging('Skill 目录命令加载失败，继续执行而不加载它们')
         return []
       }),
       getPluginSkills().catch(err => {
         logError(toError(err))
-        logForDebugging('Plugin skills failed to load, continuing without them')
+        logForDebugging('插件技能加载失败，继续执行而不加载它们')
         return []
       }),
     ])
@@ -378,7 +376,7 @@ async function getSkills(cwd: string): Promise<{
     // Built-in plugin skills come from enabled built-in plugins
     const builtinPluginSkills = getBuiltinPluginSkillCommands()
     logForDebugging(
-      `getSkills returning: ${skillDirCommands.length} skill dir commands, ${pluginSkills.length} plugin skills, ${bundledSkills.length} bundled skills, ${builtinPluginSkills.length} builtin plugin skills`,
+      `getSkills 返回结果：${skillDirCommands.length} 个 skill 目录命令、${pluginSkills.length} 个插件技能、${bundledSkills.length} 个内置技能、${builtinPluginSkills.length} 个内置插件技能`,
     )
     return {
       skillDirCommands,
@@ -389,7 +387,7 @@ async function getSkills(cwd: string): Promise<{
   } catch (err) {
     // This should never happen since we catch at the Promise level, but defensive
     logError(toError(err))
-    logForDebugging('Unexpected error in getSkills, returning empty')
+    logForDebugging('getSkills 中出现意外错误，返回空结果')
     return {
       skillDirCommands: [],
       pluginSkills: [],
@@ -603,7 +601,7 @@ export const getSlashCommandToolSkills = memoize(
       logError(toError(error))
       // Return empty array rather than throwing - skills are non-critical
       // This prevents skill loading failures from breaking the entire system
-      logForDebugging('Returning empty skills array due to load failure')
+      logForDebugging('因加载失败返回空技能数组')
       return []
     }
   },
