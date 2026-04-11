@@ -1,62 +1,62 @@
 import { AGENT_TOOL_NAME } from '../../tools/AgentTool/constants.js'
 import { registerBundledSkill } from '../bundledSkills.js'
 
-const SIMPLIFY_PROMPT = `# Simplify: Code Review and Cleanup
+const SIMPLIFY_PROMPT = `# 简化：代码审查与清理
 
-Review all changed files for reuse, quality, and efficiency. Fix any issues found.
+审查所有变更文件，查找复用、质量和效率问题，并修复发现的问题。
 
-## Phase 1: Identify Changes
+## 阶段 1：识别变更
 
-Run \`git diff\` (or \`git diff HEAD\` if there are staged changes) to see what changed. If there are no git changes, review the most recently modified files that the user mentioned or that you edited earlier in this conversation.
+运行 \`git diff\`（或 \`git diff HEAD\` 如果有暂存的变更）查看变更内容。如果没有 git 变更，审查用户提到的或本对话中早些编辑的最最近修改的文件。
 
-## Phase 2: Launch Three Review Agents in Parallel
+## 阶段 2：并行启动三个审查智能体
 
-Use the ${AGENT_TOOL_NAME} tool to launch all three agents concurrently in a single message. Pass each agent the full diff so it has the complete context.
+使用 ${AGENT_TOOL_NAME} 工具在单条消息中并行启动所有三个智能体。向每个智能体传递完整 diff 以获得完整上下文。
 
-### Agent 1: Code Reuse Review
+### 智能体 1：代码复用审查
 
-For each change:
+对每个变更：
 
-1. **Search for existing utilities and helpers** that could replace newly written code. Look for similar patterns elsewhere in the codebase — common locations are utility directories, shared modules, and files adjacent to the changed ones.
-2. **Flag any new function that duplicates existing functionality.** Suggest the existing function to use instead.
-3. **Flag any inline logic that could use an existing utility** — hand-rolled string manipulation, manual path handling, custom environment checks, ad-hoc type guards, and similar patterns are common candidates.
+1. **搜索现有工具和辅助函数** 可能替代新编写代码的部分。在代码库中查找类似模式 — 常见位置有工具目录、共享模块和变更文件的相邻文件。
+2. **标记任何重复现有功能的函数。** 建议使用现有函数代替。
+3. **标记任何可以使用现有工具的内联逻辑** — 手动字符串处理、路径处理、环境检查、临时类型守卫等模式是常见候选。
 
-### Agent 2: Code Quality Review
+### 智能体 2：代码质量审查
 
-Review the same changes for hacky patterns:
+审查相同变更中的 hack 模式：
 
-1. **Redundant state**: state that duplicates existing state, cached values that could be derived, observers/effects that could be direct calls
-2. **Parameter sprawl**: adding new parameters to a function instead of generalizing or restructuring existing ones
-3. **Copy-paste with slight variation**: near-duplicate code blocks that should be unified with a shared abstraction
-4. **Leaky abstractions**: exposing internal details that should be encapsulated, or breaking existing abstraction boundaries
-5. **Stringly-typed code**: using raw strings where constants, enums (string unions), or branded types already exist in the codebase
-6. **Unnecessary JSX nesting**: wrapper Boxes/elements that add no layout value — check if inner component props (flexShrink, alignItems, etc.) already provide the needed behavior
-7. **Unnecessary comments**: comments explaining WHAT the code does (well-named identifiers already do that), narrating the change, or referencing the task/caller — delete; keep only non-obvious WHY (hidden constraints, subtle invariants, workarounds)
+1. **冗余状态**：重复现有状态的状态、可派生缓存值、可直接调用的观察者/副作用
+2. **参数蔓延**：向函数添加新参数而不是泛化或重构现有参数
+3. **复制粘贴轻微变体**：应使用共享抽象统一的近似重复代码块
+4. **泄漏抽象**：暴露应该封装的内部细节，或破坏现有抽象边界
+5. **字符串类型代码**：在已有常量、枚举（字符串联合）或品牌类型的地方使用原始字符串
+6. **不必要的 JSX 嵌套**：不增加布局价值的包装 Box/元素 — 检查内部组件 props（flexShrink、alignItems 等）是否已提供所需行为
+7. **不必要的注释**：解释代码做什么的注释（良好命名的标识符已做到）、叙述变更的注释、或引用任务/调用者的注释 — 删除；仅保留非显而易见的为什么（隐藏约束、微妙不变量、变通方案）
 
-### Agent 3: Efficiency Review
+### 智能体 3：效率审查
 
-Review the same changes for efficiency:
+审查相同变更中的效率问题：
 
-1. **Unnecessary work**: redundant computations, repeated file reads, duplicate network/API calls, N+1 patterns
-2. **Missed concurrency**: independent operations run sequentially when they could run in parallel
-3. **Hot-path bloat**: new blocking work added to startup or per-request/per-render hot paths
-4. **Recurring no-op updates**: state/store updates inside polling loops, intervals, or event handlers that fire unconditionally — add a change-detection guard so downstream consumers aren't notified when nothing changed. Also: if a wrapper function takes an updater/reducer callback, verify it honors same-reference returns (or whatever the "no change" signal is) — otherwise callers' early-return no-ops are silently defeated
-5. **Unnecessary existence checks**: pre-checking file/resource existence before operating (TOCTOU anti-pattern) — operate directly and handle the error
-6. **Memory**: unbounded data structures, missing cleanup, event listener leaks
-7. **Overly broad operations**: reading entire files when only a portion is needed, loading all items when filtering for one
+1. **不必要的工作**：冗余计算、重复文件读取、重复网络/API 调用、N+1 模式
+2. **错失并发**：独立操作顺序运行而可以并行
+3. **热点膨胀**：添加到启动或每请求/每渲染热路径的新阻塞工作
+4. **重复无操作更新**：轮询循环、间隔或无条件触发的事件处理器内部的状态/存储更新 — 添加变更检测守卫，以便下游消费者在无变更时不收到通知。同样：如果包装函数接受 updater/reducer 回调，验证它是否遵守同引用返回（或任何"无变更"信号）— 否则调用者的提前返回无操作会被静默破坏
+5. **不必要的存在检查**：操作前预检查文件/资源存在（TOCTOU 反模式）— 直接操作并处理错误
+6. **内存**：无界数据结构、缺失清理、事件监听器泄漏
+7. **过度宽泛的操作**：只需要一部分时读取整个文件、过滤一个时加载所有项
 
-## Phase 3: Fix Issues
+## 阶段 3：修复问题
 
-Wait for all three agents to complete. Aggregate their findings and fix each issue directly. If a finding is a false positive or not worth addressing, note it and move on — do not argue with the finding, just skip it.
+等待所有三个智能体完成。汇总它们的发现并直接修复每个问题。如果发现是误报或不值得处理，注明并继续 — 不要争论发现，跳过即可。
 
-When done, briefly summarize what was fixed (or confirm the code was already clean).
+完成后，简要总结修复了什么（或确认代码已经干净）。
 `
 
 export function registerSimplifySkill(): void {
   registerBundledSkill({
     name: 'simplify',
     description:
-      'Review changed code for reuse, quality, and efficiency, then fix any issues found.',
+      '审查变更代码的复用性、质量和效率，然后修复发现的问题。',
     userInvocable: true,
     async getPromptForCommand(args) {
       let prompt = SIMPLIFY_PROMPT

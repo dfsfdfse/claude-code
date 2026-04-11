@@ -239,7 +239,7 @@ export function registerLoremIpsumSkill(): void {
   registerBundledSkill({
     name: 'lorem-ipsum',
     description:
-      'Generate filler text for long context testing. Specify token count as argument (e.g., /lorem-ipsum 50000). Outputs approximately the requested number of tokens. Ant-only.',
+      '生成长上下文的占位文本。指定 token 数量作为参数（例如 /lorem-ipsum 50000）。输出大约请求的 token 数量。Ant 专属。',
     argumentHint: '[token_count]',
     userInvocable: true,
     async getPromptForCommand(args) {
@@ -249,28 +249,28 @@ export function registerLoremIpsumSkill(): void {
         return [
           {
             type: 'text',
-            text: 'Invalid token count. Please provide a positive number (e.g., /lorem-ipsum 10000).',
+            text: '无效的 token 数量。请提供一个正数（例如 /lorem-ipsum 10000）。',
           },
         ]
       }
 
       const targetTokens = parsed || 10000
 
-      // Cap at 500k tokens for safety
+      // 为安全起见，上限为 500k tokens
       const cappedTokens = Math.min(targetTokens, 500_000)
 
       if (cappedTokens < targetTokens) {
         return [
           {
             type: 'text',
-            text: `Requested ${targetTokens} tokens, but capped at 500,000 for safety.\n\n${generateLoremIpsum(cappedTokens)}`,
+            text: `请求 ${targetTokens} tokens，但为安全起见上限为 500,000。\n\n${generateLoremIpsum(cappedTokens)}`,
           },
         ]
       }
 
       const loremText = generateLoremIpsum(cappedTokens)
 
-      // Just dump the lorem ipsum text into the conversation
+      // 将 lorem ipsum 文本直接输出到对话中
       return [
         {
           type: 'text',
