@@ -1434,6 +1434,7 @@ export async function shouldShowClaudeMdExternalIncludesWarning(): Promise<boole
  */
 export function isMemoryFilePath(filePath: string): boolean {
   const name = basename(filePath)
+  const normalizedPath = normalizePathForComparison(filePath)
 
   // CLAUDE.md or CLAUDE.local.md anywhere
   if (name === 'CLAUDE.md' || name === 'CLAUDE.local.md') {
@@ -1444,8 +1445,7 @@ export function isMemoryFilePath(filePath: string): boolean {
   // Support both Unix (/) and Windows (\) path separators for cross-platform compatibility
   if (
     name.endsWith('.md') &&
-    (filePath.includes(`${sep}.claude${sep}rules${sep}`) ||
-      filePath.includes(`/.claude/rules/`))
+    normalizedPath.includes('/.claude/rules/')
   ) {
     return true
   }

@@ -32,8 +32,8 @@ import { createUserMessage } from '../utils/messages.js'
 function convertAssistantMessage(msg: SDKAssistantMessage): AssistantMessage {
   return {
     type: 'assistant',
-    message: msg.message,
-    uuid: msg.uuid,
+    message: msg.message!,
+    uuid: msg.uuid!,
     requestId: undefined,
     timestamp: new Date().toISOString(),
     error: msg.error,
@@ -64,7 +64,7 @@ function convertResultMessage(msg: SDKResultMessage): SystemMessage {
     subtype: 'informational',
     content,
     level: isError ? 'warning' : 'info',
-    uuid: msg.uuid,
+    uuid: msg.uuid!,
     timestamp: new Date().toISOString(),
   }
 }
@@ -78,7 +78,7 @@ function convertInitMessage(msg: SDKSystemMessage): SystemMessage {
     subtype: 'informational',
     content: `远程会话已初始化 (模型: ${msg.model})`,
     level: 'info',
-    uuid: msg.uuid,
+    uuid: msg.uuid!,
     timestamp: new Date().toISOString(),
   }
 }
@@ -99,7 +99,7 @@ function convertStatusMessage(msg: SDKStatusMessage): SystemMessage | null {
         ? '正在压缩对话…'
         : `状态: ${msg.status}`,
     level: 'info',
-    uuid: msg.uuid,
+    uuid: msg.uuid!,
     timestamp: new Date().toISOString(),
   }
 }
@@ -117,7 +117,7 @@ function convertToolProgressMessage(
     subtype: 'informational',
     content: `工具 ${msg.tool_name} 运行中 ${msg.elapsed_time_seconds}s…`,
     level: 'info',
-    uuid: msg.uuid,
+    uuid: msg.uuid!,
     timestamp: new Date().toISOString(),
     toolUseID: msg.tool_use_id,
   }
@@ -134,7 +134,7 @@ function convertCompactBoundaryMessage(
     subtype: 'compact_boundary',
     content: '会话已压缩',
     level: 'info',
-    uuid: msg.uuid,
+    uuid: msg.uuid!,
     timestamp: new Date().toISOString(),
     compactMetadata: fromSDKCompactMetadata(msg.compact_metadata),
   }

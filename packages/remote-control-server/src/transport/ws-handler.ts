@@ -2,6 +2,7 @@ import type { WSContext } from "hono/ws";
 import { getEventBus } from "./event-bus";
 import type { SessionEvent } from "./event-bus";
 import { publishSessionEvent } from "../services/transport";
+import { log, error as logError } from "../logger";
 
 // Per-connection cleanup, keyed by sessionId (only one WS per session)
 interface CleanupEntry {
@@ -24,13 +25,14 @@ const SERVER_KEEPALIVE_INTERVAL_MS = 60_000;
  */
 function toSDKMessage(event: SessionEvent): string {
   const payload = event.payload as Record<string, unknown> | null;
+  const messageUuid = typeof payload?.uuid === "string" && payload.uuid ? payload.uuid : event.id;
 
   let msg: Record<string, unknown>;
 
   if (event.type === "user" || event.type === "user_message") {
     msg = {
       type: "user",
-      uuid: event.id,
+      uuid: messageUuid,
       session_id: event.sessionId,
       message: {
         role: "user",
@@ -82,7 +84,7 @@ function toSDKMessage(event: SessionEvent): string {
   } else {
     msg = {
       type: event.type,
-      uuid: event.id,
+      uuid: messageUuid,
       session_id: event.sessionId,
       message: payload,
     };
@@ -96,13 +98,13 @@ function toSDKMessage(event: SessionEvent): string {
 /** Called from onOpen — subscribes to event bus, forwards outbound events to bridge WS */
 export function handleWebSocketOpen(ws: WSContext, sessionId: string) {
   const openTime = Date.now();
-  console.log(`[RC-DEBUG] [WS] Open session=${sessionId}`);
+  log(`[RC-DEBUG] [WS] Open session=${sessionId}`);
   activeConnections.add(ws);
 
   // If there's an existing connection for this session, clean it up first
   const existing = cleanupBySession.get(sessionId);
   if (existing) {
-    console.log(`[WS] Replacing existing connection for session=${sessionId}`);
+    log(`[WS] Replacing existing connection for session=${sessionId}`);
     existing.unsub();
     clearInterval(existing.keepalive);
     activeConnections.delete(existing.ws);
@@ -114,7 +116,7 @@ export function handleWebSocketOpen(ws: WSContext, sessionId: string) {
   // the full conversation history — assistant replies are inbound events.
   const missed = bus.getEventsSince(0);
   if (missed.length > 0) {
-    console.log(`[WS] Replaying ${missed.length} missed event(s)`);
+    log(`[WS] Replaying ${missed.length} missed event(s)`);
     for (const event of missed) {
       if (ws.readyState !== 1) break;
       try {
@@ -130,10 +132,10 @@ export function handleWebSocketOpen(ws: WSContext, sessionId: string) {
     if (event.direction !== "outbound") return;
     try {
       const sdkMsg = toSDKMessage(event);
-      console.log(`[RC-DEBUG] [WS] -> bridge (outbound): type=${event.type} len=${sdkMsg.length} msg=${sdkMsg.slice(0, 300)}`);
+      log(`[RC-DEBUG] [WS] -> bridge (outbound): type=${event.type} len=${sdkMsg.length} msg=${sdkMsg.slice(0, 300)}`);
       ws.send(sdkMsg);
     } catch (err) {
-      console.error("[RC-DEBUG] [WS] send error:", err);
+      logError("[RC-DEBUG] [WS] send error:", err);
     }
   });
 
@@ -161,7 +163,7 @@ export function handleWebSocketMessage(ws: WSContext, sessionId: string, data: s
     try {
       ingestBridgeMessage(sessionId, JSON.parse(line));
     } catch (err) {
-      console.error("[WS] parse error:", err);
+      logError("[WS] parse error:", err);
     }
   }
 }
@@ -173,7 +175,7 @@ export function handleWebSocketClose(ws: WSContext, sessionId: string, code?: nu
   const entry = cleanupBySession.get(sessionId);
   const duration = entry ? Math.round((Date.now() - entry.openTime) / 1000) : -1;
 
-  console.log(`[WS] Close session=${sessionId} code=${code ?? "none"} reason=${reason || "(none)"} duration=${duration}s`);
+  log(`[WS] Close session=${sessionId} code=${code ?? "none"} reason=${reason || "(none)"} duration=${duration}s`);
 
   if (entry) {
     entry.unsub();
@@ -215,7 +217,7 @@ export function ingestBridgeMessage(sessionId: string, msg: Record<string, unkno
 
   const eventType = deriveEventType(msg);
 
-  console.log(`[RC-DEBUG] [WS] <- bridge (inbound): sessionId=${sessionId} type=${eventType}${msg.uuid ? ` uuid=${msg.uuid}` : ""} msg=${JSON.stringify(msg).slice(0, 300)}`);
+  log(`[RC-DEBUG] [WS] <- bridge (inbound): sessionId=${sessionId} type=${eventType}${msg.uuid ? ` uuid=${msg.uuid}` : ""} msg=${JSON.stringify(msg).slice(0, 300)}`);
 
   let payload: unknown;
 
@@ -255,7 +257,7 @@ export function closeAllConnections(): void {
   const count = activeConnections.size;
   if (count === 0) return;
 
-  console.log(`[WS] Gracefully closing ${count} active connection(s)...`);
+  log(`[WS] Gracefully closing ${count} active connection(s)...`);
   for (const [sessionId, entry] of cleanupBySession) {
     try {
       entry.unsub();
@@ -269,5 +271,5 @@ export function closeAllConnections(): void {
   }
   cleanupBySession.clear();
   activeConnections.clear();
-  console.log("[WS] All connections closed");
+  log("[WS] All connections closed");
 }

@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
 import type { Command } from '../commands.js'
 import { maybeMarkProjectOnboardingComplete } from '../projectOnboardingState.js'
+import { AUTONOMY_AGENTS_PATH_POSIX } from '../utils/autonomyAuthority.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
 
 const OLD_INIT_PROMPT = `请分析此代码库并创建 CLAUDE.md 文件，该文件将提供给未来的 Claude Code 实例以在此仓库中操作。
@@ -43,7 +44,7 @@ const NEW_INIT_PROMPT = `为此仓库设置最小的 CLAUDE.md（以及可选的
 
 ## 阶段 2：探索代码库
 
-启动一个子代理来调查代码库，并要求它阅读关键文件以了解项目：清单文件（package.json、Cargo.toml、pyproject.toml、go.mod、pom.xml 等）、README、Makefile/构建配置、CI 配置、现有 CLAUDE.md、.claude/rules/、AGENTS.md、.cursor/rules 或 .cursorrules、.github/copilot-instructions.md、.windsurfrules、.clinerules、.mcp.json。
+启动一个子代理来调查代码库，并要求它阅读关键文件以了解项目：清单文件（package.json、Cargo.toml、pyproject.toml、go.mod、pom.xml 等）、README、Makefile/构建配置、CI 配置、现有 CLAUDE.md、.claude/rules/、${AUTONOMY_AGENTS_PATH_POSIX}、.cursor/rules 或 .cursorrules、.github/copilot-instructions.md、.windsurfrules、.clinerules、.mcp.json。
 
 检测：
 - 构建、测试和 lint 命令（特别是非标准命令）
@@ -105,7 +106,7 @@ const NEW_INIT_PROMPT = `为此仓库设置最小的 CLAUDE.md（以及可选的
 - 仓库礼仪（分支命名、PR 约定、提交风格）
 - 所需环境变量或设置步骤
 - 非显而易见的陷阱或架构决策
-- 现有 AI 编码工具配置的重要部分（如果存在）：AGENTS.md、.cursor/rules、.cursorrules、.github/copilot-instructions.md、.windsurfrules、.clinerules
+- 现有 AI 编码工具配置的重要部分（如果存在）：${AUTONOMY_AGENTS_PATH_POSIX}、.cursor/rules、.cursorrules、.github/copilot-instructions.md、.windsurfrules、.clinerules
 
 排除：
 - 文件级结构或组件列表（Claude 可以通过阅读代码库发现这些）

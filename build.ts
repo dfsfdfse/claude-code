@@ -11,9 +11,6 @@ rmSync(outdir, { recursive: true, force: true })
 // Default features that match the official CLI build.
 // Additional features can be enabled via FEATURE_<NAME>=1 env vars.
 const DEFAULT_BUILD_FEATURES = [
-  'BUDDY',
-  'TRANSCRIPT_CLASSIFIER',
-  'BRIDGE_MODE',
   'AGENT_TRIGGERS_REMOTE',
   'CHICAGO_MCP',
   'VOICE_MODE',
@@ -33,6 +30,23 @@ const DEFAULT_BUILD_FEATURES = [
   'ULTRAPLAN',
   // P2: daemon + remote control server
   'DAEMON',
+  // ACP (Agent Client Protocol) agent mode
+  'ACP',
+  // PR-package restored features
+  'WORKFLOW_SCRIPTS',
+  'HISTORY_SNIP',
+  'CONTEXT_COLLAPSE',
+  'MONITOR_TOOL',
+  'FORK_SUBAGENT',
+//   'UDS_INBOX',
+  'KAIROS',
+  'COORDINATOR_MODE',
+  'LAN_PIPES',
+  'BG_SESSIONS',
+  'TEMPLATES',
+  // 'REVIEW_ARTIFACT', // API 请求无响应，需进一步排查 schema 兼容性
+  // P3: poor mode (disable extract_memories + prompt_suggestion)
+  'POOR',
 ]
 
 // Collect FEATURE_* env vars → Bun.build features
@@ -78,8 +92,27 @@ for (const file of files) {
   }
 }
 
+// Also patch unguarded globalThis.Bun destructuring from third-party deps
+// (e.g. @anthropic-ai/sandbox-runtime) so Node.js doesn't crash at import time.
+let bunPatched = 0
+const BUN_DESTRUCTURE = /var \{([^}]+)\} = globalThis\.Bun;?/g
+const BUN_DESTRUCTURE_SAFE = 'var {$1} = typeof globalThis.Bun !== "undefined" ? globalThis.Bun : {};'
+for (const file of files) {
+  if (!file.endsWith('.js')) continue
+  const filePath = join(outdir, file)
+  const content = await readFile(filePath, 'utf-8')
+  if (BUN_DESTRUCTURE.test(content)) {
+    await writeFile(
+      filePath,
+      content.replace(BUN_DESTRUCTURE, BUN_DESTRUCTURE_SAFE),
+    )
+    bunPatched++
+  }
+}
+BUN_DESTRUCTURE.lastIndex = 0
+
 console.log(
-  `Bundled ${result.outputs.length} files to ${outdir}/ (patched ${patched} for Node.js compat)`,
+  `Bundled ${result.outputs.length} files to ${outdir}/ (patched ${patched} for import.meta.require, ${bunPatched} for Bun destructure)`,
 )
 
 // Step 4: Copy native .node addon files (audio-capture)
@@ -102,3 +135,18 @@ if (!rgScript.success) {
 } else {
   console.log(`Bundled download-ripgrep script to ${outdir}/`)
 }
+
+// Step 6: Generate cli-bun and cli-node executable entry points
+const cliBun = join(outdir, 'cli-bun.js')
+const cliNode = join(outdir, 'cli-node.js')
+
+await writeFile(cliBun, '#!/usr/bin/env bun\nimport "./cli.js"\n')
+
+await writeFile(cliNode, '#!/usr/bin/env node\nimport "./cli.js"\n')
+
+// Make both executable
+const { chmodSync } = await import('fs')
+chmodSync(cliBun, 0o755)
+chmodSync(cliNode, 0o755)
+
+console.log(`Generated ${cliBun} (shebang: bun) and ${cliNode} (shebang: node)`)
