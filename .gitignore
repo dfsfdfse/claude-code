@@ -44,3 +44,5 @@ data
 !.codex/prompts/
 !.codex/prompts/**
 teach-me
+build/
+*.bun-build
