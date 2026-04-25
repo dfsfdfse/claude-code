@@ -16,8 +16,8 @@ import type {
 } from 'src/entrypoints/agentSdkTypes.js'
 import type { BetaMessageDeltaUsage } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
 import { accumulateUsage, updateUsage } from 'src/services/api/claude.js'
-import type { NonNullableUsage } from 'src/services/api/logging.js'
-import { EMPTY_USAGE } from 'src/services/api/logging.js'
+import type { NonNullableUsage } from '@ant/model-provider'
+import { EMPTY_USAGE } from '@ant/model-provider'
 import stripAnsi from 'strip-ansi'
 import type { Command } from './commands.js'
 import { getSlashCommandToolSkills } from './commands.js'
@@ -86,9 +86,13 @@ import {
 
 // Lazy: MessageSelector.tsx pulls React/ink; only needed for message filtering at query time
 /* eslint-disable @typescript-eslint/no-require-imports */
-const messageSelector =
-  (): typeof import('src/components/MessageSelector.js') =>
-    require('src/components/MessageSelector.js')
+const messageSelector = (): typeof import('src/components/MessageSelector.js') | null => {
+  try {
+    return require('src/components/MessageSelector.js')
+  } catch {
+    return null
+  }
+}
 
 import {
   localCommandOutputToSDKAssistantMessage,
@@ -466,12 +470,13 @@ export class QueryEngine {
     }
 
     // Filter messages that should be acknowledged after transcript
+    const _selector = messageSelector()
     const replayableMessages = messagesFromUserInput.filter(
       msg =>
         (msg.type === 'user' &&
           !msg.isMeta && // Skip synthetic caveat messages
           !msg.toolUseResult && // Skip tool results (they'll be acked from query)
-          messageSelector().selectableUserMessagesFilter(msg)) || // Skip non-user-authored messages (task notifications, etc.)
+          (_selector?.selectableUserMessagesFilter(msg) ?? true)) || // Skip non-user-authored messages (task notifications, etc.)
         (msg.type === 'system' && msg.subtype === 'compact_boundary'), // Always ack compact boundaries
     )
     const messagesToAck = replayUserMessages ? replayableMessages : []
@@ -643,8 +648,10 @@ export class QueryEngine {
     }
 
     if (fileHistoryEnabled() && persistSession) {
+      const _sel = messageSelector()
+      const _filter = _sel?.selectableUserMessagesFilter ?? ((_msg: unknown) => true)
       messagesFromUserInput
-        .filter(messageSelector().selectableUserMessagesFilter)
+        .filter(_filter)
         .forEach(message => {
           void fileHistoryMakeSnapshot(
             (updater: (prev: FileHistoryState) => FileHistoryState) => {

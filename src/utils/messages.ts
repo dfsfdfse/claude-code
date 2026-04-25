@@ -3525,13 +3525,41 @@ export function normalizeAttachmentForAPI(
   // be gated, but this pattern can — same approach as teammate_mailbox above.
   if (feature('EXPERIMENTAL_SKILL_SEARCH')) {
     if (attachment.type === 'skill_discovery') {
-      if (attachment.skills.length === 0) return []
-      const lines = attachment.skills.map(s => `- ${s.name}: ${s.description}`)
+      if (attachment.skills.length === 0 && !attachment.gap) return []
+      const loaded = attachment.skills.filter(s => s.autoLoaded && s.content)
+      const recommended = attachment.skills.filter(s => !s.autoLoaded)
+      const loadedSections = loaded.map(
+        s =>
+          `<${COMMAND_NAME_TAG}>${s.name}</${COMMAND_NAME_TAG}>\n` +
+          `<loaded-skill name="${s.name}" path="${s.path ?? ''}">\n${s.content}\n</loaded-skill>`,
+      )
+      const recommendationLines = recommended.map(
+        s => `- ${s.name}: ${s.description}`,
+      )
+      const gapText = attachment.gap
+        ? [
+            'No high-confidence active skill was auto-loaded for this request.',
+            attachment.gap.activePath
+              ? `A learned skill was promoted for future turns: ${attachment.gap.activeName} (${attachment.gap.activePath}).`
+              : attachment.gap.draftPath
+                ? `A draft learned skill candidate was created: ${attachment.gap.draftName} (${attachment.gap.draftPath}).`
+                : `The skill gap was recorded for future learning: ${attachment.gap.key}.`,
+          ].join('\n')
+        : ''
       return wrapMessagesInSystemReminder([
         createUserMessage({
-          content:
-            `与你任务相关的技能如下：\n\n${lines.join('\n')}\n\n` +
-            `这些技能封装了项目约定，可通过 Skill("<名称>") 获取完整用法说明。`,       
+          content: [
+            loadedSections.length > 0
+              ? `以下技能已自动加载，请直接应用其指令，无需再次调用 Skill("<名称>")：\n\n${loadedSections.join('\n\n')}`
+              : '',
+            recommendationLines.length > 0
+              ? `还发现了其他相关技能但未自动加载：\n\n${recommendationLines.join('\n')}\n\n仅在需要完整说明时通过 Skill("<名称>") 调用。`
+              : '',
+            gapText,
+          ]
+            .filter(Boolean)
+            .join('\n\n'),
+
           isMeta: true,
         }),
       ])
@@ -3539,7 +3567,6 @@ export function normalizeAttachmentForAPI(
   }
 
   // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- teammate_mailbox/team_context/skill_discovery/bagel_console handled above
-  // biome-ignore lint/nursery/useExhaustiveSwitchCases: teammate_mailbox/team_context/max_turns_reached/skill_discovery/bagel_console handled above, can't add case for dead code elimination
   switch (attachment.type) {
     case 'directory': {
       return wrapMessagesInSystemReminder([

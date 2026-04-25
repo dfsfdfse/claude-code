@@ -13,17 +13,22 @@
 ┌──────────────────┐   HTTP/SSE        │  │ In-Memory    │    │
 │  Web UI 控制面板  │ ◄─────────────── │  │ Store        │    │
 │  (/code/*)       │                   │  └──────────────┘    │
-└──────────────────┘                   │  ┌──────────────┐    │
-                                       │  │ JWT Auth     │    │
+│  (React + Vite)  │                   │  ┌──────────────┐    │
+└──────────────────┘                   │  │ JWT Auth     │    │
                                        │  └──────────────┘    │
-                                       └──────────────────────┘
+┌──────────────────┐                   │  ┌──────────────┐    │
+│  acp-link        │ ◄── ACP Relay ─── │  │ ACP Handler  │    │
+│  + ACP Agent     │     WebSocket      │  └──────────────┘    │
+└──────────────────┘                   └──────────────────────┘
 ```
 
 **RCS 是一个纯内存的中间服务**，它的职责是：
 - 接收 Claude Code CLI 的环境注册和工作轮询
+- 接收 acp-link 的 ACP agent 注册，支持 WebSocket relay 桥接
 - 提供 Web UI 供操作者远程监控和审批
 - 通过 WebSocket/SSE 双向传输消息
 - 管理会话、环境、权限请求
+- 提供 ACP SSE event stream 供外部消费者订阅 channel group 事件
 
 ## 前置条件
 
@@ -99,6 +104,8 @@ docker compose up -d
 | `RCS_HEARTBEAT_INTERVAL` | 否 | `20` | 心跳间隔（秒） |
 | `RCS_JWT_EXPIRES_IN` | 否 | `3600` | JWT 令牌有效期（秒） |
 | `RCS_DISCONNECT_TIMEOUT` | 否 | `300` | 断线判定超时（秒） |
+| `RCS_WS_IDLE_TIMEOUT` | 否 | `30` | WebSocket 空闲超时（秒），Bun 发送协议级 ping |
+| `RCS_WS_KEEPALIVE_INTERVAL` | 否 | `20` | 服务端→客户端 keep_alive 帧间隔（秒），防止反向代理关闭空闲连接 |
 
 ### 客户端（Claude Code CLI）
 
@@ -169,14 +176,68 @@ claude bridge
 
 ## Web UI 控制面板
 
-通过 `/remote-control` 命令获取 URL 后，在浏览器打开即可使用。功能：
+通过 `/remote-control` 命令获取 URL 后，在浏览器打开即可使用。
 
-- 查看已注册的运行环境（environment 模式）
+### 技术栈（v2，2026-04-18 重构）
+
+Web UI 已从原生 JS 重构为 **React + Vite + Radix UI**：
+
+- **框架**: React 19 + Vite 构建，TypeScript
+- **UI 组件**: Radix UI primitives（Dialog、Tabs、Select、Popover 等）
+- **聊天组件**: 完整的 ACP 聊天界面，支持 Plan 可视化、工具调用展示、权限审批
+- **AI Elements**: 独立的 AI 交互组件库（message、reasoning、tool、code-block、prompt-input 等）
+- **ACP 直连**: 支持 QR 码扫描自动跳转 ACP 直连视图（`ACPDirectView`）
+- **主题系统**: 暗色/亮色主题切换，遵循 Impeccable 设计系统
+
+### 功能
+
+- 查看已注册的运行环境（environment 模式），区分 ACP Agent 和 Claude Code 类型
 - 创建和管理会话
 - 实时查看对话消息和工具调用
+- 查看 Autopilot 状态（`standby` / `sleeping`）和自动运行指示
+- 查看 authoritative task snapshots 驱动的 Tasks 面板
 - 审批 Claude Code 的工具权限请求
+- 权限模式选择器（6 种模式：默认/自动接受编辑/跳过权限/规划/不询问/自动判断）
+- 模型选择器（可选可用模型）
+- Plan 可视化（进度条、状态图标、优先级标签）
+- ACP QR 扫描自动跳转到 ACP 聊天界面
 
 Web UI 使用 UUID 认证（无需用户账户），适合受信任网络环境。
+
+## ACP 支持
+
+RCS 支持 ACP (Agent Client Protocol) agent 通过 `acp-link` 包接入。
+
+### 架构
+
+```
+acp-link ──REST注册──► RCS POST /v1/environments/bridge
+acp-link ──WS identify──► RCS WebSocket (携带 agentId)
+acp-link ◄──ACP relay──► RCS ◄──Web UI WS──► 浏览器
+```
+
+### 后端组件
+
+| 文件 | 职责 |
+|------|------|
+| `src/routes/acp/index.ts` | ACP REST 路由：agents 列表、channel groups、relay |
+| `src/transport/acp-ws-handler.ts` | ACP WebSocket 处理：agent 注册、心跳、消息转发 |
+| `src/transport/acp-relay-handler.ts` | 前端 WS → acp-link 透传 + EventBus inbound 转发 |
+| `src/transport/acp-sse-writer.ts` | SSE event stream 供外部消费者订阅 |
+
+### acp-link 连接
+
+详见 [acp-link 文档](./acp-link.md)。
+
+```bash
+# 在 RCS 环境中启动 acp-link
+# 注意：claude 本身不支持 ACP，需要用 ccb-bun --acp
+ACP_RCS_URL=http://localhost:3000 \
+ACP_RCS_TOKEN=sk-rcs-your-key \
+acp-link ccb-bun -- --acp
+```
+
+ACP session 在 Web UI 中显示品牌色标签，与普通 Claude Code session 区分。
 
 ## 工作流程详解
 
@@ -215,6 +276,7 @@ Web UI 使用 UUID 认证（无需用户账户），适合受信任网络环境�
  9. 双向通信
     CLI ──消息/工具调用结果──► RCS ──► Browser
     CLI ◄──权限审批/指令───── RCS ◄──── Browser
+    CLI ──automation_state / task_state──► RCS ──► Browser
 
 10. 心跳保活（每 20 秒）
     CLI ──POST /v1/environments/:id/work/:workId/heartbeat──► RCS
@@ -223,6 +285,13 @@ Web UI 使用 UUID 认证（无需用户账户），适合受信任网络环境�
 ```
 
 ## 故障排查
+
+### Web UI 看不到当前 Autopilot 状态
+
+- `standby`：proactive 已开启，正在等待下一个 tick
+- `sleeping`：模型正在 `SleepTool` 等待窗口中
+
+这两个状态通过 worker `external_metadata.automation_state` 上报。如果页面只显示普通 working spinner，优先检查 CLI 和 RCS 之间的 worker metadata PUT 是否成功。
 
 ### CLI 无法连接
 

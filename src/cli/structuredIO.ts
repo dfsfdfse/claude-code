@@ -450,6 +450,7 @@ export class StructuredIO {
     } catch (error) {
       // biome-ignore lint/suspicious/noConsole:: 有意的控制台输出
       console.error(`解析流输入行时出错: ${line}: ${error}`)
+
       // eslint-disable-next-line custom-rules/no-process-exit
       process.exit(1)
     }
@@ -673,6 +674,7 @@ export class StructuredIO {
         } catch (error) {
           // biome-ignore lint/suspicious/noConsole:: 有意的控制台输出
           console.error(`Hook 回调 ${callbackId} 出错:`, error)
+
           return {}
         }
       },
@@ -763,7 +765,6 @@ export class StructuredIO {
 }
 
 function exitWithMessage(message: string): never {
-  // biome-ignore lint/suspicious/noConsole:: intentional console output
   console.error(message)
   // eslint-disable-next-line custom-rules/no-process-exit
   process.exit(1)

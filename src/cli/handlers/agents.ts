@@ -65,6 +65,7 @@ export async function agentsHandler(): Promise<void> {
     // biome-ignore lint/suspicious/noConsole:: intentional console output
     console.log(`${totalActive} 活动代理\n`)
     // biome-ignore lint/suspicious/noConsole:: intentional console output
+
     console.log(lines.join('\n').trimEnd())
   }
 }

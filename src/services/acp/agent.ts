@@ -459,10 +459,13 @@ export class AcpAgent implements Agent {
     const permissionContext = getEmptyToolPermissionContext()
     const tools: Tools = getTools(permissionContext)
 
-    // Parse permission mode from settings
+    // Parse permission mode from _meta (passed by RCS/acp-link) or fall back to settings
+    const metaPermissionMode = (params._meta as Record<string, unknown> | null | undefined)?.permissionMode as string | undefined
+    console.log('[ACP Agent] Session create _meta:', JSON.stringify(params._meta), 'extracted mode:', metaPermissionMode)
     const permissionMode = resolvePermissionMode(
-      this.getSetting<string>('permissions.defaultMode'),
+      metaPermissionMode ?? this.getSetting<string>('permissions.defaultMode'),
     )
+    console.log('[ACP Agent] Resolved permissionMode:', permissionMode)
 
     // Create the permission bridge canUseTool function
     const canUseTool = createAcpCanUseTool(
@@ -471,10 +474,16 @@ export class AcpAgent implements Agent {
       () => this.sessions.get(sessionId)?.modes.currentModeId ?? 'default',
       this.clientCapabilities,
       cwd,
+      (modeId: string) => { this.applySessionMode(sessionId, modeId) },
     )
 
     // Parse MCP servers from ACP params
     // MCP server config is handled separately in the tools system
+
+    // Check if bypass permissions is available (not running as root unless in sandbox)
+    const isBypassAvailable =
+      (typeof process.geteuid === 'function' ? process.geteuid() !== 0 : true) ||
+      !!process.env.IS_SANDBOX
 
     // Create a mutable AppState for the session
     const appState: AppState = {
@@ -482,6 +491,7 @@ export class AcpAgent implements Agent {
       toolPermissionContext: {
         ...permissionContext,
         mode: permissionMode as PermissionMode,
+        isBypassPermissionsModeAvailable: isBypassAvailable,
       },
     }
 
@@ -509,12 +519,15 @@ export class AcpAgent implements Agent {
 
     const queryEngine = new QueryEngine(engineConfig)
 
-    // Build modes
+    // Build modes — bypassPermissions only available when not running as root (or in sandbox)
     const availableModes = [
-      { id: 'auto', name: 'Auto', description: 'Use a model classifier to approve/deny permission prompts.' },
       { id: 'default', name: 'Default', description: 'Standard behavior, prompts for dangerous operations' },
       { id: 'acceptEdits', name: 'Accept Edits', description: 'Auto-accept file edit operations' },
       { id: 'plan', name: 'Plan Mode', description: 'Planning mode, no actual tool execution' },
+      { id: 'auto', name: 'Auto', description: 'Use a model classifier to approve/deny permission prompts.' },
+      ...(isBypassAvailable
+        ? [{ id: 'bypassPermissions' as const, name: 'Bypass Permissions', description: 'Skip all permission checks' }]
+        : []),
       { id: 'dontAsk', name: "Don't Ask", description: "Don't prompt for permissions, deny if not pre-approved" },
     ]
 
@@ -666,6 +679,11 @@ export class AcpAgent implements Agent {
     const session = this.sessions.get(sessionId)
     if (session) {
       session.modes = { ...session.modes, currentModeId: modeId }
+      // Sync mode to appState so the permission pipeline sees the correct mode
+      session.appState.toolPermissionContext = {
+        ...session.appState.toolPermissionContext,
+        mode: modeId as PermissionMode,
+      }
     }
   }
 

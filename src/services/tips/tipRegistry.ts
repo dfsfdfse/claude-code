@@ -109,7 +109,6 @@ const externalTips: Tip[] = [
       `复杂任务先用计划模式准备。按两次 ${getShortcutDisplay('chat:cycleMode', 'Chat', 'shift+tab')} 启用。`,
     cooldownSessions: 5,
     isRelevant: async () => {
-      if (process.env.USER_TYPE === 'ant') return false
       const config = getGlobalConfig()
       // Show to users who haven't used plan mode recently (7+ days)
       const daysSinceLastUse = config.lastPlanModeUse
@@ -403,7 +402,8 @@ const externalTips: Tip[] = [
     content: async () =>
       process.env.USER_TYPE === 'ant'
         ? `按 ${getShortcutDisplay('chat:cycleMode', 'Chat', 'shift+tab')} 切换默认模式和自动模式`
-        : `按 ${getShortcutDisplay('chat:cycleMode', 'Chat', 'shift+tab')} 切换默认模式、自动接受编辑模式和计划模式`,
+        : `按 ${getShortcutDisplay('chat:cycleMode', 'Chat', 'shift+tab')} 切换默认模式、自动接受编辑模式、计划模式和自动模式`,
+
     cooldownSessions: 10,
     isRelevant: async () => true,
   },

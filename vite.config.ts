@@ -1,11 +1,12 @@
 import { defineConfig, type Plugin } from "vite";
 import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 import { getMacroDefines } from "./scripts/defines";
 import featureFlagsPlugin from "./scripts/vite-plugin-feature-flags";
 import importMetaRequirePlugin from "./scripts/vite-plugin-import-meta-require";
 
-const projectRoot = dirname(new URL(import.meta.url).pathname);
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Plugin to import .md files as raw strings (Bun's text loader behavior).
@@ -45,7 +46,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     outDir: "dist",
-    target: "esnext",
+    target: "es2020",
     copyPublicDir: false,
     sourcemap: false,
     minify: false,
@@ -62,15 +63,6 @@ export default defineConfig({
         entryFileNames: "cli.js",
         chunkFileNames: "chunks/[name]-[hash].js",
       },
-
-      // Externalize native addon packages (they contain .node binaries)
-      external: [
-        /audio-capture-napi/,
-        /color-diff-napi/,
-        /image-processor-napi/,
-        /modifiers-napi/,
-        /url-handler-napi/,
-      ],
 
       plugins: [
         rawAssetPlugin([".md", ".txt", ".html", ".css"]),

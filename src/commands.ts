@@ -75,7 +75,7 @@ const bridge = feature('BRIDGE_MODE')
   ? require('./commands/bridge/index.js').default
   : null
 const remoteControlServerCommand =
-  feature('DAEMON') && feature('BRIDGE_MODE')
+  feature('BRIDGE_MODE')
     ? require('./commands/remoteControlServer/index.js').default
     : null
 const voiceCommand = feature('VOICE_MODE')
@@ -180,6 +180,8 @@ import mockLimits from './commands/mock-limits/index.js'
 import bridgeKick from './commands/bridge-kick.js'
 import version from './commands/version.js'
 import summary from './commands/summary/index.js'
+import skillLearning from './commands/skill-learning/index.js'
+import skillSearch from './commands/skill-search/index.js'
 import {
   resetLimits,
   resetLimitsNonInteractive,
@@ -274,7 +276,6 @@ export const INTERNAL_ONLY_COMMANDS = [
   goodClaude,
   issue,
   initVerifiers,
-  ...(forceSnip ? [forceSnip] : []),
   mockLimits,
   bridgeKick,
   version,
@@ -283,7 +284,6 @@ export const INTERNAL_ONLY_COMMANDS = [
   resetLimitsNonInteractive,
   onboarding,
   share,
-  summary,
   teleport,
   antTrace,
   perfIssue,
@@ -397,6 +397,10 @@ const COMMANDS = memoize((): Command[] => [
   ...(torch ? [torch] : []),
   ...(daemonCmd ? [daemonCmd] : []),
   ...(jobCmd ? [jobCmd] : []),
+  ...(forceSnip ? [forceSnip] : []),
+  summary,
+  skillLearning,
+  skillSearch,
   ...(process.env.USER_TYPE === 'ant' && !process.env.IS_DEMO
     ? INTERNAL_ONLY_COMMANDS
     : []),
@@ -685,6 +689,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   btw, // Quick note
   feedback, // Send feedback
   plan, // Plan mode toggle
+  proactive, // Toggle proactive mode
   keybindings, // Keybinding management
   statusline, // Status line toggle
   stickers, // Stickers
@@ -725,9 +730,18 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
  * BRIDGE_SAFE_COMMANDS; 'local-jsx' commands render Ink UI and stay blocked.
  */
 export function isBridgeSafeCommand(cmd: Command): boolean {
-  if (cmd.type === 'local-jsx') return false
+  if (cmd.type === 'local-jsx') return cmd.bridgeSafe === true
   if (cmd.type === 'prompt') return true
-  return BRIDGE_SAFE_COMMANDS.has(cmd)
+  return cmd.bridgeSafe === true || BRIDGE_SAFE_COMMANDS.has(cmd)
+}
+
+export function getBridgeCommandSafety(
+  cmd: Command,
+  args: string,
+): { ok: true } | { ok: false; reason?: string } {
+  if (!isBridgeSafeCommand(cmd)) return { ok: false }
+  const reason = cmd.getBridgeInvocationError?.(args)
+  return reason ? { ok: false, reason } : { ok: true }
 }
 
 /**

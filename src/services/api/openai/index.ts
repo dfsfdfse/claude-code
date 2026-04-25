@@ -10,17 +10,10 @@ import type { AgentId } from '../../../types/ids.js'
 import type { Tools } from '../../../Tool.js'
 import type { Stream } from 'openai/streaming.mjs'
 import type {
-  ChatCompletionChunk,
   ChatCompletionCreateParamsStreaming,
 } from 'openai/resources/chat/completions/completions.mjs'
 import { getOpenAIClient } from './client.js'
-import { anthropicMessagesToOpenAI } from './convertMessages.js'
-import {
-  anthropicToolsToOpenAI,
-  anthropicToolChoiceToOpenAI,
-} from './convertTools.js'
-import { adaptOpenAIStreamToAnthropic } from './streamAdapter.js'
-import { resolveOpenAIModel } from './modelMapping.js'
+import { anthropicMessagesToOpenAI, resolveOpenAIModel, adaptOpenAIStreamToAnthropic, anthropicToolsToOpenAI, anthropicToolChoiceToOpenAI } from '@ant/model-provider'
 import { normalizeMessagesForAPI } from '../../../utils/messages.js'
 import { toolToAPISchema } from '../../../utils/api.js'
 import {
@@ -30,7 +23,10 @@ import {
 import { logForDebugging } from '../../../utils/debug.js'
 import { addToTotalSessionCost } from '../../../cost-tracker.js'
 import { calculateUSDCost } from '../../../utils/modelCost.js'
-import { isEnvTruthy, isEnvDefinedFalsy } from '../../../utils/envUtils.js'
+import { isOpenAIThinkingEnabled, resolveOpenAIMaxTokens, buildOpenAIRequestBody } from './requestBody.js'
+import { recordLLMObservation } from '../../../services/langfuse/tracing.js'
+import { convertMessagesToLangfuse, convertOutputToLangfuse, convertToolsToLangfuse } from '../../../services/langfuse/convert.js'
+export { isOpenAIThinkingEnabled, resolveOpenAIMaxTokens, buildOpenAIRequestBody }
 import { getModelMaxOutputTokens } from '../../../utils/context.js'
 import type { Options } from '../claude.js'
 import { randomUUID } from 'crypto'
@@ -47,104 +43,6 @@ import {
   isDeferredTool,
   TOOL_SEARCH_TOOL_NAME,
 } from '@claude-code-best/builtin-tools/tools/ToolSearchTool/prompt.js'
-
-/**
- * Detect whether DeepSeek-style thinking mode should be enabled.
- *
- * Enabled when:
- * 1. OPENAI_ENABLE_THINKING=1 is set (explicit enable), OR
- * 2. Model name contains "deepseek-reasoner" OR "DeepSeek-V3.2" (auto-detect, case-insensitive)
- *
- * Disabled when:
- * - OPENAI_ENABLE_THINKING=0/false/no/off is explicitly set (overrides model detection)
- *
- * @param model - The resolved OpenAI model name
- * @internal Exported for testing purposes only
- */
-export function isOpenAIThinkingEnabled(model: string): boolean {
-  // Explicit disable takes priority (overrides model auto-detect)
-  if (isEnvDefinedFalsy(process.env.OPENAI_ENABLE_THINKING)) return false
-  // Explicit enable
-  if (isEnvTruthy(process.env.OPENAI_ENABLE_THINKING)) return true
-  // Auto-detect from model name (deepseek-reasoner and DeepSeek-V3.2 support thinking mode)
-  const modelLower = model.toLowerCase()
-  return modelLower.includes('deepseek-reasoner') || modelLower.includes('deepseek-v3.2')
-}
-
-/**
- * Resolve max output tokens for the OpenAI-compatible path.
- *
- * Override priority:
- * 1. maxOutputTokensOverride (programmatic, from query pipeline)
- * 2. OPENAI_MAX_TOKENS env var (OpenAI-specific, useful for local models
- *    with small context windows, e.g. RTX 3060 12GB running 65536-token models)
- * 3. CLAUDE_CODE_MAX_OUTPUT_TOKENS env var (generic override)
- * 4. upperLimit default (64000)
- *
- * @internal Exported for testing purposes only
- */
-export function resolveOpenAIMaxTokens(
-  upperLimit: number,
-  maxOutputTokensOverride?: number,
-): number {
-  return maxOutputTokensOverride
-    ?? (process.env.OPENAI_MAX_TOKENS ? parseInt(process.env.OPENAI_MAX_TOKENS, 10) || undefined : undefined)
-    ?? (process.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS ? parseInt(process.env.CLAUDE_CODE_MAX_OUTPUT_TOKENS, 10) || undefined : undefined)
-    ?? upperLimit
-}
-
-/**
- * Build the request body for OpenAI chat.completions.create().
- * Extracted for testability — the thinking mode params are injected here.
- *
- * DeepSeek thinking mode: inject thinking params via request body.
- * Two formats are added simultaneously to support different deployments:
- * - Official DeepSeek API: `thinking: { type: 'enabled' }`
- * - Self-hosted DeepSeek-V3.2: `enable_thinking: true` + `chat_template_kwargs: { thinking: true }`
- * OpenAI SDK passes unknown keys through to the HTTP body.
- * Each endpoint will use the format it recognizes and ignore the others.
- * @internal Exported for testing purposes only
- */
-export function buildOpenAIRequestBody(params: {
-  model: string
-  messages: any[]
-  tools: any[]
-  toolChoice: any
-  enableThinking: boolean
-  maxTokens: number
-  temperatureOverride?: number
-}): ChatCompletionCreateParamsStreaming & {
-  thinking?: { type: string }
-  enable_thinking?: boolean
-  chat_template_kwargs?: { thinking: boolean }
-} {
-  const { model, messages, tools, toolChoice, enableThinking, maxTokens, temperatureOverride } = params
-  return {
-    model,
-    messages,
-    max_tokens: maxTokens,
-    ...(tools.length > 0 && {
-      tools,
-      ...(toolChoice && { tool_choice: toolChoice }),
-    }),
-    stream: true,
-    stream_options: { include_usage: true },
-    // DeepSeek thinking mode: enable chain-of-thought output.
-    // When active, temperature/top_p/presence_penalty/frequency_penalty are ignored by DeepSeek.
-    ...(enableThinking && {
-      // Official DeepSeek API format
-      thinking: { type: 'enabled' },
-      // Self-hosted DeepSeek-V3.2 format
-      enable_thinking: true,
-      chat_template_kwargs: { thinking: true },
-    }),
-    // Only send temperature when thinking mode is off (DeepSeek ignores it anyway,
-    // but other providers may respect it)
-    ...(!enableThinking && temperatureOverride !== undefined && {
-      temperature: temperatureOverride,
-    }),
-  }
-}
 
 /**
  * Assemble the final AssistantMessage (and optional max_tokens error) from
@@ -350,6 +248,7 @@ export async function* queryModelOpenAI(
 
     // Accumulate content blocks and usage, same as the Anthropic path in claude.ts
     const contentBlocks: Record<number, any> = {}
+    const collectedMessages: AssistantMessage[] = []
     let partialMessage: any
     let stopReason: string | null = null
     let usage = {
@@ -427,6 +326,9 @@ export async function* queryModelOpenAI(
               partialMessage, contentBlocks, tools, agentId: options.agentId,
               usage, stopReason, maxTokens,
             })) {
+              if (output.type === 'assistant') {
+                collectedMessages.push(output)
+              }
               yield output
             }
             // Reset partialMessage so the post-loop safety fallback does not
@@ -449,6 +351,24 @@ export async function* queryModelOpenAI(
         ...(event.type === 'message_start' ? { ttftMs } : undefined),
       } as StreamEvent
     }
+
+    // Record LLM observation in Langfuse (no-op if not configured)
+    recordLLMObservation(options.langfuseTrace ?? null, {
+      model: openaiModel,
+      provider: 'openai',
+      input: convertMessagesToLangfuse(messagesForAPI, systemPrompt),
+      output: convertOutputToLangfuse(collectedMessages),
+      usage: {
+        input_tokens: usage.input_tokens,
+        output_tokens: usage.output_tokens,
+        cache_creation_input_tokens: usage.cache_creation_input_tokens,
+        cache_read_input_tokens: usage.cache_read_input_tokens,
+      },
+      startTime: new Date(start),
+      endTime: new Date(),
+      completionStartTime: ttftMs > 0 ? new Date(start + ttftMs) : undefined,
+      tools: convertToolsToLangfuse(toolSchemas as unknown[]),
+    })
 
     // Safety: if stream ended without message_stop, assemble and yield whatever we have
     if (partialMessage) {

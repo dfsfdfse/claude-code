@@ -207,6 +207,7 @@ const getCoordinatorUserContext: (
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import useCanUseTool from '../hooks/useCanUseTool.js';
 import type { ToolPermissionContext, Tool } from '../Tool.js';
+import { notifyAutomationStateChanged } from '../utils/sessionState.js';
 import {
   applyPermissionUpdate,
   applyPermissionUpdates,
@@ -341,6 +342,7 @@ import { useInboxPoller } from '../hooks/useInboxPoller.js';
 const proactiveModule = feature('PROACTIVE') || feature('KAIROS') ? require('../proactive/index.js') : null;
 const PROACTIVE_NO_OP_SUBSCRIBE = (_cb: () => void) => () => {};
 const PROACTIVE_FALSE = () => false;
+const PROACTIVE_NULL = (): number | null => null;
 const SUGGEST_BG_PR_NOOP = (_p: string, _n: string): boolean => false;
 const useProactive =
   feature('PROACTIVE') || feature('KAIROS') ? require('../proactive/useProactive.js').useProactive : null;
@@ -420,9 +422,7 @@ import { usePromptsFromClaudeInChrome } from 'src/hooks/usePromptsFromClaudeInCh
 import { getTipToShowOnSpinner, recordShownTip } from 'src/services/tips/tipScheduler.js';
 import type { Theme } from 'src/utils/theme.js';
 import {
-  checkAndDisableBypassPermissionsIfNeeded,
   checkAndDisableAutoModeIfNeeded,
-  useKickOffCheckAndDisableBypassPermissionsIfNeeded,
   useKickOffCheckAndDisableAutoModeIfNeeded,
 } from 'src/utils/permissions/bypassPermissionsKillswitch.js';
 import { SandboxManager } from 'src/utils/sandbox/sandbox-adapter.js';
@@ -432,7 +432,6 @@ import { SandboxPermissionRequest } from 'src/components/permissions/SandboxPerm
 import { SandboxViolationExpandedView } from 'src/components/SandboxViolationExpandedView.js';
 import { useSettingsErrors } from 'src/hooks/notifs/useSettingsErrors.js';
 import { useMcpConnectivityStatus } from 'src/hooks/notifs/useMcpConnectivityStatus.js';
-import { useAutoModeUnavailableNotification } from 'src/hooks/notifs/useAutoModeUnavailableNotification.js';
 import { AUTO_MODE_DESCRIPTION } from 'src/components/AutoModeOptInDialog.js';
 import { useLspInitializationNotification } from 'src/hooks/notifs/useLspInitializationNotification.js';
 import { useLspPluginRecommendation } from 'src/hooks/useLspPluginRecommendation.js';
@@ -465,11 +464,8 @@ import {
 } from '../utils/autoRunIssue.js';
 import type { HookProgress } from '../types/hooks.js';
 import { TungstenLiveMonitor } from '@claude-code-best/builtin-tools/tools/TungstenTool/TungstenLiveMonitor.js';
-/* eslint-disable @typescript-eslint/no-require-imports */
-const WebBrowserPanelModule = feature('WEB_BROWSER_TOOL')
-  ? (require('@claude-code-best/builtin-tools/tools/WebBrowserTool/WebBrowserPanel.js') as typeof import('@claude-code-best/builtin-tools/tools/WebBrowserTool/WebBrowserPanel.js'))
-  : null;
-/* eslint-enable @typescript-eslint/no-require-imports */
+// WebBrowserPanel removed — browser-lite returns results inline via tool_result.
+// For full browser interaction use Claude-in-Chrome MCP tools.
 import { IssueFlagBanner } from '../components/PromptInput/IssueFlagBanner.js';
 import { useIssueFlagBanner } from '../hooks/useIssueFlagBanner.js';
 import { CompanionSprite, CompanionFloatingBubble, MIN_COLS_FOR_FULL_SPRITE } from '../buddy/CompanionSprite.js';
@@ -925,6 +921,10 @@ export function REPL({
     proactiveModule?.subscribeToProactiveChanges ?? PROACTIVE_NO_OP_SUBSCRIBE,
     proactiveModule?.isProactiveActive ?? PROACTIVE_FALSE,
   );
+  const proactiveNextTickAt = React.useSyncExternalStore<number | null>(
+    proactiveModule?.subscribeToProactiveChanges ?? PROACTIVE_NO_OP_SUBSCRIBE,
+    proactiveModule?.getNextTickAt ?? PROACTIVE_NULL,
+  );
 
   // BriefTool.isEnabled() reads getUserMsgOptIn() from bootstrap state, which
   // /brief flips mid-session alongside isBriefOnly. The memo below needs a
@@ -939,7 +939,6 @@ export function REPL({
     [toolPermissionContext, proactiveActive, isBriefOnly],
   );
 
-  useKickOffCheckAndDisableBypassPermissionsIfNeeded();
   useKickOffCheckAndDisableAutoModeIfNeeded();
 
   const [dynamicMcpConfig, setDynamicMcpConfig] = useState<Record<string, ScopedMcpServerConfig> | undefined>(
@@ -997,7 +996,6 @@ export function REPL({
   useCanSwitchToExistingSubscription();
   useIDEStatusIndicator({ ideSelection, mcpClients, ideInstallationStatus });
   useMcpConnectivityStatus({ mcpClients });
-  useAutoModeUnavailableNotification();
   usePluginInstallationStatus();
   usePluginAutoupdateNotification();
   useSettingsErrors();
@@ -3305,8 +3303,8 @@ export function REPL({
       queryCheckpoint('query_context_loading_start');
       const [, , defaultSystemPrompt, baseUserContext, systemContext] = await Promise.all([
         // IMPORTANT: do this after setMessages() above, to avoid UI jank
-        checkAndDisableBypassPermissionsIfNeeded(toolPermissionContext, setAppState),
-        // Gated on TRANSCRIPT_CLASSIFIER so GrowthBook kill switch runs wherever auto mode is built in
+        undefined,
+        // Fast-mode circuit breaker check
         feature('TRANSCRIPT_CLASSIFIER')
           ? checkAndDisableAutoModeIfNeeded(toolPermissionContext, setAppState, store.getState().fastMode)
           : undefined,
@@ -4941,6 +4939,48 @@ export function REPL({
     onQueueTick: (command: QueuedCommand) => enqueue(command),
   });
 
+  useEffect(() => {
+    if (!proactiveActive) {
+      notifyAutomationStateChanged(null);
+      return;
+    }
+
+    if (isLoading) {
+      return;
+    }
+
+    if (
+      proactiveNextTickAt !== null &&
+      queuedCommands.length === 0 &&
+      !isShowingLocalJSXCommand &&
+      toolPermissionContext.mode !== 'plan' &&
+      initialMessage === null
+    ) {
+      notifyAutomationStateChanged({
+        enabled: true,
+        phase: 'standby',
+        next_tick_at: proactiveNextTickAt,
+        sleep_until: null,
+      });
+      return;
+    }
+
+    notifyAutomationStateChanged({
+      enabled: true,
+      phase: null,
+      next_tick_at: null,
+      sleep_until: null,
+    });
+  }, [
+    initialMessage,
+    isLoading,
+    isShowingLocalJSXCommand,
+    proactiveActive,
+    proactiveNextTickAt,
+    queuedCommands.length,
+    toolPermissionContext.mode,
+  ]);
+
   // Abort the current operation when a 'now' priority message arrives
   // (e.g. from a chat UI client via UDS).
   useEffect(() => {
@@ -5622,7 +5662,7 @@ export function REPL({
                 </Box>
               )}
               {process.env.USER_TYPE === 'ant' && <TungstenLiveMonitor />}
-              {feature('WEB_BROWSER_TOOL') ? WebBrowserPanelModule && <WebBrowserPanelModule.WebBrowserPanel /> : null}
+              {/* WebBrowserPanel removed — browser-lite, no panel */}
               <Box flexGrow={1} />
               {showSpinner && (
                 <SpinnerWithVerb
@@ -6135,8 +6175,8 @@ export function REPL({
                         setInputValue={setInputValue}
                       />
                     )}
-                    {/* Skill improvement survey - appears when improvements detected (ant-only) */}
-                    {process.env.USER_TYPE === 'ant' && skillImprovementSurvey.suggestion && (
+                    {/* Skill improvement survey - appears when improvements detected */}
+                    {skillImprovementSurvey.suggestion && (
                       <SkillImprovementSurvey
                         isOpen={skillImprovementSurvey.isOpen}
                         skillName={skillImprovementSurvey.suggestion.skillName}

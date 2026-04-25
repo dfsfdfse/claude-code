@@ -5,6 +5,8 @@ let isFirstPartyBaseUrl = true
 // Only mock the external dependency that controls adapter selection
 mock.module('src/utils/model/providers.js', () => ({
   isFirstPartyAnthropicBaseUrl: () => isFirstPartyBaseUrl,
+  getAPIProvider: () => 'firstParty',
+  getAPIProviderForStatsig: () => 'firstParty',
 }))
 
 const { createAdapter } = await import('../adapters/index')
@@ -50,10 +52,10 @@ describe('createAdapter', () => {
     expect(createAdapter().constructor.name).toBe('ApiSearchAdapter')
   })
 
-  test('selects the Bing adapter for third-party Anthropic base URLs', () => {
+  test('selects the Exa adapter for third-party Anthropic base URLs', () => {
     delete process.env.WEB_SEARCH_ADAPTER
     isFirstPartyBaseUrl = false
 
-    expect(createAdapter().constructor.name).toBe('BingSearchAdapter')
+    expect(createAdapter().constructor.name).toBe('ExaSearchAdapter')
   })
 })

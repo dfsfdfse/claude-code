@@ -15,12 +15,17 @@
  */
 import { describe, expect, test, mock, beforeEach, afterEach } from 'bun:test'
 import type { BetaRawMessageStreamEvent } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
-import type { AssistantMessage, StreamEvent } from '../../../../types/message.js'
+import type {
+  AssistantMessage,
+  StreamEvent,
+} from '../../../../types/message.js'
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 /** Build a minimal message_start event */
-function makeMessageStart(overrides: Record<string, any> = {}): BetaRawMessageStreamEvent {
+function makeMessageStart(
+  overrides: Record<string, any> = {},
+): BetaRawMessageStreamEvent {
   return {
     type: 'message_start',
     message: {
@@ -31,36 +36,67 @@ function makeMessageStart(overrides: Record<string, any> = {}): BetaRawMessageSt
       model: 'test-model',
       stop_reason: null,
       stop_sequence: null,
-      usage: { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
+      usage: {
+        input_tokens: 0,
+        output_tokens: 0,
+        cache_creation_input_tokens: 0,
+        cache_read_input_tokens: 0,
+      },
       ...overrides,
     },
   } as any
 }
 
 /** Build a content_block_start event for the given block type */
-function makeContentBlockStart(index: number, type: 'text' | 'tool_use' | 'thinking', extra: Record<string, any> = {}): BetaRawMessageStreamEvent {
+function makeContentBlockStart(
+  index: number,
+  type: 'text' | 'tool_use' | 'thinking',
+  extra: Record<string, any> = {},
+): BetaRawMessageStreamEvent {
   const block =
     type === 'text'
       ? { type: 'text', text: '' }
       : type === 'tool_use'
         ? { type: 'tool_use', id: 'toolu_test', name: 'bash', input: {} }
         : { type: 'thinking', thinking: '', signature: '' }
-  return { type: 'content_block_start', index, content_block: { ...block, ...extra } } as any
+  return {
+    type: 'content_block_start',
+    index,
+    content_block: { ...block, ...extra },
+  } as any
 }
 
 /** Build a text_delta content_block_delta event */
 function makeTextDelta(index: number, text: string): BetaRawMessageStreamEvent {
-  return { type: 'content_block_delta', index, delta: { type: 'text_delta', text } } as any
+  return {
+    type: 'content_block_delta',
+    index,
+    delta: { type: 'text_delta', text },
+  } as any
 }
 
 /** Build an input_json_delta content_block_delta event */
-function makeInputJsonDelta(index: number, json: string): BetaRawMessageStreamEvent {
-  return { type: 'content_block_delta', index, delta: { type: 'input_json_delta', partial_json: json } } as any
+function makeInputJsonDelta(
+  index: number,
+  json: string,
+): BetaRawMessageStreamEvent {
+  return {
+    type: 'content_block_delta',
+    index,
+    delta: { type: 'input_json_delta', partial_json: json },
+  } as any
 }
 
 /** Build a thinking_delta content_block_delta event */
-function makeThinkingDelta(index: number, thinking: string): BetaRawMessageStreamEvent {
-  return { type: 'content_block_delta', index, delta: { type: 'thinking_delta', thinking } } as any
+function makeThinkingDelta(
+  index: number,
+  thinking: string,
+): BetaRawMessageStreamEvent {
+  return {
+    type: 'content_block_delta',
+    index,
+    delta: { type: 'thinking_delta', thinking },
+  } as any
 }
 
 /** Build a content_block_stop event */
@@ -69,7 +105,10 @@ function makeContentBlockStop(index: number): BetaRawMessageStreamEvent {
 }
 
 /** Build a message_delta event with stop_reason and output_tokens */
-function makeMessageDelta(stopReason: string, outputTokens: number): BetaRawMessageStreamEvent {
+function makeMessageDelta(
+  stopReason: string,
+  outputTokens: number,
+): BetaRawMessageStreamEvent {
   return {
     type: 'message_delta',
     delta: { stop_reason: stopReason, stop_sequence: null },
@@ -175,7 +214,8 @@ mock.module('../client.js', () => ({
 }))
 
 mock.module('../streamAdapter.js', () => ({
-  adaptOpenAIStreamToAnthropic: (_stream: any, _model: string) => eventStream(_nextEvents),
+  adaptOpenAIStreamToAnthropic: (_stream: any, _model: string) =>
+    eventStream(_nextEvents),
 }))
 
 mock.module('../modelMapping.js', () => ({
@@ -202,7 +242,10 @@ mock.module('../../../../utils/context.js', () => ({
   getModelMaxOutputTokens: () => ({ upperLimit: 8192, default: 8192 }),
   getContextWindowForModel: () => 200_000,
   getSonnet1mExpTreatmentEnabled: () => false,
-  calculateContextPercentages: () => ({ usedPercent: 0, remainingPercent: 100 }),
+  calculateContextPercentages: () => ({
+    usedPercent: 0,
+    remainingPercent: 100,
+  }),
   getMaxThinkingTokensForModel: () => 0,
 }))
 
@@ -211,7 +254,10 @@ mock.module('../../../../utils/messages.js', () => ({
   normalizeContentFromAPI: (blocks: any[]) => blocks,
   createAssistantAPIErrorMessage: (opts: any) => ({
     type: 'assistant',
-    message: { content: [{ type: 'text', text: opts.content }], apiError: opts.apiError },
+    message: {
+      content: [{ type: 'text', text: opts.content }],
+      apiError: opts.apiError,
+    },
     uuid: 'error-uuid',
     timestamp: new Date().toISOString(),
   }),
@@ -349,7 +395,14 @@ describe('queryModelOpenAI — usage accumulation', () => {
     // The spread in the message_delta handler must override all zeros from message_start,
     // including cache_read_input_tokens which was previously missing from message_delta.
     _nextEvents = [
-      makeMessageStart({ usage: { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 } }),
+      makeMessageStart({
+        usage: {
+          input_tokens: 0,
+          output_tokens: 0,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+        },
+      }),
       makeContentBlockStart(0, 'text'),
       makeTextDelta(0, 'response'),
       makeContentBlockStop(0),
@@ -357,7 +410,12 @@ describe('queryModelOpenAI — usage accumulation', () => {
       {
         type: 'message_delta',
         delta: { stop_reason: 'end_turn', stop_sequence: null },
-        usage: { input_tokens: 30011, output_tokens: 190, cache_read_input_tokens: 19904, cache_creation_input_tokens: 0 },
+        usage: {
+          input_tokens: 30011,
+          output_tokens: 190,
+          cache_read_input_tokens: 19904,
+          cache_creation_input_tokens: 0,
+        },
       } as any,
       makeMessageStop(),
     ]

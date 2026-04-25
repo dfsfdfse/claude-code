@@ -65,7 +65,7 @@ import {
   registerProcessOutputErrorHandlers,
 } from 'src/utils/process.js'
 import type { Stream } from 'src/utils/stream.js'
-import { EMPTY_USAGE } from 'src/services/api/logging.js'
+import { EMPTY_USAGE } from '@ant/model-provider'
 import {
   loadConversationForResume,
   type TurnInterruptionState,
@@ -4948,7 +4948,7 @@ function handleChannelEnable(
 function reregisterChannelHandlerAfterReconnect(
   connection: MCPServerConnection,
 ): void {
-  if (!(feature('KAIROS') || feature('KAIROS_CHANNELS'))) return
+  // Channels always available — feature flag guard removed
   if (connection.type !== 'connected') return
 
   const gate = gateChannelServer(

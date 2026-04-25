@@ -160,6 +160,7 @@ function SetModelAndClose({
       if (model && isOpus1mUnavailable(model)) {
         onDone(
           `Opus 4.6 的 1M 上下文功能不适用于您的账户。了解更多：https://code.claude.com/docs/en/model-config#extended-context-with-1m`,
+
           { display: 'system' },
         )
         return
