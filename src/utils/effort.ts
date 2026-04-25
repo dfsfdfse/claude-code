@@ -246,6 +246,8 @@ export function convertEffortLevelToChinese(level: EffortLevel): string {
       return '中'
     case 'high':
       return '高'
+    case 'xhigh':
+      return '超高'
     case 'max':
       return '最高'
   }

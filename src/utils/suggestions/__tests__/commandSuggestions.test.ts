@@ -21,9 +21,12 @@ function makeCommand(name: string, opts?: Partial<Command>): Command {
     name,
     description: opts?.description ?? `${name} command`,
     type: 'local',
-    handler: () => {},
+    supportsNonInteractive: false,
+    load: async () => ({
+      call: async () => ({ type: 'skip' }),
+    }),
     ...opts,
-  } as Command
+  } as unknown as Command
 }
 
 function makePromptCommand(
@@ -34,10 +37,12 @@ function makePromptCommand(
     name,
     description: opts?.description ?? `${name} skill`,
     type: 'prompt',
-    handler: () => {},
+    progressMessage: '',
+    contentLength: 0,
     source: 'userSettings',
+    getPromptForCommand: async () => [],
     ...opts,
-  } as Command
+  } as unknown as Command
 }
 
 // ─── isCommandInput ───────────────────────────────────────────────────
