@@ -60,17 +60,17 @@ function ComputerUseTccPanel({
     const opts: OptionWithDescription<TccOption>[] = []
     if (!tccState.accessibility) {
       opts.push({
-        label: 'Open System Settings → Accessibility',
+        label: '打开系统设置 → 辅助功能',
         value: 'open_accessibility',
       })
     }
     if (!tccState.screenRecording) {
       opts.push({
-        label: 'Open System Settings → Screen Recording',
+        label: '打开系统设置 → 屏幕录制',
         value: 'open_screen_recording',
       })
     }
-    opts.push({ label: 'Try again', value: 'retry' })
+    opts.push({ label: '重试', value: 'retry' })
     return opts
   }, [tccState.accessibility, tccState.screenRecording])
 
@@ -103,26 +103,25 @@ function ComputerUseTccPanel({
   }
 
   return (
-    <Dialog title="Computer Use needs macOS permissions" onCancel={onDone}>
+    <Dialog title="计算机使用需要 macOS 权限" onCancel={onDone}>
       <Box flexDirection="column" paddingX={1} paddingY={1} gap={1}>
         <Box flexDirection="column">
           <Text>
-            Accessibility:{' '}
+            辅助功能：{' '}
             {tccState.accessibility
-              ? `${figures.tick} granted`
-              : `${figures.cross} not granted`}
+              ? `${figures.tick} 已授权`
+              : `${figures.cross} 未授权`}
           </Text>
           <Text>
-            Screen Recording:{' '}
+            屏幕录制：{' '}
             {tccState.screenRecording
-              ? `${figures.tick} granted`
-              : `${figures.cross} not granted`}
+              ? `${figures.tick} 已授权`
+              : `${figures.cross} 未授权`}
           </Text>
         </Box>
         <Text dimColor>
-          Grant the missing permissions in System Settings, then select
-          &quot;Try again&quot;. macOS may require you to restart Claude Code
-          after granting Screen Recording.
+          请在系统设置中授予缺失的权限，然后选择&quot;重试&quot;。
+          授予屏幕录制权限后，macOS 可能需要重启 Claude Code。
         </Text>
         <Select options={options} onChange={onChange} onCancel={onDone} />
       </Box>
@@ -174,13 +173,13 @@ function ComputerUseAppListPanel({
   const options = useMemo<OptionWithDescription<AppListOption>[]>(
     () => [
       {
-        label: `Allow for this session (${checked.size} ${plural(checked.size, 'app')})`,
+        label: `允许此会话（${checked.size} 个 ${plural(checked.size, '应用')}）`,
         value: 'allow_all',
       },
       {
         label: (
           <Text>
-            Deny, and tell Claude what to do differently <Text bold>(esc)</Text>
+            拒绝，并告诉 Claude 该如何改进 <Text bold>(esc)</Text>
           </Text>
         ),
         value: 'deny',
@@ -224,7 +223,7 @@ function ComputerUseAppListPanel({
 
   return (
     <Dialog
-      title="Computer Use wants to control these apps"
+      title="计算机使用想要控制这些应用"
       onCancel={() => respond(false)}
     >
       <Box flexDirection="column" paddingX={1} paddingY={1} gap={1}>
@@ -238,7 +237,7 @@ function ComputerUseAppListPanel({
                 <Text key={a.requestedName} dimColor>
                   {'  '}
                   {figures.circle} {a.requestedName}{' '}
-                  <Text dimColor>(not installed)</Text>
+                  <Text dimColor>（未安装）</Text>
                 </Text>
               )
             }
@@ -247,7 +246,7 @@ function ComputerUseAppListPanel({
                 <Text key={resolved.bundleId} dimColor>
                   {'  '}
                   {figures.tick} {resolved.displayName}{' '}
-                  <Text dimColor>(already granted)</Text>
+                  <Text dimColor>（已授权）</Text>
                 </Text>
               )
             }
@@ -273,7 +272,7 @@ function ComputerUseAppListPanel({
 
         {requestedFlagKeys.length > 0 ? (
           <Box flexDirection="column">
-            <Text dimColor>Also requested:</Text>
+            <Text dimColor>还请求了：</Text>
             {requestedFlagKeys.map(flag => (
               <Text key={flag} dimColor>
                 {'  '}· {flag}
@@ -284,9 +283,8 @@ function ComputerUseAppListPanel({
 
         {request.willHide && request.willHide.length > 0 ? (
           <Text dimColor>
-            {request.willHide.length} other{' '}
-            {plural(request.willHide.length, 'app')} will be hidden while Claude
-            works.
+            Claude 运行时，{request.willHide.length} 个其他{' '}
+            {plural(request.willHide.length, '应用')} 将被隐藏。
           </Text>
         ) : null}
 

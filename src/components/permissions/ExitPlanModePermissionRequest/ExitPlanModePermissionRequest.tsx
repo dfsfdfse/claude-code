@@ -318,7 +318,7 @@ export function ExitPlanModePermissionRequest({
     if (inputPlan) return inputPlan
     const plan = getPlan()
     return (
-      plan ?? 'No plan found. Please write your plan to the plan file first.'
+      plan ?? '未找到计划。请先将你的计划写入计划文件。'
     )
   })
   const [showSaveMessage, setShowSaveMessage] = useState(false)

@@ -58,15 +58,15 @@ export function SelectMatcherMode({
   if (matchersForSelectedEvent.length === 0) {
     return (
       <Dialog
-        title={`${selectedEvent} - Matchers`}
+        title={`${selectedEvent} - 匹配器`}
         subtitle={eventDescription}
         onCancel={onCancel}
-        inputGuide={() => <Text>Esc to go back</Text>}
+        inputGuide={() => <Text>Esc 返回</Text>}
       >
         <Box flexDirection="column" gap={1}>
-          <Text dimColor>No hooks configured for this event.</Text>
+          <Text dimColor>此事件未配置任何 hook。</Text>
           <Text dimColor>
-            To add hooks, edit settings.json directly or ask Claude.
+            如需添加 hook，请直接编辑 settings.json 或询问 Claude。
           </Text>
         </Box>
       </Dialog>
@@ -75,7 +75,7 @@ export function SelectMatcherMode({
 
   return (
     <Dialog
-      title={`${selectedEvent} - Matchers`}
+      title={`${selectedEvent} - 匹配器`}
       subtitle={eventDescription}
       onCancel={onCancel}
     >
@@ -85,7 +85,7 @@ export function SelectMatcherMode({
             const sourceText = item.sources
               .map(hookSourceInlineDisplayString)
               .join(', ')
-            const matcherLabel = item.matcher || '(all)'
+            const matcherLabel = item.matcher || '（全部）'
             return {
               label: `[${sourceText}] ${matcherLabel}`,
               value: item.matcher,

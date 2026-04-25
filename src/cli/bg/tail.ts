@@ -37,13 +37,13 @@ export async function tailLog(logPath: string): Promise<void> {
     // File may not exist yet — that's fine
   }
 
-  console.log('\n[tail] Watching for new output... (Ctrl+C to detach)\n')
+  console.log('\n[tail] 正在监视新输出... (Ctrl+C 分离)\n')
 
   return new Promise<void>(resolve => {
     const onSignal = (): void => {
       unwatchFile(logPath)
       process.removeListener('SIGINT', onSignal)
-      console.log('\n[tail] Detached from session.')
+      console.log('\n[tail] 已从会话分离。')
       resolve()
     }
     process.on('SIGINT', onSignal)

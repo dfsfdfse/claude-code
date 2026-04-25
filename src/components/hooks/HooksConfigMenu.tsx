@@ -212,32 +212,28 @@ export function HooksConfigMenu({ toolNames, onExit }: Props): React.ReactNode {
   if (hooksDisabled) {
     return (
       <Dialog
-        title="Hook Configuration - Disabled"
+        title="Hook 配置 - 已禁用"
         onCancel={handleExit}
-        inputGuide={() => <Text>Esc to close</Text>}
+        inputGuide={() => <Text>Esc 关闭</Text>}
       >
         <Box flexDirection="column" gap={1}>
           <Box flexDirection="column">
             <Text>
-              All hooks are currently <Text bold>disabled</Text>
-              {disabledByPolicy && ' by a managed settings file'}. You have{' '}
-              <Text bold>{totalHooksCount}</Text> configured{' '}
-              {plural(totalHooksCount, 'hook')} that{' '}
-              {plural(totalHooksCount, 'is', 'are')} not running.
+              所有 hook 当前均已 <Text bold>禁用</Text>
+              {disabledByPolicy && '（由托管设置文件禁用）'}。你已配置{' '}
+              <Text bold>{totalHooksCount}</Text> 个{' '}
+              {plural(totalHooksCount, 'hook')}，但它们均未运行。
             </Text>
             <Box marginTop={1}>
-              <Text dimColor>When hooks are disabled:</Text>
+              <Text dimColor>Hook 禁用时：</Text>
             </Box>
-            <Text dimColor>· No hook commands will execute</Text>
-            <Text dimColor>· StatusLine will not be displayed</Text>
-            <Text dimColor>
-              · Tool operations will proceed without hook validation
-            </Text>
+            <Text dimColor>· 不会执行任何 hook 命令</Text>
+            <Text dimColor>· 不会显示状态行</Text>
+            <Text dimColor>· 工具操作将在无 hook 验证的情况下继续执行</Text>
           </Box>
           {!disabledByPolicy && (
             <Text dimColor>
-              To re-enable hooks, remove &quot;disableAllHooks&quot; from
-              settings.json or ask Claude.
+              如需重新启用 hook，请从 settings.json 中删除 &quot;disableAllHooks&quot; 或询问 Claude。
             </Text>
           )}
         </Box>

@@ -25,7 +25,7 @@ export async function taskCreateHandler(
     blocks: [],
     blockedBy: [],
   })
-  console.log(`Created task ${id}: ${subject}`)
+  console.log(`已创建任务 ${id}: ${subject}`)
 }
 
 export async function taskListHandler(opts: {
@@ -46,14 +46,14 @@ export async function taskListHandler(opts: {
   }
 
   if (tasks.length === 0) {
-    console.log('No tasks found.')
+    console.log('未找到任何任务。')
     return
   }
 
   for (const t of tasks) {
     console.log(`  [${t.status}] ${t.id}: ${t.subject}`)
     if (t.description) console.log(`    ${t.description}`)
-    if (t.owner) console.log(`    owner: ${t.owner}`)
+    if (t.owner) console.log(`    负责人: ${t.owner}`)
   }
 }
 
@@ -64,7 +64,7 @@ export async function taskGetHandler(
   const listId = opts.list || DEFAULT_LIST
   const task = await getTask(listId, id)
   if (!task) {
-    console.error(`Task not found: ${id}`)
+    console.error(`未找到任务: ${id}`)
     process.exitCode = 1
     return
   }
@@ -93,11 +93,11 @@ export async function taskUpdateHandler(
 
   const task = await updateTask(listId, id, updates)
   if (!task) {
-    console.error(`Task not found: ${id}`)
+    console.error(`未找到任务: ${id}`)
     process.exitCode = 1
     return
   }
-  console.log(`Updated task ${id}: [${task.status}] ${task.subject}`)
+  console.log(`已更新任务 ${id}: [${task.status}] ${task.subject}`)
 }
 
 export async function taskDirHandler(opts: { list?: string }): Promise<void> {
@@ -114,16 +114,16 @@ export async function logHandler(
 
   if (logId === undefined) {
     if (logs.length === 0) {
-      console.log('No recent sessions.')
+      console.log('无最近会话。')
       return
     }
     for (let i = 0; i < Math.min(logs.length, 20); i++) {
       const log = logs[i]!
       const date = log.modified
         ? new Date(log.modified).toLocaleString()
-        : 'unknown'
+        : '未知'
       const title =
-        (log as Record<string, unknown>).title || log.sessionId || 'untitled'
+        (log as Record<string, unknown>).title || log.sessionId || '无标题'
       console.log(`  ${i}: ${title}  (${date})`)
     }
     return
@@ -136,7 +136,7 @@ export async function logHandler(
       : logs.find(l => l.sessionId === String(logId))
 
   if (!log) {
-    console.error(`Session not found: ${logId}`)
+    console.error(`未找到会话: ${logId}`)
     process.exitCode = 1
     return
   }
@@ -145,16 +145,15 @@ export async function logHandler(
 }
 
 export async function errorHandler(num: number | undefined): Promise<void> {
-  // Error log viewing — shows recent session errors
   const logs = await getRecentActivity()
   const count = num ?? 5
 
-  console.log(`Last ${count} sessions:`)
+  console.log(`最近 ${count} 个会话：`)
   for (let i = 0; i < Math.min(count, logs.length); i++) {
     const log = logs[i]!
     const date = log.modified
       ? new Date(log.modified).toLocaleString()
-      : 'unknown'
+      : '未知'
     console.log(`  ${i}: ${log.sessionId}  (${date})`)
   }
 }
@@ -166,7 +165,6 @@ export async function exportHandler(
   const { writeFile, readFile } = await import('fs/promises')
   const logs = await getRecentActivity()
 
-  // Try as index first
   const idx = parseInt(source, 10)
   let log: LogOption | undefined
   if (Number.isFinite(idx) && idx >= 0 && idx < logs.length) {
@@ -176,21 +174,20 @@ export async function exportHandler(
   }
 
   if (!log) {
-    // Try as file path
     try {
       const content = await readFile(source, 'utf-8')
       await writeFile(outputFile, content, 'utf-8')
-      console.log(`Exported ${source} → ${outputFile}`)
+      console.log(`已导出 ${source} → ${outputFile}`)
       return
     } catch {
-      console.error(`Source not found: ${source}`)
+      console.error(`未找到源: ${source}`)
       process.exitCode = 1
       return
     }
   }
 
   await writeFile(outputFile, JSON.stringify(log, null, 2), 'utf-8')
-  console.log(`Exported session ${log.sessionId} → ${outputFile}`)
+  console.log(`已导出会话 ${log.sessionId} → ${outputFile}`)
 }
 
 // ─── Group D: Completion ─────────────────────────────────────────────────────
@@ -205,12 +202,10 @@ export async function completionHandler(
   )
 
   if (opts.output) {
-    // Generate and write to file
     await regenerateCompletionCache()
-    console.log(`Completion cache regenerated for ${shell}.`)
+    console.log(`已为 ${shell} 重新生成补全缓存。`)
   } else {
-    // Regenerate and output to stdout
     await regenerateCompletionCache()
-    console.log(`Completion cache regenerated for ${shell}.`)
+    console.log(`已为 ${shell} 重新生成补全缓存。`)
   }
 }

@@ -42,7 +42,7 @@ export function MonitorPermissionRequest({
   const options: PermissionPromptOption<OptionValue>[] = useMemo(() => {
     const opts: PermissionPromptOption<OptionValue>[] = [
       {
-        label: 'Yes',
+        label: '是',
         value: 'yes',
         feedbackConfig: { type: 'accept' as const },
       },
@@ -51,15 +51,14 @@ export function MonitorPermissionRequest({
       opts.push({
         label: (
           <Text>
-            Yes, and don{'\u2019'}t ask again for{' '}
-            <Text bold>{toolUseConfirm.tool.name}</Text> commands
+            是，不再询问此 <Text bold>{toolUseConfirm.tool.name}</Text> 命令
           </Text>
         ),
         value: 'yes-dont-ask-again',
       })
     }
     opts.push({
-      label: 'No',
+      label: '否',
       value: 'no',
       feedbackConfig: { type: 'reject' as const },
     })
@@ -138,7 +137,7 @@ export function MonitorPermissionRequest({
 
   return (
     <PermissionDialog
-      title="Monitor"
+      title="监控"
       workerBadge={workerBadge}
     >
       <Box flexDirection="column" gap={1}>

@@ -886,7 +886,7 @@ export class QueryEngine {
               ),
               uuid: randomUUID(),
               errors: [
-                `Reached maximum number of turns (${attachment.maxTurns})`,
+                `已达到最大轮次限制 (${attachment.maxTurns})`,
               ],
             }
             return
@@ -1021,7 +1021,7 @@ export class QueryEngine {
             initialAppState.fastMode,
           ),
           uuid: randomUUID(),
-          errors: [`Reached maximum budget ($${maxBudgetUsd})`],
+          errors: [`已达到最大预算限制 ($${maxBudgetUsd})`],
         }
         return
       }
@@ -1065,7 +1065,7 @@ export class QueryEngine {
             ),
             uuid: randomUUID(),
             errors: [
-              `Failed to provide valid structured output after ${maxRetries} attempts`,
+              `在 ${maxRetries} 次尝试后仍无法提供有效的结构化输出`,
             ],
           }
           return
@@ -1134,7 +1134,7 @@ export class QueryEngine {
             ? all.lastIndexOf(errorLogWatermark) + 1
             : 0
           return [
-            `[ede_diagnostic] result_type=${edeResultType} last_content_type=${edeLastContentType} stop_reason=${lastStopReason}`,
+            `[ede诊断] result_type=${edeResultType} last_content_type=${edeLastContentType} stop_reason=${lastStopReason}`,
             ...all.slice(start).map(_ => _.error),
           ]
         })(),

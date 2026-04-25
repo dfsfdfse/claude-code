@@ -13,31 +13,31 @@ export async function rollback(
   options?: { list?: boolean; dryRun?: boolean; safe?: boolean },
 ): Promise<void> {
   if (options?.list) {
-    console.log('Recent versions:')
-    console.log('  (version listing requires access to the release registry)')
-    console.log('  Use `claude update --list` for available versions.')
+    console.log('最近版本：')
+    console.log('  （版本列表需要访问发布注册表）')
+    console.log('  使用 `claude update --list` 查看可用版本。')
     return
   }
 
   if (options?.safe) {
-    console.log('Safe rollback: would install the server-pinned safe version.')
+    console.log('安全回滚：将安装服务器固定的版本。')
     if (options.dryRun) {
-      console.log('  (dry run — no changes made)')
+      console.log('  （演练 — 未做任何更改）')
       return
     }
-    console.log('  Safe version pinning requires access to the release API.')
-    console.log('  Contact oncall for the current safe version.')
+    console.log('  安全版本固定需要访问发布 API。')
+    console.log('  联系 oncall 获取当前安全版本。')
     return
   }
 
   if (!target) {
     console.error(
-      'Usage: claude rollback [target]\n\n' +
-        'Options:\n' +
-        '  -l, --list     List recent published versions\n' +
-        '  --dry-run      Show what would be installed\n' +
-        '  --safe         Roll back to server-pinned safe version\n\n' +
-        'Examples:\n' +
+      '用法: claude rollback [目标]\n\n' +
+        '选项：\n' +
+        '  -l, --list     列出最近发布的版本\n' +
+        '  --dry-run      显示将要安装的内容\n' +
+        '  --safe         回滚到服务器固定的安全版本\n\n' +
+        '示例：\n' +
         '  claude rollback 2.1.880\n' +
         '  claude rollback --list\n' +
         '  claude rollback --safe',
@@ -46,10 +46,10 @@ export async function rollback(
     return
   }
 
-  console.log(`Rolling back to version ${target}...`)
+  console.log(`正在回滚到版本 ${target}...`)
 
   if (options?.dryRun) {
-    console.log(`  (dry run — would install ${target})`)
+    console.log(`  （演练 — 将安装 ${target}）`)
     return
   }
 
@@ -62,9 +62,9 @@ export async function rollback(
   )
 
   if (result.status !== 0) {
-    console.error(`Rollback failed with exit code ${result.status}`)
+    console.error(`回滚失败，退出码 ${result.status}`)
     process.exitCode = result.status ?? 1
   } else {
-    console.log(`Rolled back to ${target} successfully.`)
+    console.log(`已成功回滚到 ${target}。`)
   }
 }

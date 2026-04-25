@@ -375,7 +375,7 @@ export function createClaudeAiProxyFetch(innerFetch: FetchLike): FetchLike {
       await checkAndRefreshOAuthTokenIfNeeded()
       const currentTokens = getClaudeAIOAuthTokens()
       if (!currentTokens) {
-        throw new Error('No claude.ai OAuth token available')
+        throw new Error('无可用的 claude.ai OAuth 令牌')
       }
       // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
       const headers = new Headers(init?.headers)
@@ -864,7 +864,7 @@ export const connectToServer = memoize(
         )
         logMCPDebug(name, `HTTP transport created successfully`)
       } else if (serverRef.type === 'sdk') {
-        throw new Error('SDK servers should be handled in print.ts')
+          throw new Error('SDK 服务器应在 print.ts 中处理')
       } else if (serverRef.type === 'claudeai-proxy') {
         logMCPDebug(
           name,
@@ -873,7 +873,7 @@ export const connectToServer = memoize(
 
         const tokens = getClaudeAIOAuthTokens()
         if (!tokens) {
-          throw new Error('No claude.ai OAuth token found')
+          throw new Error('未找到 claude.ai OAuth 令牌')
         }
 
         const oauthConfig = getOauthConfig()
@@ -958,7 +958,7 @@ export const connectToServer = memoize(
           stderr: 'pipe', // prevents error output from the MCP server from printing to the UI
         })
       } else {
-        throw new Error(`Unsupported server type: ${(serverRef as ScopedMcpServerConfig).type}`)
+          throw new Error(`不支持的服务器类型：${(serverRef as ScopedMcpServerConfig).type}`)
       }
 
       // Set up stderr logging for stdio transport before connecting in case there are any stderr
@@ -2698,11 +2698,11 @@ export async function transformMCPResult(
     }
   }
 
-  const errorMessage = `MCP server "${name}" tool "${tool}": unexpected response format`
+  const errorMessage = `MCP 服务器 "${name}" 工具 "${tool}"：意外的响应格式`
   logMCPError(name, errorMessage)
   throw new TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
     errorMessage,
-    'MCP tool unexpected response format',
+    'MCP 工具意外响应格式',
   )
 }
 
@@ -2781,7 +2781,7 @@ export async function processMCPResult(
       reason: 'persist_failed',
       sizeEstimateTokens,
     } as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-    return `Error: result (${contentLength.toLocaleString()} characters) exceeds maximum allowed tokens. Failed to save output to file: ${persistResult.error}. If this MCP server provides pagination or filtering tools, use them to retrieve specific portions of the data.`
+    return `错误：结果（${contentLength.toLocaleString()} 个字符）超出最大允许的 token 数量。保存输出到文件失败：${persistResult.error}。如果此 MCP 服务器提供分页或过滤工具，请使用它们来获取数据的特定部分。`
   }
 
   logEvent('tengu_mcp_large_result_handled', {
@@ -3144,7 +3144,7 @@ async function callMCPTool({
       logMCPError(name, errorDetails)
       throw new McpToolCallError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
         errorDetails,
-        'MCP tool returned error',
+        'MCP 工具返回错误',
         '_meta' in result && result._meta ? { _meta: result._meta } : undefined,
       )
     }

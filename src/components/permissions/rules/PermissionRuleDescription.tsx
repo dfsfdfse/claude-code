@@ -16,26 +16,26 @@ export function PermissionRuleDescription({
         if (ruleValue.ruleContent.endsWith(':*')) {
           return (
             <Text dimColor>
-              Any Bash command starting with{' '}
-              <Text bold>{ruleValue.ruleContent.slice(0, -2)}</Text>
+              任意以{' '}
+              <Text bold>{ruleValue.ruleContent.slice(0, -2)}</Text> 开头的 Bash 命令
             </Text>
           )
         } else {
           return (
             <Text dimColor>
-              The Bash command <Text bold>{ruleValue.ruleContent}</Text>
+              Bash 命令 <Text bold>{ruleValue.ruleContent}</Text>
             </Text>
           )
         }
       } else {
-        return <Text dimColor>Any Bash command</Text>
+        return <Text dimColor>任意 Bash 命令</Text>
       }
     }
     default: {
       if (!ruleValue.ruleContent) {
         return (
           <Text dimColor>
-            Any use of the <Text bold>{ruleValue.toolName}</Text> tool
+            任意使用 <Text bold>{ruleValue.toolName}</Text> 工具的操作
           </Text>
         )
       } else {

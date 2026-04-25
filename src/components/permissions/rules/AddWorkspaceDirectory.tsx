@@ -34,23 +34,22 @@ const REMEMBER_DIRECTORY_OPTIONS: Array<{
 }> = [
   {
     value: 'yes-session',
-    label: 'Yes, for this session',
+    label: '是，在此会话期间',
   },
   {
     value: 'yes-remember',
-    label: 'Yes, and remember this directory',
+    label: '是，并记住此目录',
   },
   {
     value: 'no',
-    label: 'No',
+    label: '否',
   },
 ]
 
 function PermissionDescription(): React.ReactNode {
   return (
     <Text dimColor>
-      Claude Code will be able to read files in this directory and make edits
-      when auto-accept edits is on.
+      Claude Code 将能够读取此目录中的文件，并在自动接受编辑开启时进行编辑。
     </Text>
   )
 }
@@ -81,11 +80,11 @@ function DirectoryInput({
 }): React.ReactNode {
   return (
     <Box flexDirection="column">
-      <Text>Enter the path to the directory:</Text>
+      <Text>输入目录路径：</Text>
       <Box borderDimColor borderStyle="round" marginY={1} paddingLeft={1}>
         <TextInput
           showCursor
-          placeholder={`Directory path${figures.ellipsis}`}
+          placeholder={`目录路径${figures.ellipsis}`}
           value={value}
           onChange={onChange}
           onSubmit={onSubmit}
@@ -237,7 +236,7 @@ export function AddWorkspaceDirectory({
       onKeyDown={handleKeyDown}
     >
       <Dialog
-        title="Add directory to workspace"
+        title="添加目录到工作区"
         onCancel={onCancel}
         color="permission"
         isCancelActive={false}
@@ -246,16 +245,16 @@ export function AddWorkspaceDirectory({
             ? undefined
             : exitState =>
                 exitState.pending ? (
-                  <Text>Press {exitState.keyName} again to exit</Text>
+                  <Text>再次按 {exitState.keyName} 退出</Text>
                 ) : (
                   <Byline>
-                    <KeyboardShortcutHint shortcut="Tab" action="complete" />
-                    <KeyboardShortcutHint shortcut="Enter" action="add" />
+                    <KeyboardShortcutHint shortcut="Tab" action="补全" />
+                    <KeyboardShortcutHint shortcut="Enter" action="添加" />
                     <ConfigurableShortcutHint
                       action="confirm:no"
                       context="Settings"
                       fallback="Esc"
-                      description="cancel"
+                      description="取消"
                     />
                   </Byline>
                 )

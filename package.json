@@ -57,7 +57,7 @@
     "docs:dev": "npx mintlify dev",
     "typecheck": "tsc --noEmit",
     "rcs": "bun run scripts/rcs.ts",
-    "package": "bun build --compile --target=bun-windows-x64 --outfile=build/ccb.exe --windows-icon=icon/ide.ico src/entrypoints/cli.tsx"
+    "package": "bun build --compile --target=bun-windows-x64 --outfile=build/cc.exe --windows-icon=icon/ide.ico src/entrypoints/cli.tsx"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.19.0",

@@ -200,7 +200,7 @@ async function main(): Promise<void> {
     await waitForPolicyLimitsToLoad()
     if (!isPolicyAllowed('allow_remote_control')) {
       exitWithError(
-        "Error: Remote Control is disabled by your organization's policy.",
+        '错误：远程控制已被你的组织策略禁用。',
       )
     }
 
@@ -254,7 +254,7 @@ async function main(): Promise<void> {
   ) {
     const mapped = args[0] === 'ps' ? 'status' : args[0]
     console.error(
-      `[deprecated] Use: claude daemon ${mapped}${args[1] ? ' ' + args[1] : ''}`,
+      `[已弃用] 请使用：claude daemon ${mapped}${args[1] ? ' ' + args[1] : ''}`,
     )
     profileCheckpoint('cli_daemon_path')
     const { enableConfigs } = await import('../utils/config.js')

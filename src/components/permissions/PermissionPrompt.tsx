@@ -35,8 +35,8 @@ export type PermissionPromptProps<T extends string> = {
 }
 
 const DEFAULT_PLACEHOLDERS: Record<FeedbackType, string> = {
-  accept: 'tell Claude what to do next',
-  reject: 'tell Claude what to do differently',
+  accept: '告诉 Claude 接下来该怎么做',
+  reject: '告诉 Claude 该如何改进',
 }
 
 /**
@@ -53,7 +53,7 @@ export function PermissionPrompt<T extends string>({
   options,
   onSelect,
   onCancel,
-  question = 'Do you want to proceed?',
+  question = '是否继续？',
   toolAnalyticsContext,
 }: PermissionPromptProps<T>): React.ReactNode {
   const setAppState = useSetAppState()

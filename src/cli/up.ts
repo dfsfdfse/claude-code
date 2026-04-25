@@ -24,7 +24,7 @@ export async function up(): Promise<void> {
       const content = readFileSync(claudeMdPath, 'utf-8')
       upSection = extractUpSection(content)
       if (upSection) {
-        console.log(`Found "# claude up" in ${claudeMdPath}`)
+        console.log(`在 ${claudeMdPath} 中找到 "# claude up"`)
         break
       }
     } catch {
@@ -34,8 +34,8 @@ export async function up(): Promise<void> {
 
   if (!upSection) {
     console.log(
-      'No "# claude up" section found in CLAUDE.md.\n' +
-        'Add a section like:\n\n' +
+      '在 CLAUDE.md 中未找到 "# claude up" 区域。\n' +
+        '添加一个如下区域：\n\n' +
         '  # claude up\n' +
         '  ```bash\n' +
         '  npm install\n' +
@@ -45,7 +45,7 @@ export async function up(): Promise<void> {
     return
   }
 
-  console.log('Running:\n')
+  console.log('正在运行：\n')
   console.log(upSection)
   console.log()
 
@@ -55,10 +55,10 @@ export async function up(): Promise<void> {
   })
 
   if (result.status !== 0) {
-    console.error(`\nclaude up failed with exit code ${result.status}`)
+    console.error(`\nclaude up 失败，退出码 ${result.status}`)
     process.exitCode = result.status ?? 1
   } else {
-    console.log('\nclaude up completed successfully.')
+    console.log('\nclaude up 成功完成。')
   }
 }
 

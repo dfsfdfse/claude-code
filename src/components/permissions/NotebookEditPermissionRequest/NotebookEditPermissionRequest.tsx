@@ -18,7 +18,7 @@ export function NotebookEditPermissionRequest(
     if (!result.success) {
       logError(
         new Error(
-          `Failed to parse notebook edit input: ${result.error.message}`,
+          `无法解析 notebook 编辑输入：${result.error.message}`,
         ),
       )
       // Return a default value to avoid crashing
@@ -38,10 +38,10 @@ export function NotebookEditPermissionRequest(
 
   const editTypeText =
     edit_mode === 'insert'
-      ? 'insert this cell into'
+      ? '插入此单元格到'
       : edit_mode === 'delete'
-        ? 'delete this cell from'
-        : 'make this edit to'
+        ? '删除此单元格从'
+        : '编辑此'
 
   return (
     <FilePermissionDialog
@@ -50,11 +50,11 @@ export function NotebookEditPermissionRequest(
       onDone={props.onDone}
       onReject={props.onReject}
       workerBadge={props.workerBadge}
-      title="Edit notebook"
+      title="编辑 Notebook"
       question={
         <Text>
-          Do you want to {editTypeText}{' '}
-          <Text bold>{basename(notebook_path)}</Text>?
+          是否要{editTypeText}{' '}
+          <Text bold>{basename(notebook_path)}</Text>？
         </Text>
       }
       content={

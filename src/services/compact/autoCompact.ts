@@ -1,4 +1,5 @@
 import { feature } from 'bun:bundle'
+import { getAPIProvider } from 'src/utils/model/providers.js'
 import { markPostCompaction } from 'src/bootstrap/state.js'
 import { getSdkBetas } from '../../bootstrap/state.js'
 import type { QuerySource } from '../../constants/querySource.js'
@@ -28,6 +29,26 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 // Reserve this many tokens for output during compaction
 // Based on p99.99 of compact summary output being 17,387 tokens.
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
+const OPENAI_AUTO_COMPACT_WINDOW = 500_000
+const DEFAULT_AUTO_COMPACT_WINDOW = 200_000
+
+function getAutoCompactWindowOverride(): number | undefined {
+  const autoCompactWindow = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  if (autoCompactWindow) {
+    const parsed = parseInt(autoCompactWindow, 10)
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed
+    }
+  }
+
+  const provider = getAPIProvider()
+  if (provider === 'openai') {
+    return OPENAI_AUTO_COMPACT_WINDOW
+  }
+
+  // Preserve the existing 200k baseline for Anthropic and all other providers.
+  return DEFAULT_AUTO_COMPACT_WINDOW
+}
 
 // Returns the context window size minus the max output tokens for the model
 export function getEffectiveContextWindowSize(model: string): number {
@@ -37,12 +58,9 @@ export function getEffectiveContextWindowSize(model: string): number {
   )
   let contextWindow = getContextWindowForModel(model, getSdkBetas())
 
-  const autoCompactWindow = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
-  if (autoCompactWindow) {
-    const parsed = parseInt(autoCompactWindow, 10)
-    if (!isNaN(parsed) && parsed > 0) {
-      contextWindow = Math.min(contextWindow, parsed)
-    }
+  const autoCompactWindowOverride = getAutoCompactWindowOverride()
+  if (autoCompactWindowOverride !== undefined) {
+    contextWindow = Math.min(contextWindow, autoCompactWindowOverride)
   }
 
   return contextWindow - reservedTokensForSummary

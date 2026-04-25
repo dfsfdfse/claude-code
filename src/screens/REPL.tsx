@@ -171,6 +171,7 @@ import { isHumanTurn } from '../utils/messagePredicates.js';
 import { logError } from '../utils/log.js';
 import { getCwd } from '../utils/cwd.js';
 // Dead code elimination: conditional imports
+// 死代码消除：条件导入
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 const useVoiceIntegration: typeof import('../hooks/useVoiceIntegration.js').useVoiceIntegration = feature('VOICE_MODE')
   ? require('../hooks/useVoiceIntegration.js').useVoiceIntegration
@@ -184,20 +185,19 @@ const VoiceKeybindingHandler: typeof import('../hooks/useVoiceIntegration.js').V
 )
   ? require('../hooks/useVoiceIntegration.js').VoiceKeybindingHandler
   : () => null;
-// Frustration detection is ant-only (dogfooding). Conditional require so external
-// builds eliminate the module entirely (including its two O(n) useMemos that run
-// on every messages change, plus the GrowthBook fetch).
+// 挫折检测仅限 ant（自我测试）。条件 require 以便外部
+// 构建完全消除此模块（包括其两个在每次 messages 变化时运行的 O(n) useMemo，
+// 加上 GrowthBook 获取）。
 const useFrustrationDetection: typeof import('../components/FeedbackSurvey/useFrustrationDetection.js').useFrustrationDetection =
   process.env.USER_TYPE === 'ant'
     ? require('../components/FeedbackSurvey/useFrustrationDetection.js').useFrustrationDetection
     : () => ({ state: 'closed', handleTranscriptSelect: () => {} });
-// Ant-only org warning. Conditional require so the org UUID list is
-// eliminated from external builds (one UUID is on excluded-strings).
+// Ant-only org 警告。条件 require 以便 org UUID 列表从外部构建中消除（一个 UUID 在排除字符串中）。
 const useAntOrgWarningNotification: typeof import('../hooks/notifs/useAntOrgWarningNotification.js').useAntOrgWarningNotification =
   process.env.USER_TYPE === 'ant'
     ? require('../hooks/notifs/useAntOrgWarningNotification.js').useAntOrgWarningNotification
     : () => {};
-// Dead code elimination: conditional import for coordinator mode
+// 死代码消除：协调器模式的条件导入
 const getCoordinatorUserContext: (
   mcpClients: ReadonlyArray<{ name: string }>,
   scratchpadDir?: string,
@@ -485,6 +485,7 @@ import { FullscreenLayout, useUnseenDivider, computeUnseenDivider } from '../com
 import { isFullscreenEnvEnabled, maybeGetTmuxMouseHint, isMouseTrackingEnabled } from '../utils/fullscreen.js';
 import { AlternateScreen } from '@anthropic/ink';
 import { ScrollKeybindingHandler } from '../components/ScrollKeybindingHandler.js';
+// 会话管理器已移除 - 现在使用 AppState
 import {
   useMessageActions,
   MessageActionsKeybindings,
@@ -497,23 +498,21 @@ import { setClipboard } from '@anthropic/ink';
 import type { ScrollBoxHandle } from '@anthropic/ink';
 import { createAttachmentMessage, getQueuedCommandAttachments } from '../utils/attachments.js';
 
-// Stable empty array for hooks that accept MCPServerConnection[] — avoids
-// creating a new [] literal on every render in remote mode, which would
-// cause useEffect dependency changes and infinite re-render loops.
+// 稳定的空数组用于接受 MCPServerConnection[] 的 hooks —— 避免
+// 在远程模式下每次渲染创建新的 [] 字面量，这会导致
+// useEffect 依赖变化和无限重渲染循环。
 const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
 
-// Stable stub for useAssistantHistory's non-KAIROS branch — avoids a new
-// function identity each render, which would break composedOnScroll's memo.
+// Stable stub for useAssistantHistory 的非 KAIROS 分支 —— 避免每次渲染创建新的
+// 函数标识，这会破坏 composedOnScroll 的 memo。
 const HISTORY_STUB = { maybeLoadOlder: (_: ScrollBoxHandle) => {} };
-// Window after a user-initiated scroll during which type-into-empty does NOT
-// repin to bottom. Josh Rosen's workflow: Claude emits long output → scroll
-// up to read the start → start typing → before this fix, snapped to bottom.
+// 用户主动滚动后的窗口，在此期间 type-into-empty 不会重新固定到底部。
+// Josh Rosen 的工作流：Claude 发出长输出 → 滚动读取开始 → 开始输入 → 此修复前会跳到底部。
 // https://anthropic.slack.com/archives/C07VBSHV7EV/p1773545449871739
 const RECENT_SCROLL_REPIN_WINDOW_MS = 3000;
 
-// Use LRU cache to prevent unbounded memory growth
-// 100 files should be sufficient for most coding sessions while preventing
-// memory issues when working across many files in large projects
+// 使用 LRU 缓存防止无限制的内存增长
+// 100 个文件应该足以满足大多数编码会话，同时防止在大型项目中处理多个文件时的内存问题
 
 function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
@@ -583,8 +582,7 @@ function TranscriptModeFooter({
           <Text>{status} </Text>
         </>
       ) : searchBadge ? (
-        // Engine-counted — close enough for a rough location hint. May
-        // drift from render-count for ghost/phantom messages.
+// 引擎计数 —— 粗略位置提示。可能会因 ghost/phantom 消息而与渲染计数漂移。
         <>
           <Box flexGrow={1} />
           <Text dimColor>
@@ -618,9 +616,9 @@ function TranscriptSearchBar({
   /** Esc/ctrl+c/ctrl+g — undo to pre-/ state. */
   onCancel: () => void;
   setHighlight: (query: string) => void;
-  // Seed with the previous query (less: / shows last pattern). Mount-fire
-  // of the effect re-scans with the same query — idempotent (same matches,
-  // nearest-ptr, same highlights). User can edit or clear.
+// 用上一个查询种子（少一点：/ 显示上一个模式）。
+// 挂载时效果重新扫描相同查询 —— 幂等（相同匹配，最接近指针，相同高亮）。
+// 用户可以编辑或清除。
   initialQuery: string;
 }): React.ReactNode {
   const { query, cursorOffset } = useSearchInput({
@@ -629,15 +627,14 @@ function TranscriptSearchBar({
     onExit: () => onClose(query),
     onCancel,
   });
-  // Index warm-up runs before the query effect so it measures the real
-  // cost — otherwise setSearchQuery fills the cache first and warm
-  // reports ~0ms while the user felt the actual lag.
-  // First / in a transcript session pays the extractSearchText cost.
-  // Subsequent / return 0 immediately (indexWarmed ref in VML).
-  // Transcript is frozen at ctrl+o so the cache stays valid.
-  // Initial 'building' so warmDone is false on mount — the [query] effect
-  // waits for the warm effect's first resolve instead of racing it. With
-  // null initial, warmDone would be true on mount → [query] fires →
+// 索引预热在查询效果之前运行，所以测量真实成本 ——
+// 否则 setSearchQuery 先填充缓存，warm 报告 ~0ms 而用户感到实际延迟。
+// 会话中第一个 / 支付 extractSearchText 成本。
+// 后续 / 立即返回 0（VML 中的 indexWarmed ref）。
+// Transcript 在 ctrl+o 时冻结，所以缓存保持有效。
+// 初始 'building' 使得 warmDone 在挂载时为 false —— [query] 效果
+// 等待 warm 效果首次解析，而不是与之竞争。如果初始为 null，
+// warmDone 在挂载时为 true → [query] 触发 →
   // setSearchQuery fills cache → warm reports ~0ms while the user felt
   // the real lag.
   const [indexStatus, setIndexStatus] = React.useState<'building' | { ms: number } | null>('building');
@@ -645,7 +642,7 @@ function TranscriptSearchBar({
     let alive = true;
     const warm = jumpRef.current?.warmSearchIndex;
     if (!warm) {
-      setIndexStatus(null); // VML not mounted yet — rare, skip indicator
+      setIndexStatus(null); // VML 尚未挂载 —— 很少见，跳过指示器
       return;
     }
     setIndexStatus('building');
@@ -664,8 +661,8 @@ function TranscriptSearchBar({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // mount-only: bar opens once per /
-  // Gate the query effect on warm completion. setHighlight stays instant
-  // (screen-space overlay, no indexing). setSearchQuery (the scan) waits.
+// 在暖完成之前门控查询效果。setHighlight 保持即时
+//（屏幕空间覆盖，无需索引）。setSearchQuery（扫描）等待。
   const warmDone = indexStatus !== 'building';
   useEffect(() => {
     if (!warmDone) return;
@@ -705,9 +702,9 @@ function TranscriptSearchBar({
       ) : count === 0 && query ? (
         <Text color="error">无匹配结果 </Text>
       ) : count > 0 ? (
-        // Engine-counted (indexOf on extractSearchText). May drift from
-        // render-count for ghost/phantom messages — badge is a rough
-        // location hint. scanElement gives exact per-message positions
+// 引擎计数（在 extractSearchText 上 indexOf）。可能会因
+// ghost/phantom 消息而与渲染计数漂移 —— badge 是粗略的位置提示。
+// scanElement 提供精确的每消息位置
         // but counting ALL would cost ~1-3ms × matched-messages.
         <Text dimColor>
           {current}/{count}
@@ -760,14 +757,14 @@ export type Props = {
   commands: Command[];
   debug: boolean;
   initialTools: Tool[];
-  // Initial messages to populate the REPL with
+  // 初始消息用于填充 REPL
   initialMessages?: MessageType[];
-  // Deferred hook messages promise — REPL renders immediately and injects
-  // hook messages when they resolve. Awaited before the first API call.
+// 延迟的 hook 消息 promise —— REPL 立即渲染并在解析时注入
+// hook 消息。在第一个 API 调用之前等待。
   pendingHookMessages?: Promise<HookResultMessage[]>;
   initialFileHistorySnapshots?: FileHistorySnapshot[];
-  // Content-replacement records from a resumed session's transcript — used to
-  // reconstruct contentReplacementState so the same results are re-replaced
+// 恢复会话的 transcript 中的内容替换记录 —— 用于
+// 重建 contentReplacementState 以便相同结果被重新替换
   initialContentReplacements?: ContentReplacementRecord[];
   // Initial agent context for session resume (name/color set via /rename or /color)
   initialAgentName?: string;
@@ -1405,14 +1402,14 @@ export function REPL({
     sessionStatus !== 'waiting'
       ? undefined
       : toolUseConfirmQueue.length > 0
-        ? `approve ${toolUseConfirmQueue[0]!.tool.name}`
+        ? `批准 ${toolUseConfirmQueue[0]!.tool.name}`
         : pendingWorkerRequest
-          ? 'worker request'
+          ? 'worker 请求'
           : pendingSandboxRequest
-            ? 'sandbox request'
+            ? 'sandbox 请求'
             : isShowingLocalJSXCommand
-              ? 'dialog open'
-              : 'input needed';
+              ? '对话框打开'
+              : '等待输入';
 
   // Push status to the PID file for `claude ps`. Fire-and-forget; ps falls
   // back to transcript-tail derivation when this is missing/stale.
@@ -1941,7 +1938,7 @@ export function REPL({
     setMessages(prev => [
       ...prev,
       createSystemMessage(
-        `Worktree creation took ${secs}s. For large repos, set \`worktree.sparsePaths\` in .claude/settings.json to check out only the directories you need — e.g. \`{"worktree": {"sparsePaths": ["src", "packages/foo"]}}\`.`,
+        `创建 worktree 耗时 ${secs}s。对于大型仓库，请在 .claude/settings.json 中设置 \`worktree.sparsePaths\` 来只检出你需要的目录 — 例如 \`{"worktree": {"sparsePaths": ["src", "packages/foo"]}}\`。`,
         'info',
       ),
     ]);
@@ -4562,9 +4559,9 @@ export function REPL({
       const fileList = memoryFiles
         .map(f => `  [${f.type}] ${f.path} (${f.content.length} chars)${f.parent ? ` (included by ${f.parent})` : ''}`)
         .join('\n');
-      logForDebugging(`Loaded ${memoryFiles.length} CLAUDE.md/rules files:\n${fileList}`);
+      logForDebugging(`已加载 ${memoryFiles.length} 个 CLAUDE.md/rules 文件:\n${fileList}`);
     } else {
-      logForDebugging('No CLAUDE.md/rules files found');
+      logForDebugging('未找到 CLAUDE.md/rules 文件');
     }
     for (const file of memoryFiles) {
       // When the injected content doesn't match disk (stripped HTML comments,
@@ -4771,10 +4768,10 @@ export function REPL({
                 <Text dimColor>新建任务? </Text>
                 <Text color="suggestion">/clear</Text>
                 <Text dimColor> 保存 </Text>
-                <Text color="suggestion">{formattedTokens} tokens</Text>
+                <Text color="suggestion">{formattedTokens} token</Text>
               </>
             ) : (
-              <Text color="warning">新建任务? /clear 保存 {formattedTokens} tokens</Text>
+              <Text color="warning">新建任务? /clear 保存 {formattedTokens} token</Text>
             ),
           priority: 'medium',
           // Persist until submit — the hint fires at T+75min idle, user may
@@ -6114,7 +6111,7 @@ export function REPL({
                         inputValue={inputValue}
                         setInputValue={setInputValue}
                         onRequestFeedback={handleSurveyRequestFeedback}
-                        message="How well did Claude use its memory? (optional)"
+                        message="Claude 对内存的使用效果如何？(可选)"
                       />
                     ) : (
                       <FeedbackSurvey
@@ -6236,7 +6233,7 @@ export function REPL({
                         setMessages(prev => [
                           ...prev,
                           createSystemMessage(
-                            'That message is no longer in the active context (snipped or pre-compact). Choose a more recent message.',
+                            '该消息已不在活动上下文中（已截断或压缩前消息）。请选择一条更近的消息。',
                             'warning',
                           ),
                         ]);

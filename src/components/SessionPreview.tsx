@@ -57,7 +57,7 @@ export function SessionPreview({
   if (isLoading) {
     return (
       <Box flexDirection="column" padding={1}>
-        <LoadingState message="Loading session…" />
+        <LoadingState message="正在加载会话…" />
         <Text dimColor>
           <Byline>
             <ConfigurableShortcutHint

@@ -173,7 +173,7 @@ export function QuickOpenDialog({ onDone, onInsert }: Props): React.ReactNode {
             ))}
           </>
         ) : (
-          <LoadingState message="Loading preview…" dimColor />
+          <LoadingState message="正在加载预览…" dimColor />
         )
       }
     />

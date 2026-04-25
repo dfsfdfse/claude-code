@@ -943,7 +943,7 @@ async function* queryLoop(
             // Clear assistant messages since we'll retry the entire request
             yield* yieldMissingToolResultBlocks(
               assistantMessages,
-              'Model fallback triggered',
+              '触发了模型降级',
             )
             assistantMessages.length = 0
             toolResults.length = 0
@@ -987,7 +987,7 @@ async function* queryLoop(
             // Yield system message about fallback — use 'warning' level so
             // users see the notification without needing verbose mode
             yield createSystemMessage(
-              `Switched to ${renderModelName(innerError.fallbackModel)} due to high demand for ${renderModelName(innerError.originalModel)}`,
+              `已切换到 ${renderModelName(innerError.fallbackModel)}，因为 ${renderModelName(innerError.originalModel)} 需求过高`,
               'warning',
             )
 
@@ -1036,7 +1036,7 @@ async function* queryLoop(
       })
 
       // To help track down bugs, log loudly for ants
-      logAntError('Query error', error)
+      logAntError('查询出错', error)
       return { reason: 'model_error', error }
     }
 
@@ -1068,7 +1068,7 @@ async function* queryLoop(
       } else {
         yield* yieldMissingToolResultBlocks(
           assistantMessages,
-          'Interrupted by user',
+          '用户已中断',
         )
       }
       // chicago MCP: auto-unhide + lock release on interrupt. Same cleanup
@@ -1267,8 +1267,8 @@ async function* queryLoop(
         if (maxOutputTokensRecoveryCount < MAX_OUTPUT_TOKENS_RECOVERY_LIMIT) {
           const recoveryMessage = createUserMessage({
             content:
-              `Output token limit hit. Resume directly — no apology, no recap of what you were doing. ` +
-              `Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.`,
+              `输出 token 限制已达。请直接继续 — 无需道歉，无需回顾。` +
+              `如果中断发生在思考过程中，请从中断处继续。将剩余工作拆分为更小的部分。`,
             isMeta: true,
           })
 

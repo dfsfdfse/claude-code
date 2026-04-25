@@ -12,7 +12,7 @@ import {
 import { ShimmerChar } from '../Spinner/ShimmerChar.js'
 import { useShimmerAnimation } from '../Spinner/useShimmerAnimation.js'
 
-const LOADING_MESSAGE = 'Loading explanation…'
+const LOADING_MESSAGE = '正在加载说明\u2026'
 
 function ShimmerLoadingText(): React.ReactNode {
   const [ref, glimmerIndex] = useShimmerAnimation(
@@ -53,11 +53,11 @@ function getRiskColor(riskLevel: RiskLevel): 'success' | 'warning' | 'error' {
 function getRiskLabel(riskLevel: RiskLevel): string {
   switch (riskLevel) {
     case 'LOW':
-      return 'Low risk'
+      return '低风险'
     case 'MEDIUM':
-      return 'Med risk'
+      return '中风险'
     case 'HIGH':
-      return 'High risk'
+      return '高风险'
   }
 }
 
@@ -136,7 +136,7 @@ function ExplanationResult({
   if (!explanation) {
     return (
       <Box marginTop={1}>
-        <Text dimColor>Explanation unavailable</Text>
+        <Text dimColor>无法获取说明</Text>
       </Box>
     )
   }

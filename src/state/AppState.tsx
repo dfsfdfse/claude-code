@@ -63,7 +63,7 @@ export function AppStateProvider({
   const hasAppStateContext = useContext(HasAppStateContext)
   if (hasAppStateContext) {
     throw new Error(
-      'AppStateProvider can not be nested within another AppStateProvider',
+      'AppStateProvider 不能嵌套在其他 AppStateProvider 内',
     )
   }
 
@@ -125,7 +125,7 @@ function useAppStore(): AppStateStore {
   const store = useContext(AppStoreContext)
   if (!store) {
     throw new ReferenceError(
-      'useAppState/useSetAppState cannot be called outside of an <AppStateProvider />',
+      'useAppState/useSetAppState 不能在 <AppStateProvider /> 之外调用',
     )
   }
   return store
@@ -156,7 +156,7 @@ export function useAppState<T>(selector: (state: AppState) => T): T {
 
     if (process.env.USER_TYPE === 'ant' && state === selected) {
       throw new Error(
-        `Your selector in \`useAppState(${selector.toString()})\` returned the original state, which is not allowed. You must instead return a property for optimised rendering.`,
+        `useAppState(${selector.toString()}) 的 selector 返回了原始 state，这是不允许的。请返回 state 的一个属性以实现优化渲染。`,
       )
     }
 

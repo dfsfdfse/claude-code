@@ -2797,48 +2797,48 @@ async function run(): Promise<CommanderCommand> {
 				inputFormat !== "text" &&
 				inputFormat !== "stream-json"
 			) {
-				// biome-ignore lint/suspicious/noConsole:: intentional console output
-				console.error(`Error: Invalid input format "${inputFormat}".`);
-				process.exit(1);
-			}
+			// biome-ignore lint/suspicious/noConsole:: intentional console output
+			console.error(`错误：无效的输入格式 "${inputFormat}"。`);
+			process.exit(1);
+		}
+		if (
+			inputFormat === "stream-json" &&
+			outputFormat !== "stream-json"
+		) {
+			// biome-ignore lint/suspicious/noConsole:: intentional console output
+			console.error(
+				`错误：--input-format=stream-json 需要 output-format=stream-json。`,
+			);
+			process.exit(1);
+		}
+
+		// Validate sdkUrl is only used with appropriate formats (formats are auto-set above)
+		if (sdkUrl) {
 			if (
-				inputFormat === "stream-json" &&
+				inputFormat !== "stream-json" ||
 				outputFormat !== "stream-json"
 			) {
 				// biome-ignore lint/suspicious/noConsole:: intentional console output
 				console.error(
-					`Error: --input-format=stream-json requires output-format=stream-json.`,
+					`错误：--sdk-url 需要同时设置 --input-format=stream-json 和 --output-format=stream-json。`,
 				);
 				process.exit(1);
 			}
+		}
 
-			// Validate sdkUrl is only used with appropriate formats (formats are auto-set above)
-			if (sdkUrl) {
-				if (
-					inputFormat !== "stream-json" ||
-					outputFormat !== "stream-json"
-				) {
-					// biome-ignore lint/suspicious/noConsole:: intentional console output
-					console.error(
-						`Error: --sdk-url requires both --input-format=stream-json and --output-format=stream-json.`,
-					);
-					process.exit(1);
-				}
+		// Validate replayUserMessages is only used with stream-json formats
+		if (options.replayUserMessages) {
+			if (
+				inputFormat !== "stream-json" ||
+				outputFormat !== "stream-json"
+			) {
+				// biome-ignore lint/suspicious/noConsole:: intentional console output
+				console.error(
+					`错误：--replay-user-messages 需要同时设置 --input-format=stream-json 和 --output-format=stream-json。`,
+				);
+				process.exit(1);
 			}
-
-			// Validate replayUserMessages is only used with stream-json formats
-			if (options.replayUserMessages) {
-				if (
-					inputFormat !== "stream-json" ||
-					outputFormat !== "stream-json"
-				) {
-					// biome-ignore lint/suspicious/noConsole:: intentional console output
-					console.error(
-						`Error: --replay-user-messages requires both --input-format=stream-json and --output-format=stream-json.`,
-					);
-					process.exit(1);
-				}
-			}
+		}
 
 			// Validate includePartialMessages is only used with print mode and stream-json output
 			if (effectiveIncludePartialMessages) {
