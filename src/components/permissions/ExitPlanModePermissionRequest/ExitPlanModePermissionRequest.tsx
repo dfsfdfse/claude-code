@@ -31,10 +31,10 @@ import { generateSessionName } from '../../../commands/rename/generateSessionNam
 import { launchUltraplan } from '../../../commands/ultraplan.js'
 import { type KeyboardEvent, Box, Text } from '@anthropic/ink'
 import type { AppState } from '../../../state/AppStateStore.js'
-import { AGENT_TOOL_NAME } from '../../../tools/AgentTool/constants.js'
-import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../../tools/ExitPlanModeTool/constants.js'
-import type { AllowedPrompt } from '../../../tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
-import { TEAM_CREATE_TOOL_NAME } from '../../../tools/TeamCreateTool/constants.js'
+import { AGENT_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/AgentTool/constants.js'
+import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/ExitPlanModeTool/constants.js'
+import type { AllowedPrompt } from '@claude-code-best/builtin-tools/tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
+import { TEAM_CREATE_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/TeamCreateTool/constants.js'
 import { isAgentSwarmsEnabled } from '../../../utils/agentSwarmsEnabled.js'
 import {
   calculateContextPercentages,
@@ -318,7 +318,7 @@ export function ExitPlanModePermissionRequest({
     if (inputPlan) return inputPlan
     const plan = getPlan()
     return (
-      plan ?? 'No plan found. Please write your plan to the plan file first.'
+      plan ?? '未找到计划。请先将你的计划写入计划文件。'
     )
   })
   const [showSaveMessage, setShowSaveMessage] = useState(false)

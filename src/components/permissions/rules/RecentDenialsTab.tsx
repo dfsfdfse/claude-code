@@ -78,8 +78,7 @@ export function RecentDenialsTab({
   if (denials.length === 0) {
     return (
       <Text dimColor>
-        No recent denials. Commands denied by the auto mode classifier will
-        appear here.
+        没有最近的拒绝。自动模式分类器拒绝的命令将显示在这里。
       </Text>
     )
   }
@@ -101,7 +100,7 @@ export function RecentDenialsTab({
 
   return (
     <Box flexDirection="column">
-      <Text>Commands recently denied by the auto mode classifier.</Text>
+      <Text>自动模式分类器最近拒绝的命令。</Text>
       <Box marginTop={1}>
         <Select
           options={options}

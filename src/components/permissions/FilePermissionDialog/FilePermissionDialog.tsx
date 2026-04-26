@@ -63,7 +63,7 @@ export function FilePermissionDialog<T extends ToolInput = ToolInput>({
   onReject,
   title,
   subtitle,
-  question = 'Do you want to proceed?',
+  question = '是否继续？',
   content,
   completionType = 'tool_use_single',
   path,
@@ -214,8 +214,8 @@ export function FilePermissionDialog<T extends ToolInput = ToolInput>({
     <Box paddingX={1} marginBottom={1}>
       <Text color="warning">
         {isSymlinkOutsideCwd
-          ? `This will modify ${symlinkTarget} (outside working directory) via a symlink`
-          : `Symlink target: ${symlinkTarget}`}
+          ? `这将修改 ${symlinkTarget}（工作目录外）通过符号链接`
+          : `符号链接目标：${symlinkTarget}`}
       </Text>
     </Box>
   ) : null
@@ -261,10 +261,10 @@ export function FilePermissionDialog<T extends ToolInput = ToolInput>({
       </PermissionDialog>
       <Box paddingX={1} marginTop={1}>
         <Text dimColor>
-          Esc to cancel
+          Esc 取消
           {((focusedOption === 'yes' && !yesInputMode) ||
             (focusedOption === 'no' && !noInputMode)) &&
-            ' · Tab to amend'}
+            ' · Tab 修改'}
         </Text>
       </Box>
     </>

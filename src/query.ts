@@ -88,7 +88,7 @@ import {
 } from './utils/tokens.js'
 import { ESCALATED_MAX_TOKENS } from './utils/context.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from './services/analytics/growthbook.js'
-import { SLEEP_TOOL_NAME } from './tools/SleepTool/prompt.js'
+import { SLEEP_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/SleepTool/prompt.js'
 import { executePostSamplingHooks } from './utils/hooks/postSamplingHooks.js'
 import { executeStopFailureHooks } from './utils/hooks.js'
 import type { QuerySource } from './constants/querySource.js'
@@ -107,9 +107,12 @@ import {
   getCurrentTurnTokenBudget,
   getTurnOutputTokens,
   incrementBudgetContinuationCount,
+  getSessionId,
 } from './bootstrap/state.js'
 import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
+import { createTrace, endTrace, isLangfuseEnabled } from './services/langfuse/index.js'
+import { getAPIProvider } from './utils/model/providers.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const snipModule = feature('HISTORY_SNIP')
@@ -227,7 +230,46 @@ export async function* query(
   Terminal
 > {
   const consumedCommandUuids: string[] = []
-  const terminal = yield* queryLoop(params, consumedCommandUuids)
+
+  // Create Langfuse trace for this query turn (no-op if not configured).
+  // When called as a sub-agent, langfuseTrace is already set by runAgent()
+  // — reuse it instead of creating an independent trace.
+  const ownsTrace = !params.toolUseContext.langfuseTrace
+  logForDebugging(
+    `[query] ownsTrace=${ownsTrace} incoming langfuseTrace=${params.toolUseContext.langfuseTrace ? 'present' : 'null/undefined'} isLangfuseEnabled=${isLangfuseEnabled()}`,
+  )
+  const langfuseTrace = params.toolUseContext.langfuseTrace
+    ?? (isLangfuseEnabled()
+      ? createTrace({
+          sessionId: getSessionId(),
+          model: params.toolUseContext.options.mainLoopModel,
+          provider: getAPIProvider(),
+          input: params.messages,
+          querySource: params.querySource,
+        })
+      : null)
+
+  // Attach trace to toolUseContext so tool execution can record observations
+  const paramsWithTrace: QueryParams = langfuseTrace
+    ? {
+        ...params,
+        toolUseContext: { ...params.toolUseContext, langfuseTrace },
+      }
+    : params
+
+  let terminal: Terminal | undefined
+  try {
+    terminal = yield* queryLoop(paramsWithTrace, consumedCommandUuids)
+  } finally {
+    // Only end the trace if we created it — sub-agents own their traces
+    if (ownsTrace) {
+      const isAborted =
+        terminal?.reason === 'aborted_streaming' ||
+        terminal?.reason === 'aborted_tools'
+      endTrace(langfuseTrace, undefined, isAborted ? 'interrupted' : undefined)
+    }
+  }
+
   // Only reached if queryLoop returned normally. Skipped on throw (error
   // propagates through yield*) and on .return() (Return completion closes
   // both generators). This gives the same asymmetric started-without-completed
@@ -235,7 +277,8 @@ export async function* query(
   for (const uuid of consumedCommandUuids) {
     notifyCommandLifecycle(uuid, 'completed')
   }
-  return terminal
+  // biome-ignore lint/style/noNonNullAssertion: terminal is always assigned when queryLoop returns normally
+  return terminal!
 }
 
 async function* queryLoop(
@@ -704,6 +747,7 @@ async function* queryLoop(
                   }),
                 },
               }),
+              langfuseTrace: toolUseContext.langfuseTrace,
             },
           })) {
             // We won't use the tool_calls from the first attempt
@@ -803,7 +847,7 @@ async function* queryLoop(
               if (
                 contextCollapse?.isWithheldPromptTooLong(
                   message as Message,
-                  isPromptTooLongMessage,
+                  isPromptTooLongMessage as (msg: Message) => boolean,
                   querySource,
                 )
               ) {
@@ -902,7 +946,7 @@ async function* queryLoop(
             // Clear assistant messages since we'll retry the entire request
             yield* yieldMissingToolResultBlocks(
               assistantMessages,
-              'Model fallback triggered',
+              '触发了模型降级',
             )
             assistantMessages.length = 0
             toolResults.length = 0
@@ -946,7 +990,7 @@ async function* queryLoop(
             // Yield system message about fallback — use 'warning' level so
             // users see the notification without needing verbose mode
             yield createSystemMessage(
-              `Switched to ${renderModelName(innerError.fallbackModel)} due to high demand for ${renderModelName(innerError.originalModel)}`,
+              `已切换到 ${renderModelName(innerError.fallbackModel)}，因为 ${renderModelName(innerError.originalModel)} 需求过高`,
               'warning',
             )
 
@@ -995,7 +1039,7 @@ async function* queryLoop(
       })
 
       // To help track down bugs, log loudly for ants
-      logAntError('Query error', error)
+      logAntError('查询出错', error)
       return { reason: 'model_error', error }
     }
 
@@ -1027,7 +1071,7 @@ async function* queryLoop(
       } else {
         yield* yieldMissingToolResultBlocks(
           assistantMessages,
-          'Interrupted by user',
+          '用户已中断',
         )
       }
       // chicago MCP: auto-unhide + lock release on interrupt. Same cleanup
@@ -1084,7 +1128,7 @@ async function* queryLoop(
       // prevents a spiral and the error surfaces.
       const isWithheldMedia =
         mediaRecoveryEnabled &&
-        reactiveCompact?.isWithheldMediaSizeError(lastMessage)
+        reactiveCompact?.isWithheldMediaSizeError(lastMessage as Message)
       if (isWithheld413) {
         // First: drain all staged context-collapses. Gated on the PREVIOUS
         // transition not being collapse_drain_retry — if we already drained
@@ -1173,8 +1217,8 @@ async function* queryLoop(
         // so hooks have nothing meaningful to evaluate. Running stop hooks
         // on prompt-too-long creates a death spiral: error → hook blocking
         // → retry → error → … (the hook injects more tokens each cycle).
-        yield lastMessage
-        void executeStopFailureHooks(lastMessage, toolUseContext)
+        yield lastMessage!
+        void executeStopFailureHooks(lastMessage!, toolUseContext)
         return { reason: isWithheldMedia ? 'image_error' : 'prompt_too_long' }
       } else if (feature('CONTEXT_COLLAPSE') && isWithheld413) {
         // reactiveCompact compiled out but contextCollapse withheld and
@@ -1226,8 +1270,8 @@ async function* queryLoop(
         if (maxOutputTokensRecoveryCount < MAX_OUTPUT_TOKENS_RECOVERY_LIMIT) {
           const recoveryMessage = createUserMessage({
             content:
-              `Output token limit hit. Resume directly — no apology, no recap of what you were doing. ` +
-              `Pick up mid-thought if that is where the cut happened. Break remaining work into smaller pieces.`,
+              `输出 token 限制已达。请直接继续 — 无需道歉，无需回顾。` +
+              `如果中断发生在思考过程中，请从中断处继续。将剩余工作拆分为更小的部分。`,
             isMeta: true,
           })
 
@@ -1390,7 +1434,7 @@ async function* queryLoop(
 
         if (
           update.message.type === 'attachment' &&
-          update.message.attachment.type === 'hook_stopped_continuation'
+          update.message.attachment!.type === 'hook_stopped_continuation'
         ) {
           shouldPreventContinuation = true
         }

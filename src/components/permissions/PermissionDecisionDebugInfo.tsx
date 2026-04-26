@@ -31,26 +31,26 @@ function decisionReasonDisplayString(
     (feature('BASH_CLASSIFIER') || feature('TRANSCRIPT_CLASSIFIER')) &&
     decisionReason.type === 'classifier'
   ) {
-    return `${chalk.bold(decisionReason.classifier)} classifier: ${decisionReason.reason}`
+    return `${chalk.bold(decisionReason.classifier)} 分类器：${decisionReason.reason}`
   }
   switch (decisionReason.type) {
     case 'rule':
-      return `${chalk.bold(permissionRuleValueToString(decisionReason.rule.ruleValue))} rule from ${getSettingSourceDisplayNameLowercase(decisionReason.rule.source)}`
+      return `${chalk.bold(permissionRuleValueToString(decisionReason.rule.ruleValue))} 规则（来自 ${getSettingSourceDisplayNameLowercase(decisionReason.rule.source)}）`
     case 'mode':
-      return `${permissionModeTitle(decisionReason.mode)} mode`
+      return `${permissionModeTitle(decisionReason.mode)} 模式`
     case 'sandboxOverride':
-      return 'Requires permission to bypass sandbox'
+      return '需要权限以绕过沙箱'
     case 'workingDir':
       return decisionReason.reason
     case 'safetyCheck':
     case 'other':
       return decisionReason.reason
     case 'permissionPromptTool':
-      return `${chalk.bold(decisionReason.permissionPromptToolName)} permission prompt tool`
+      return `${chalk.bold(decisionReason.permissionPromptToolName)} 权限提示工具`
     case 'hook':
       return decisionReason.reason
-        ? `${chalk.bold(decisionReason.hookName)} hook: ${decisionReason.reason}`
-        : `${chalk.bold(decisionReason.hookName)} hook`
+        ? `${chalk.bold(decisionReason.hookName)} 钩子：${decisionReason.reason}`
+        : `${chalk.bold(decisionReason.hookName)} 钩子`
     case 'asyncAgent':
       return decisionReason.reason
     default:
@@ -129,7 +129,7 @@ function SuggestedRules({
       <Text dimColor>
         {'  '}⎿{'  '}
       </Text>
-      Suggested rules:{' '}
+      建议规则：{' '}
       <Ansi>
         {rules
           .map(rule => chalk.bold(permissionRuleValueToString(rule)))
@@ -178,9 +178,9 @@ function SuggestionDisplay({
     return (
       <Box flexDirection="row">
         <Box justifyContent="flex-end" minWidth={width}>
-          <Text dimColor>Suggestions </Text>
+          <Text dimColor>建议 </Text>
         </Box>
-        <Text>None</Text>
+        <Text>无</Text>
       </Box>
     )
   }
@@ -194,9 +194,9 @@ function SuggestionDisplay({
     return (
       <Box flexDirection="row">
         <Box justifyContent="flex-end" minWidth={width}>
-          <Text dimColor>Suggestion </Text>
+          <Text dimColor>建议 </Text>
         </Box>
-        <Text>None</Text>
+        <Text>无</Text>
       </Box>
     )
   }
@@ -205,7 +205,7 @@ function SuggestionDisplay({
     <Box flexDirection="column">
       <Box flexDirection="row">
         <Box justifyContent="flex-end" minWidth={width}>
-          <Text dimColor>Suggestions </Text>
+          <Text dimColor>建议 </Text>
         </Box>
         <Text> </Text>
       </Box>
@@ -214,7 +214,7 @@ function SuggestionDisplay({
       {rules.length > 0 && (
         <Box flexDirection="row">
           <Box justifyContent="flex-end" minWidth={width}>
-            <Text dimColor> Rules </Text>
+            <Text dimColor> 规则 </Text>
           </Box>
           <Box flexDirection="column">
             {rules.map((rule, index) => (
@@ -230,7 +230,7 @@ function SuggestionDisplay({
       {directories.length > 0 && (
         <Box flexDirection="row">
           <Box justifyContent="flex-end" minWidth={width}>
-            <Text dimColor> Directories </Text>
+            <Text dimColor> 目录 </Text>
           </Box>
           <Box flexDirection="column">
             {directories.map((dir, index) => (
@@ -246,7 +246,7 @@ function SuggestionDisplay({
       {mode && (
         <Box flexDirection="row">
           <Box justifyContent="flex-end" minWidth={width}>
-            <Text dimColor> Mode </Text>
+            <Text dimColor> 模式 </Text>
           </Box>
           <Text>{permissionModeTitle(mode)}</Text>
         </Box>
@@ -301,24 +301,24 @@ export function PermissionDecisionDebugInfo({
     <Box flexDirection="column">
       <Box flexDirection="row">
         <Box justifyContent="flex-end" minWidth={WIDTH}>
-          <Text dimColor>Behavior </Text>
+          <Text dimColor>行为 </Text>
         </Box>
         <Text>{permissionResult.behavior}</Text>
       </Box>
       {permissionResult.behavior !== 'allow' && (
         <Box flexDirection="row">
           <Box justifyContent="flex-end" minWidth={WIDTH}>
-            <Text dimColor>Message </Text>
+            <Text dimColor>消息 </Text>
           </Box>
           <Text>{permissionResult.message}</Text>
         </Box>
       )}
       <Box flexDirection="row">
         <Box justifyContent="flex-end" minWidth={WIDTH}>
-          <Text dimColor>Reason </Text>
+          <Text dimColor>原因 </Text>
         </Box>
         {decisionReason === undefined ? (
-          <Text>undefined</Text>
+          <Text>未定义</Text>
         ) : (
           <PermissionDecisionInfoItem decisionReason={decisionReason} />
         )}
@@ -327,7 +327,7 @@ export function PermissionDecisionDebugInfo({
       {unreachableRules.length > 0 && (
         <Box flexDirection="column" marginTop={1}>
           <Text color="warning">
-            {figures.warning} Unreachable Rules ({unreachableRules.length})
+            {figures.warning} 不可达规则（{unreachableRules.length}）
           </Text>
           {unreachableRules.map((u, i) => (
             <Box key={i} flexDirection="column" marginLeft={2}>
@@ -339,7 +339,7 @@ export function PermissionDecisionDebugInfo({
                 {u.reason}
               </Text>
               <Text dimColor>
-                {'  '}Fix: {u.fix}
+                {'  '}修复：{u.fix}
               </Text>
             </Box>
           ))}

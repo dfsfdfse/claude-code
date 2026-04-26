@@ -10,8 +10,8 @@ import { logEvent } from 'src/services/analytics/index.js'
 import { getContentText } from 'src/utils/messages.js'
 import {
   findCommand,
+  getBridgeCommandSafety,
   getCommandName,
-  isBridgeSafeCommand,
   type LocalJSXCommandContext,
 } from '../../commands.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
@@ -241,17 +241,17 @@ export async function processUserInput({
 
     // TODO: Clean this up
     if (hookResult.message) {
-      switch (hookResult.message.attachment.type) {
+      switch (hookResult.message.attachment!.type) {
         case 'hook_success':
-          if (!hookResult.message.attachment.content) {
+          if (!hookResult.message.attachment!.content) {
             // Skip if there is no content
             break
           }
           result.messages.push({
             ...hookResult.message,
             attachment: {
-              ...hookResult.message.attachment,
-              content: applyTruncation(hookResult.message.attachment.content as string),
+              ...hookResult.message.attachment!,
+              content: applyTruncation(hookResult.message.attachment!.content as string),
             },
           } as AttachmentMessage)
           break
@@ -432,10 +432,13 @@ async function processUserInputBase(
       ? findCommand(parsed.commandName, context.options.commands)
       : undefined
     if (cmd) {
-      if (isBridgeSafeCommand(cmd)) {
+      const safety = getBridgeCommandSafety(cmd, parsed?.args ?? '')
+      if (safety.ok) {
         effectiveSkipSlash = false
       } else {
-        const msg = `/${getCommandName(cmd)} isn't available over Remote Control.`
+        const msg =
+          safety.reason ??
+          `/${getCommandName(cmd)} isn't available over Remote Control.`
         return {
           messages: [
             createUserMessage({ content: inputString, uuid }),

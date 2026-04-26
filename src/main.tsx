@@ -56,7 +56,6 @@ import {
 	parseFileSpecs,
 } from "./services/api/filesApi.js";
 import { prefetchPassesEligibility } from "./services/api/referral.js";
-import { prefetchOfficialMcpUrls } from "./services/mcp/officialRegistry.js";
 import type {
 	McpSdkServerConfig,
 	McpServerConfig,
@@ -76,7 +75,7 @@ import type { ToolInputJSONSchema } from "./Tool.js";
 import {
 	createSyntheticOutputTool,
 	isSyntheticOutputToolEnabled,
-} from "./tools/SyntheticOutputTool/SyntheticOutputTool.js";
+} from "@claude-code-best/builtin-tools/tools/SyntheticOutputTool/SyntheticOutputTool.js";
 import { getTools } from "./tools.js";
 import {
 	canUserConfigureAdvisor,
@@ -193,14 +192,14 @@ import {
 	VALID_UPDATE_SCOPES,
 } from "./services/plugins/pluginCliCommands.js";
 import { initBundledSkills } from "./skills/bundled/index.js";
-import type { AgentColorName } from "./tools/AgentTool/agentColorManager.js";
+import type { AgentColorName } from "@claude-code-best/builtin-tools/tools/AgentTool/agentColorManager.js";
 import {
 	getActiveAgentsFromList,
 	getAgentDefinitionsWithOverrides,
 	isBuiltInAgent,
 	isCustomAgent,
 	parseAgentsFromJson,
-} from "./tools/AgentTool/loadAgentsDir.js";
+} from "@claude-code-best/builtin-tools/tools/AgentTool/loadAgentsDir.js";
 import type { LogOption } from "./types/logs.js";
 import type { Message as MessageType } from "./types/message.js";
 import {
@@ -243,7 +242,6 @@ import {
 import { ensureModelStringsInitialized } from "./utils/model/modelStrings.js";
 import { PERMISSION_MODES } from "./utils/permissions/PermissionMode.js";
 import {
-	checkAndDisableBypassPermissions,
 	getAutoModeEnabledStateIfCached,
 	initializeToolPermissionContext,
 	initialPermissionModeFromCLI,
@@ -689,7 +687,6 @@ export function startDeferredPrefetches(): void {
 
 	// Analytics and feature flag initialization
 	void initializeAnalyticsGates();
-	void prefetchOfficialMcpUrls();
 
 	void refreshModelCapabilities();
 
@@ -872,6 +869,7 @@ type PendingSSH = {
 	local: boolean;
 	/** Extra CLI args to forward to the remote CLI on initial spawn (--resume, -c). */
 	extraCliArgs: string[];
+	remoteBin: string | undefined;
 };
 const _pendingSSH: PendingSSH | undefined = feature("SSH_REMOTE")
 	? {
@@ -881,6 +879,7 @@ const _pendingSSH: PendingSSH | undefined = feature("SSH_REMOTE")
 			dangerouslySkipPermissions: false,
 			local: false,
 			extraCliArgs: [],
+			remoteBin: undefined,
 		}
 	: undefined;
 
@@ -1087,6 +1086,17 @@ export async function main() {
 					rawCliArgs.splice(eqI, 1);
 				}
 			};
+			const rbIdx = rawCliArgs.indexOf('--remote-bin');
+			if (rbIdx !== -1 && rawCliArgs[rbIdx + 1] && !rawCliArgs[rbIdx + 1]!.startsWith('-')) {
+				_pendingSSH.remoteBin = rawCliArgs[rbIdx + 1];
+				rawCliArgs.splice(rbIdx, 2);
+			}
+			const rbEqIdx = rawCliArgs.findIndex(a => a.startsWith('--remote-bin='));
+			if (rbEqIdx !== -1) {
+				_pendingSSH.remoteBin = rawCliArgs[rbEqIdx]!.split('=').slice(1).join('=');
+				rawCliArgs.splice(rbEqIdx, 1);
+			}
+
 			extractFlag("-c", { as: "--continue" });
 			extractFlag("--continue");
 			extractFlag("--resume", { hasValue: true });
@@ -1124,14 +1134,15 @@ export async function main() {
 		}
 	}
 
-	// Check for -p/--print and --init-only flags early to set isInteractiveSession before init()
-	// This is needed because telemetry initialization calls auth functions that need this flag
-	const cliArgs = process.argv.slice(2);
-	const hasPrintFlag = cliArgs.includes("-p") || cliArgs.includes("--print");
-	const hasInitOnlyFlag = cliArgs.includes("--init-only");
-	const hasSdkUrl = cliArgs.some((arg) => arg.startsWith("--sdk-url"));
-	const isNonInteractive =
-		hasPrintFlag || hasInitOnlyFlag || hasSdkUrl || !process.stdout.isTTY;
+		// Check for -p/--print and --init-only flags early to set isInteractiveSession before init()
+		// This is needed because telemetry initialization calls auth functions that need this flag
+		const cliArgs = process.argv.slice(2);
+		const hasPrintFlag = cliArgs.includes("-p") || cliArgs.includes("--print");
+		const hasInitOnlyFlag = cliArgs.includes("--init-only");
+		const hasSdkUrl = cliArgs.some((arg) => arg.startsWith("--sdk-url"));
+		const forceInteractive = isEnvTruthy(process.env.CLAUDE_CODE_FORCE_INTERACTIVE);
+		const isNonInteractive =
+			hasPrintFlag || hasInitOnlyFlag || hasSdkUrl || (!forceInteractive && !process.stdout.isTTY);
 
 	// Stop capturing early input for non-interactive modes
 	if (isNonInteractive) {
@@ -1803,9 +1814,11 @@ async function run(): Promise<CommanderCommand> {
 			}
 			if (
 				feature("KAIROS") &&
-				assistantModule?.isAssistantMode() &&
+				assistantModule &&
+				(assistantModule.isAssistantForced() ||
+					(options as Record<string, unknown>).assistant === true) &&
 				// Spawned teammates share the leader's cwd + settings.json, so
-				// isAssistantMode() is true for them too. --agent-id being set
+				// the flag is true for them too. --agent-id being set
 				// means we ARE a spawned teammate (extractTeammateOptions runs
 				// ~170 lines later so check the raw commander option) — don't
 				// re-init the team or override teammateMode/proactive/brief.
@@ -2271,7 +2284,17 @@ async function run(): Promise<CommanderCommand> {
 			}
 
 			// Parse the MCP config files/strings if provided
-			let dynamicMcpConfig: Record<string, ScopedMcpServerConfig> = {};
+			let dynamicMcpConfig: Record<string, ScopedMcpServerConfig> = {
+				// Built-in MCP servers (default disabled, user enables via /mcp)
+				"mcp-chrome": {
+					type: "http",
+					url: "http://127.0.0.1:12306/mcp",
+					scope: "dynamic",
+					"headers": {
+						"Authorization": "Bearer my-static-token",
+					}
+				},
+			};
 
 			if (mcpConfig && mcpConfig.length > 0) {
 				// Process mcpConfig array
@@ -2547,110 +2570,108 @@ async function run(): Promise<CommanderCommand> {
 			// devChannels is deferred: showSetupScreens shows a confirmation dialog
 			// and only appends to allowedChannels on accept.
 			let devChannels: ChannelEntry[] | undefined;
-			if (feature("KAIROS") || feature("KAIROS_CHANNELS")) {
-				// Parse plugin:name@marketplace / server:Y tags into typed entries.
-				// Tag decides trust model downstream: plugin-kind hits marketplace
-				// verification + GrowthBook allowlist, server-kind always fails
-				// allowlist (schema is plugin-only) unless dev flag is set.
-				// Untagged or marketplace-less plugin entries are hard errors —
-				// silently not-matching in the gate would look like channels are
-				// "on" but nothing ever fires.
-				const parseChannelEntries = (
-					raw: string[],
-					flag: string,
-				): ChannelEntry[] => {
-					const entries: ChannelEntry[] = [];
-					const bad: string[] = [];
-					for (const c of raw) {
-						if (c.startsWith("plugin:")) {
-							const rest = c.slice(7);
-							const at = rest.indexOf("@");
-							if (at <= 0 || at === rest.length - 1) {
-								bad.push(c);
-							} else {
-								entries.push({
-									kind: "plugin",
-									name: rest.slice(0, at),
-									marketplace: rest.slice(at + 1),
-								});
-							}
-						} else if (c.startsWith("server:") && c.length > 7) {
-							entries.push({ kind: "server", name: c.slice(7) });
-						} else {
+			// Parse plugin:name@marketplace / server:Y tags into typed entries.
+			// Tag decides trust model downstream: plugin-kind hits marketplace
+			// verification + GrowthBook allowlist, server-kind always fails
+			// allowlist (schema is plugin-only) unless dev flag is set.
+			// Untagged or marketplace-less plugin entries are hard errors —
+			// silently not-matching in the gate would look like channels are
+			// "on" but nothing ever fires.
+			const parseChannelEntries = (
+				raw: string[],
+				flag: string,
+			): ChannelEntry[] => {
+				const entries: ChannelEntry[] = [];
+				const bad: string[] = [];
+				for (const c of raw) {
+					if (c.startsWith("plugin:")) {
+						const rest = c.slice(7);
+						const at = rest.indexOf("@");
+						if (at <= 0 || at === rest.length - 1) {
 							bad.push(c);
+						} else {
+							entries.push({
+								kind: "plugin",
+								name: rest.slice(0, at),
+								marketplace: rest.slice(at + 1),
+							});
 						}
+					} else if (c.startsWith("server:") && c.length > 7) {
+						entries.push({ kind: "server", name: c.slice(7) });
+					} else {
+						bad.push(c);
 					}
-					if (bad.length > 0) {
-						process.stderr.write(
-							chalk.red(
-								`${flag} entries must be tagged: ${bad.join(", ")}\n` +
-									`  plugin:<name>@<marketplace>  — plugin-provided channel (allowlist enforced)\n` +
-									`  server:<name>                — manually configured MCP server\n`,
-							),
-						);
-						process.exit(1);
-					}
-					return entries;
-				};
-
-				const channelOpts = options as {
-					channels?: string[];
-					dangerouslyLoadDevelopmentChannels?: string[];
-				};
-				const rawChannels = channelOpts.channels;
-				const rawDev = channelOpts.dangerouslyLoadDevelopmentChannels;
-				// Always parse + set. ChannelsNotice reads getAllowedChannels() and
-				// renders the appropriate branch (disabled/noAuth/policyBlocked/
-				// listening) in the startup screen. gateChannelServer() enforces.
-				// --channels works in both interactive and print/SDK modes; dev-channels
-				// stays interactive-only (requires a confirmation dialog).
-				let channelEntries: ChannelEntry[] = [];
-				if (rawChannels && rawChannels.length > 0) {
-					channelEntries = parseChannelEntries(
-						rawChannels,
-						"--channels",
+				}
+				if (bad.length > 0) {
+					process.stderr.write(
+						chalk.red(
+							`${flag} entries must be tagged: ${bad.join(", ")}\n` +
+								`  plugin:<name>@<marketplace>  — plugin-provided channel (allowlist enforced)\n` +
+								`  server:<name>                — manually configured MCP server\n`,
+						),
 					);
-					setAllowedChannels(channelEntries);
+					process.exit(1);
 				}
-				if (!isNonInteractiveSession) {
-					if (rawDev && rawDev.length > 0) {
-						devChannels = parseChannelEntries(
-							rawDev,
-							"--dangerously-load-development-channels",
-						);
-					}
+				return entries;
+			};
+
+			const channelOpts = options as {
+				channels?: string[];
+				dangerouslyLoadDevelopmentChannels?: string[];
+			};
+			const rawChannels = channelOpts.channels;
+			const rawDev = channelOpts.dangerouslyLoadDevelopmentChannels;
+			// Always parse + set. ChannelsNotice reads getAllowedChannels() and
+			// renders the appropriate branch (disabled/noAuth/policyBlocked/
+			// listening) in the startup screen. gateChannelServer() enforces.
+			// --channels works in both interactive and print/SDK modes; dev-channels
+			// stays interactive-only (requires a confirmation dialog).
+			let channelEntries: ChannelEntry[] = [];
+			if (rawChannels && rawChannels.length > 0) {
+				channelEntries = parseChannelEntries(
+					rawChannels,
+					"--channels",
+				);
+				setAllowedChannels(channelEntries);
+			}
+			if (!isNonInteractiveSession) {
+				if (rawDev && rawDev.length > 0) {
+					devChannels = parseChannelEntries(
+						rawDev,
+						"--dangerously-load-development-channels",
+					);
 				}
-				// Flag-usage telemetry. Plugin identifiers are logged (same tier as
-				// tengu_plugin_installed — public-registry-style names); server-kind
-				// names are not (MCP-server-name tier, opt-in-only elsewhere).
-				// Per-server gate outcomes land in tengu_mcp_channel_gate once
-				// servers connect. Dev entries go through a confirmation dialog after
-				// this — dev_plugins captures what was typed, not what was accepted.
-				if (
-					channelEntries.length > 0 ||
-					(devChannels?.length ?? 0) > 0
-				) {
-					const joinPluginIds = (entries: ChannelEntry[]) => {
-						const ids = entries.flatMap((e) =>
-							e.kind === "plugin"
-								? [`${e.name}@${e.marketplace}`]
-								: [],
-						);
-						return ids.length > 0
-							? (ids
-									.sort()
-									.join(
-										",",
-									) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-							: undefined;
-					};
-					logEvent("tengu_mcp_channel_flags", {
-						channels_count: channelEntries.length,
-						dev_count: devChannels?.length ?? 0,
-						plugins: joinPluginIds(channelEntries),
-						dev_plugins: joinPluginIds(devChannels ?? []),
-					});
-				}
+			}
+			// Flag-usage telemetry. Plugin identifiers are logged (same tier as
+			// tengu_plugin_installed — public-registry-style names); server-kind
+			// names are not (MCP-server-name tier, opt-in-only elsewhere).
+			// Per-server gate outcomes land in tengu_mcp_channel_gate once
+			// servers connect. Dev entries go through a confirmation dialog after
+			// this — dev_plugins captures what was typed, not what was accepted.
+			if (
+				channelEntries.length > 0 ||
+				(devChannels?.length ?? 0) > 0
+			) {
+				const joinPluginIds = (entries: ChannelEntry[]) => {
+					const ids = entries.flatMap((e) =>
+						e.kind === "plugin"
+							? [`${e.name}@${e.marketplace}`]
+							: [],
+					);
+					return ids.length > 0
+						? (ids
+								.sort()
+								.join(
+									",",
+								) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
+						: undefined;
+				};
+				logEvent("tengu_mcp_channel_flags", {
+					channels_count: channelEntries.length,
+					dev_count: devChannels?.length ?? 0,
+					plugins: joinPluginIds(channelEntries),
+					dev_plugins: joinPluginIds(devChannels ?? []),
+				});
 			}
 
 			// SDK opt-in for SendUserMessage via --tools. All sessions require
@@ -2665,9 +2686,9 @@ async function run(): Promise<CommanderCommand> {
 			) {
 				/* eslint-disable @typescript-eslint/no-require-imports */
 				const { BRIEF_TOOL_NAME, LEGACY_BRIEF_TOOL_NAME } =
-					require("./tools/BriefTool/prompt.js") as typeof import("./tools/BriefTool/prompt.js");
+					require("@claude-code-best/builtin-tools/tools/BriefTool/prompt.js") as typeof import("@claude-code-best/builtin-tools/tools/BriefTool/prompt.js");
 				const { isBriefEntitled } =
-					require("./tools/BriefTool/BriefTool.js") as typeof import("./tools/BriefTool/BriefTool.js");
+					require("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js") as typeof import("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js");
 				/* eslint-enable @typescript-eslint/no-require-imports */
 				const parsed = parseToolListFromCLI(baseTools);
 				if (
@@ -2786,48 +2807,48 @@ async function run(): Promise<CommanderCommand> {
 				inputFormat !== "text" &&
 				inputFormat !== "stream-json"
 			) {
-				// biome-ignore lint/suspicious/noConsole:: intentional console output
-				console.error(`Error: Invalid input format "${inputFormat}".`);
-				process.exit(1);
-			}
+			// biome-ignore lint/suspicious/noConsole:: intentional console output
+			console.error(`错误：无效的输入格式 "${inputFormat}"。`);
+			process.exit(1);
+		}
+		if (
+			inputFormat === "stream-json" &&
+			outputFormat !== "stream-json"
+		) {
+			// biome-ignore lint/suspicious/noConsole:: intentional console output
+			console.error(
+				`错误：--input-format=stream-json 需要 output-format=stream-json。`,
+			);
+			process.exit(1);
+		}
+
+		// Validate sdkUrl is only used with appropriate formats (formats are auto-set above)
+		if (sdkUrl) {
 			if (
-				inputFormat === "stream-json" &&
+				inputFormat !== "stream-json" ||
 				outputFormat !== "stream-json"
 			) {
 				// biome-ignore lint/suspicious/noConsole:: intentional console output
 				console.error(
-					`Error: --input-format=stream-json requires output-format=stream-json.`,
+					`错误：--sdk-url 需要同时设置 --input-format=stream-json 和 --output-format=stream-json。`,
 				);
 				process.exit(1);
 			}
+		}
 
-			// Validate sdkUrl is only used with appropriate formats (formats are auto-set above)
-			if (sdkUrl) {
-				if (
-					inputFormat !== "stream-json" ||
-					outputFormat !== "stream-json"
-				) {
-					// biome-ignore lint/suspicious/noConsole:: intentional console output
-					console.error(
-						`Error: --sdk-url requires both --input-format=stream-json and --output-format=stream-json.`,
-					);
-					process.exit(1);
-				}
+		// Validate replayUserMessages is only used with stream-json formats
+		if (options.replayUserMessages) {
+			if (
+				inputFormat !== "stream-json" ||
+				outputFormat !== "stream-json"
+			) {
+				// biome-ignore lint/suspicious/noConsole:: intentional console output
+				console.error(
+					`错误：--replay-user-messages 需要同时设置 --input-format=stream-json 和 --output-format=stream-json。`,
+				);
+				process.exit(1);
 			}
-
-			// Validate replayUserMessages is only used with stream-json formats
-			if (options.replayUserMessages) {
-				if (
-					inputFormat !== "stream-json" ||
-					outputFormat !== "stream-json"
-				) {
-					// biome-ignore lint/suspicious/noConsole:: intentional console output
-					console.error(
-						`Error: --replay-user-messages requires both --input-format=stream-json and --output-format=stream-json.`,
-					);
-					process.exit(1);
-				}
-			}
+		}
 
 			// Validate includePartialMessages is only used with print mode and stream-json output
 			if (effectiveIncludePartialMessages) {
@@ -3311,7 +3332,7 @@ async function run(): Promise<CommanderCommand> {
 			) {
 				/* eslint-disable @typescript-eslint/no-require-imports */
 				const { isBriefEntitled } =
-					require("./tools/BriefTool/BriefTool.js") as typeof import("./tools/BriefTool/BriefTool.js");
+					require("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js") as typeof import("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js");
 				/* eslint-enable @typescript-eslint/no-require-imports */
 				if (isBriefEntitled()) {
 					setUserMsgOptIn(true);
@@ -3330,7 +3351,7 @@ async function run(): Promise<CommanderCommand> {
 				const briefVisibility =
 					feature("KAIROS") || feature("KAIROS_BRIEF")
 						? (
-								require("./tools/BriefTool/BriefTool.js") as typeof import("./tools/BriefTool/BriefTool.js")
+								require("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js") as typeof import("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js")
 							).isBriefEnabled()
 							? "在检查点调用 SendUserMessage 来标记事情的进展。"
 							: "用户会看到你输出的任何文本。"
@@ -3901,19 +3922,7 @@ async function run(): Promise<CommanderCommand> {
 					onChangeAppState,
 				);
 
-				// Check if bypassPermissions should be disabled based on Statsig gate
-				// This runs in parallel to the code below, to avoid blocking the main loop.
-				if (
-					toolPermissionContext.mode === "bypassPermissions" ||
-					allowDangerouslySkipPermissions
-				) {
-					void checkAndDisableBypassPermissions(
-						toolPermissionContext,
-					);
-				}
-
 				// Async check of auto mode gate — corrects state and disables auto if needed.
-				// Gated on TRANSCRIPT_CLASSIFIER (not USER_TYPE) so GrowthBook kill switch runs for external builds too.
 				if (feature("TRANSCRIPT_CLASSIFIER")) {
 					void verifyAutoModeGateAccess(
 						toolPermissionContext,
@@ -4252,11 +4261,12 @@ async function run(): Promise<CommanderCommand> {
 				});
 			}
 
+			const teammateUtils = getTeammateUtils();
 			const effectiveToolPermissionContext = {
 				...toolPermissionContext,
 				mode:
 					isAgentSwarmsEnabled() &&
-					getTeammateUtils().isPlanModeRequired()
+					teammateUtils?.isPlanModeRequired?.()
 						? ("plan" as const)
 						: toolPermissionContext.mode,
 			};
@@ -4453,7 +4463,7 @@ async function run(): Promise<CommanderCommand> {
 				...(uploaderReady && {
 					onTurnComplete: (messages: MessageType[]) => {
 						void uploaderReady.then((uploader) =>
-							uploader?.(messages),
+							(uploader as ((msgs: MessageType[]) => void) | null)?.(messages),
 						);
 					},
 				}),
@@ -4611,13 +4621,13 @@ async function run(): Promise<CommanderCommand> {
 					createLocalSSHSession,
 					SSHSessionError,
 				} = await import("./ssh/createSSHSession.js");
-				let sshSession;
+				let sshSession: import('./ssh/createSSHSession.js').SSHSession | undefined;
 				try {
 					if (_pendingSSH.local) {
 						process.stderr.write(
 							"Starting local ssh-proxy test session...\n",
 						);
-						sshSession = createLocalSSHSession({
+						sshSession = await createLocalSSHSession({
 							cwd: _pendingSSH.cwd,
 							permissionMode: _pendingSSH.permissionMode,
 							dangerouslySkipPermissions:
@@ -4641,10 +4651,11 @@ async function run(): Promise<CommanderCommand> {
 								dangerouslySkipPermissions:
 									_pendingSSH.dangerouslySkipPermissions,
 								extraCliArgs: _pendingSSH.extraCliArgs,
+								remoteBin: _pendingSSH.remoteBin,
 							},
 							isTTY
 								? {
-										onProgress: (msg) => {
+										onProgress: (msg: string) => {
 											hadProgress = true;
 											process.stderr.write(
 												`\r  ${msg}\x1b[K`,
@@ -5981,6 +5992,11 @@ async function run(): Promise<CommanderCommand> {
 				"跳过远程的所有权限提示 (危险)",
 			)
 			.option(
+				"--remote-bin <command>",
+				"Custom remote binary command (skips probe/deploy). " +
+					"Example: --remote-bin 'bun /path/to/project/dist/cli.js'",
+			)
+			.option(
 				"--local",
 				"端到端测试模式 — 本地生成子 CLI (跳过 ssh/deploy). " +
 					"锻炼 auth 代理和 unix-socket 管道，无需远程主机。",
@@ -6429,6 +6445,68 @@ async function run(): Promise<CommanderCommand> {
 		}
 	}
 
+	// claude autonomy — CLI subcommands mirroring /autonomy slash command
+	{
+		const autonomyCmd = program
+			.command("autonomy")
+			.description("Inspect and manage automatic autonomy runs and flows");
+
+		autonomyCmd
+			.command("status")
+			.description("Print autonomy run, flow, team, pipe, and remote-control status")
+			.option("--deep", "Include teams, pipes, daemon, and remote-control sections")
+			.action(async (options: { deep?: boolean }) => {
+				const { autonomyStatusHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyStatusHandler(options);
+				process.exit(0);
+			});
+
+		autonomyCmd
+			.command("runs [limit]")
+			.description("List recent autonomy runs")
+			.action(async (limit?: string) => {
+				const { autonomyRunsHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyRunsHandler(limit);
+				process.exit(0);
+			});
+
+		autonomyCmd
+			.command("flows [limit]")
+			.description("List recent autonomy flows")
+			.action(async (limit?: string) => {
+				const { autonomyFlowsHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyFlowsHandler(limit);
+				process.exit(0);
+			});
+
+		const flowCmd = autonomyCmd
+			.command("flow <flowId>")
+			.description("Inspect a single autonomy flow")
+			.action(async (flowId: string) => {
+				const { autonomyFlowHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyFlowHandler(flowId);
+				process.exit(0);
+			});
+
+		flowCmd
+			.command("cancel <flowId>")
+			.description("Cancel a queued, waiting, or running autonomy flow")
+			.action(async (flowId: string) => {
+				const { autonomyFlowCancelHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyFlowCancelHandler(flowId);
+				process.exit(0);
+			});
+
+		flowCmd
+			.command("resume <flowId>")
+			.description("Resume a waiting autonomy flow")
+			.action(async (flowId: string) => {
+				const { autonomyFlowResumeHandler } = await import("./cli/handlers/autonomy.js");
+				await autonomyFlowResumeHandler(flowId);
+				process.exit(0);
+			});
+	}
+
 	// Remote Control command — connect local environment to claude.ai/code.
 	// The actual command is intercepted by the fast-path in cli.tsx before
 	// Commander.js runs, so this registration exists only for help output.
@@ -6550,6 +6628,15 @@ async function run(): Promise<CommanderCommand> {
 				await installHandler(target, options);
 			},
 		);
+
+	// claude update — update ccb to the latest version via npm or bun
+	program
+		.command("update")
+		.description("Update claude-code-best (ccb) to the latest version")
+		.action(async () => {
+			const { updateCCB } = await import("./cli/updateCCB.js");
+			await updateCCB();
+		});
 
 	// ant-only commands
 	if (process.env.USER_TYPE === "ant") {
@@ -6894,7 +6981,7 @@ function maybeActivateBrief(options: unknown): void {
 	// into external builds via BriefTool.ts → prompt.ts.
 	/* eslint-disable @typescript-eslint/no-require-imports */
 	const { isBriefEntitled } =
-		require("./tools/BriefTool/BriefTool.js") as typeof import("./tools/BriefTool/BriefTool.js");
+		require("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js") as typeof import("@claude-code-best/builtin-tools/tools/BriefTool/BriefTool.js");
 	/* eslint-enable @typescript-eslint/no-require-imports */
 	const entitled = isBriefEntitled();
 	if (entitled) {

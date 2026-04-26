@@ -4,7 +4,7 @@ import { FileEditToolDiff } from 'src/components/FileEditToolDiff.js'
 import { getCwd } from 'src/utils/cwd.js'
 import type { z } from 'zod/v4'
 import { Text } from '@anthropic/ink'
-import { FileEditTool } from '../../../tools/FileEditTool/FileEditTool.js'
+import { FileEditTool } from '@claude-code-best/builtin-tools/tools/FileEditTool/FileEditTool.js'
 import { FilePermissionDialog } from '../FilePermissionDialog/FilePermissionDialog.js'
 import {
   createSingleEditDiffConfig,
@@ -54,12 +54,11 @@ export function FileEditPermissionRequest(
       onDone={props.onDone}
       onReject={props.onReject}
       workerBadge={props.workerBadge}
-      title="Edit file"
+      title="编辑文件"
       subtitle={relative(getCwd(), file_path)}
       question={
         <Text>
-          Do you want to make this edit to{' '}
-          <Text bold>{basename(file_path)}</Text>?
+          是否要编辑 <Text bold>{basename(file_path)}</Text>？
         </Text>
       }
       content={

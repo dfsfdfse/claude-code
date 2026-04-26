@@ -5,7 +5,8 @@ export default {
   type: 'local-jsx',
   name: 'effort',
   description: '设置模型工作投入级别',
-  argumentHint: '[low|medium|high|max|auto]',
+  argumentHint: '[low|medium|high|xhigh|max|auto]',
+
   get immediate() {
     return shouldInferenceConfigCommandBeImmediate()
   },

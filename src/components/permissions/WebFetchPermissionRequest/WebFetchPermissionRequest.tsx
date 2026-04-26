@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Box, Text, useTheme } from '@anthropic/ink'
-import { WebFetchTool } from '../../../tools/WebFetchTool/WebFetchTool.js'
+import { WebFetchTool } from '@claude-code-best/builtin-tools/tools/WebFetchTool/WebFetchTool.js'
 import { shouldShowAlwaysAllowOptions } from '../../../utils/permissions/permissionsLoader.js'
 import {
   type OptionWithDescription,
@@ -52,7 +52,7 @@ export function WebFetchPermissionRequest({
   const options = useMemo((): OptionWithDescription<string>[] => {
     const result: OptionWithDescription<string>[] = [
       {
-        label: 'Yes',
+        label: '是',
         value: 'yes',
       },
     ]
@@ -61,7 +61,7 @@ export function WebFetchPermissionRequest({
       result.push({
         label: (
           <Text>
-            Yes, and don&apos;t ask again for <Text bold>{hostname}</Text>
+            是，不再询问此域名 <Text bold>{hostname}</Text>
           </Text>
         ),
         value: 'yes-dont-ask-again-domain',
@@ -71,7 +71,7 @@ export function WebFetchPermissionRequest({
     result.push({
       label: (
         <Text>
-          No, and tell Claude what to do differently <Text bold>(esc)</Text>
+          否，告诉 Claude 换个方式 <Text bold>(esc)</Text>
         </Text>
       ),
       value: 'no',
@@ -117,7 +117,7 @@ export function WebFetchPermissionRequest({
   }
 
   return (
-    <PermissionDialog title="Fetch" workerBadge={workerBadge}>
+    <PermissionDialog title="获取网页" workerBadge={workerBadge}>
       <Box flexDirection="column" paddingX={2} paddingY={1}>
         <Text>
           {WebFetchTool.renderToolUseMessage(
@@ -136,7 +136,7 @@ export function WebFetchPermissionRequest({
           permissionResult={toolUseConfirm.permissionResult}
           toolType="tool"
         />
-        <Text>Do you want to allow Claude to fetch this content?</Text>
+        <Text>是否允许 Claude 获取此内容？</Text>
         <Select
           options={options}
           onChange={onChange}

@@ -85,7 +85,7 @@ export const getGitStatus = memoize(async (): Promise<string | null> => {
     const truncatedStatus =
       status.length > MAX_STATUS_CHARS
         ? status.substring(0, MAX_STATUS_CHARS) +
-          '\n... (truncated because it exceeds 2k characters. If you need more information, run "git status" using BashTool)'
+          '\n...（内容已截断，因超过 2k 字符。如需更多信息，请使用 BashTool 运行 "git status"）'
         : status
 
     logForDiagnosticsNoPII('info', 'git_status_completed', {
@@ -94,12 +94,12 @@ export const getGitStatus = memoize(async (): Promise<string | null> => {
     })
 
     return [
-      `This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.`,
-      `Current branch: ${branch}`,
-      `Main branch (you will usually use this for PRs): ${mainBranch}`,
-      ...(userName ? [`Git user: ${userName}`] : []),
-      `Status:\n${truncatedStatus || '(clean)'}`,
-      `Recent commits:\n${log}`,
+      `这是对话开始时的 git 状态。注意：这是一个时间快照，在本次对话过程中不会自动更新。`,
+      `当前分支：${branch}`,
+      `主分支（通常用于创建 PR）：${mainBranch}`,
+      ...(userName ? [`Git 用户：${userName}`] : []),
+      `状态：\n${truncatedStatus || '(干净)'}`,
+      `最近提交：\n${log}`,
     ].join('\n\n')
   } catch (error) {
     logForDiagnosticsNoPII('error', 'git_status_failed', {
@@ -183,7 +183,7 @@ export const getUserContext = memoize(
 
     return {
       ...(claudeMd && { claudeMd }),
-      currentDate: `Today's date is ${getLocalISODate()}.`,
+      currentDate: `今天的日期是 ${getLocalISODate()}。`,
     }
   },
 )

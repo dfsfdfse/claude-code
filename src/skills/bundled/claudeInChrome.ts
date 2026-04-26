@@ -8,18 +8,18 @@ const CLAUDE_IN_CHROME_MCP_TOOLS = BROWSER_TOOLS.map(
 )
 
 const SKILL_ACTIVATION_MESSAGE = `
-Now that this skill is invoked, you have access to Chrome browser automation tools. You can now use the mcp__claude-in-chrome__* tools to interact with web pages.
+技能已激活，你现在可以使用 Chrome 浏览器自动化工具。通过 mcp__claude-in-chrome__* 工具与网页交互。
 
-IMPORTANT: Start by calling mcp__claude-in-chrome__tabs_context_mcp to get information about the user's current browser tabs.
+重要：首先调用 mcp__claude-in-chrome__tabs_context_mcp 获取用户当前浏览器标签页的信息。
 `
 
 export function registerClaudeInChromeSkill(): void {
   registerBundledSkill({
     name: 'claude-in-chrome',
     description:
-      'Automates your Chrome browser to interact with web pages - clicking elements, filling forms, capturing screenshots, reading console logs, and navigating sites. Opens pages in new tabs within your existing Chrome session. Requires site-level permissions before executing (configured in the extension).',
+      '自动化 Chrome 浏览器与网页交互 - 点击元素、填写表单、截图、读取控制台日志、导航网站。在现有 Chrome 会话中以新标签页打开网页。使用前需在扩展程序中配置站点级权限。',
     whenToUse:
-      'When the user wants to interact with web pages, automate browser tasks, capture screenshots, read console logs, or perform any browser-based actions. Always invoke BEFORE attempting to use any mcp__claude-in-chrome__* tools.',
+      '当用户需要与网页交互、自动化浏览器任务、截图、读取控制台日志或执行任何浏览器操作时使用。在使用任何 mcp__claude-in-chrome__* 工具之前必须激活此技能。',
     allowedTools: CLAUDE_IN_CHROME_MCP_TOOLS,
     userInvocable: true,
     isEnabled: () => shouldAutoEnableClaudeInChrome(),

@@ -6,11 +6,11 @@ import { isENOENT } from 'src/utils/errors.js'
 import { detectEncodingForResolvedPath } from 'src/utils/fileRead.js'
 import { getFsImplementation } from 'src/utils/fsOperations.js'
 import { Text } from '@anthropic/ink'
-import { BashTool } from '../../../tools/BashTool/BashTool.js'
+import { BashTool } from '@claude-code-best/builtin-tools/tools/BashTool/BashTool.js'
 import {
   applySedSubstitution,
   type SedEditInfo,
-} from '../../../tools/BashTool/sedEditParser.js'
+} from '@claude-code-best/builtin-tools/tools/BashTool/sedEditParser.js'
 import { FilePermissionDialog } from '../FilePermissionDialog/FilePermissionDialog.js'
 import type { PermissionRequestProps } from '../PermissionRequest.js'
 
@@ -91,9 +91,9 @@ function SedEditPermissionRequestInner({
   // Determine appropriate message when no changes
   const noChangesMessage = useMemo(() => {
     if (!fileExists) {
-      return 'File does not exist'
+      return '文件不存在'
     }
-    return 'Pattern did not match any content'
+    return '模式未匹配任何内容'
   }, [fileExists])
 
   // Parse input and add _simulatedSedEdit to ensure what user previewed
@@ -115,12 +115,11 @@ function SedEditPermissionRequestInner({
       toolUseContext={props.toolUseContext}
       onDone={props.onDone}
       onReject={props.onReject}
-      title="Edit file"
+      title="编辑文件"
       subtitle={relative(getCwd(), filePath)}
       question={
         <Text>
-          Do you want to make this edit to{' '}
-          <Text bold>{basename(filePath)}</Text>?
+          是否要编辑 <Text bold>{basename(filePath)}</Text>？
         </Text>
       }
       content={

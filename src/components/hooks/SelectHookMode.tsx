@@ -36,7 +36,7 @@ export function SelectHookMode({
 }: Props): React.ReactNode {
   const title =
     hookEventMetadata.matcherMetadata !== undefined
-      ? `${selectedEvent} - Matcher: ${selectedMatcher || '(all)'}`
+      ? `${selectedEvent} - 匹配器: ${selectedMatcher || '（全部）'}`
       : selectedEvent
 
   if (hooksForSelectedMatcher.length === 0) {
@@ -45,12 +45,12 @@ export function SelectHookMode({
         title={title}
         subtitle={hookEventMetadata.description}
         onCancel={onCancel}
-        inputGuide={() => <Text>Esc to go back</Text>}
+        inputGuide={() => <Text>Esc 返回</Text>}
       >
         <Box flexDirection="column" gap={1}>
-          <Text dimColor>No hooks configured for this event.</Text>
+          <Text dimColor>此事件未配置任何 hook。</Text>
           <Text dimColor>
-            To add hooks, edit settings.json directly or ask Claude.
+            如需添加 hook，请直接编辑 settings.json 或询问 Claude。
           </Text>
         </Box>
       </Dialog>

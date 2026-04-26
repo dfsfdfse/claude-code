@@ -1,10 +1,11 @@
 {
+    "extends": "./tsconfig.base.json",
     "compilerOptions": {
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "bundler",
         "jsx": "react-jsx",
-        "strict": false,
+        "strict": true,
         "skipLibCheck": true,
         "noEmit": true,
         "esModuleInterop": true,
@@ -12,9 +13,28 @@
         "resolveJsonModule": true,
         "types": ["bun"],
         "paths": {
-            "src/*": ["./src/*"]
+            "src/*": ["./src/*"],
+            "@claude-code-best/builtin-tools/*": ["./packages/builtin-tools/src/*"],
+            "@claude-code-best/builtin-tools": ["./packages/builtin-tools/src/index.ts"],
+            "@claude-code-best/mcp-client/*": ["./packages/mcp-client/src/*"],
+            "@claude-code-best/mcp-client": ["./packages/mcp-client/src/index.ts"],
+            "@claude-code-best/agent-tools/*": ["./packages/agent-tools/src/*"],
+            "@claude-code-best/agent-tools": ["./packages/agent-tools/src/index.ts"],
+            "@claude-code-best/weixin/*": ["./packages/weixin/src/*"],
+            "@claude-code-best/weixin": ["./packages/weixin/src/index.ts"],
+            "@ant/model-provider/*": ["./packages/@ant/model-provider/src/*"],
+            "@ant/model-provider": ["./packages/@ant/model-provider/src/index.ts"],
+            "hono": ["./packages/remote-control-server/node_modules/hono/dist/types/index.d.ts"],
+            "hono/*": ["./packages/remote-control-server/node_modules/hono/dist/types/*"]
         }
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules"]
+    "include": ["src/**/*.ts", "src/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"],
+    "exclude": [
+        "node_modules",
+        "src/tools/**",
+        "src/services/api/openai/__tests__/convertMessages.test.ts",
+        "src/services/api/openai/__tests__/convertTools.test.ts",
+        "src/services/api/openai/convertTools.ts",
+        "packages/remote-control-server/web/**"
+    ]
 }

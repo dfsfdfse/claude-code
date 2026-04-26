@@ -45,16 +45,16 @@ export const PermissionsSchema = lazySchema(() =>
       allow: z
         .array(PermissionRuleSchema())
         .optional()
-        .describe('List of permission rules for allowed operations'),
+        .describe('允许操作的权限规则列表'),
       deny: z
         .array(PermissionRuleSchema())
         .optional()
-        .describe('List of permission rules for denied operations'),
+        .describe('拒绝操作的权限规则列表'),
       ask: z
         .array(PermissionRuleSchema())
         .optional()
         .describe(
-          'List of permission rules that should always prompt for confirmation',
+          '始终要求确认的权限规则列表',
         ),
       defaultMode: z
         .enum(
@@ -63,23 +63,23 @@ export const PermissionsSchema = lazySchema(() =>
             : EXTERNAL_PERMISSION_MODES,
         )
         .optional()
-        .describe('Default permission mode when Claude Code needs access'),
+        .describe('Claude Code 需要访问时的默认权限模式'),
       disableBypassPermissionsMode: z
         .enum(['disable'])
         .optional()
-        .describe('Disable the ability to bypass permission prompts'),
+        .describe('禁用跳过权限提示的能力'),
       ...(feature('TRANSCRIPT_CLASSIFIER')
         ? {
             disableAutoMode: z
               .enum(['disable'])
               .optional()
-              .describe('Disable auto mode'),
+              .describe('禁用自动模式'),
           }
         : {}),
       additionalDirectories: z
         .array(z.string())
         .optional()
-        .describe('Additional directories to include in the permission scope'),
+        .describe('要包含在权限范围内的其他目录'),
     })
     .passthrough(),
 )
@@ -91,19 +91,19 @@ export const PermissionsSchema = lazySchema(() =>
 export const ExtraKnownMarketplaceSchema = lazySchema(() =>
   z.object({
     source: MarketplaceSourceSchema().describe(
-      'Where to fetch the marketplace from',
+      '从哪里获取 marketplace',
     ),
     installLocation: z
       .string()
       .optional()
       .describe(
-        'Local cache path where marketplace manifest is stored (auto-generated if not provided)',
+        'marketplace 清单存储的本地缓存路径（如果不提供则自动生成）',
       ),
     autoUpdate: z
       .boolean()
       .optional()
       .describe(
-        'Whether to automatically update this marketplace and its installed plugins on startup',
+        '启动时是否自动更新此 marketplace 及其已安装的插件',
       ),
   }),
 )
@@ -119,22 +119,22 @@ export const AllowedMcpServerEntrySchema = lazySchema(() =>
         .string()
         .regex(
           /^[a-zA-Z0-9_-]+$/,
-          'Server name can only contain letters, numbers, hyphens, and underscores',
+          '服务器名称只能包含字母、数字、连字符和下划线',
         )
         .optional()
-        .describe('Name of the MCP server that users are allowed to configure'),
+        .describe('允许用户配置的 MCP 服务器名称'),
       serverCommand: z
         .array(z.string())
-        .min(1, 'Server command must have at least one element (the command)')
+        .min(1, '服务器命令必须至少有一个元素（命令本身）')
         .optional()
         .describe(
-          'Command array [command, ...args] to match exactly for allowed stdio servers',
+          '用于精确匹配允许的 stdio 服务器的命令数组 [command, ...args]',
         ),
       serverUrl: z
         .string()
         .optional()
         .describe(
-          'URL pattern with wildcard support (e.g., "https://*.example.com/*") for allowed remote MCP servers',
+          '允许的远程 MCP 服务器的 URL 模式，支持通配符（如 "https://*.example.com/*"）',
         ),
       // Future extensibility: allowedTransports, requiredArgs, maxInstances, etc.
     })
@@ -152,7 +152,7 @@ export const AllowedMcpServerEntrySchema = lazySchema(() =>
       },
       {
         message:
-          'Entry must have exactly one of "serverName", "serverCommand", or "serverUrl"',
+          '条目必须恰好具有 "serverName"、"serverCommand" 或 "serverUrl" 之一',
       },
     ),
 )
@@ -168,22 +168,22 @@ export const DeniedMcpServerEntrySchema = lazySchema(() =>
         .string()
         .regex(
           /^[a-zA-Z0-9_-]+$/,
-          'Server name can only contain letters, numbers, hyphens, and underscores',
+          '服务器名称只能包含字母、数字、连字符和下划线',
         )
         .optional()
-        .describe('Name of the MCP server that is explicitly blocked'),
+        .describe('明确阻止的 MCP 服务器名称'),
       serverCommand: z
         .array(z.string())
-        .min(1, 'Server command must have at least one element (the command)')
+        .min(1, '服务器命令必须至少有一个元素（命令本身）')
         .optional()
         .describe(
-          'Command array [command, ...args] to match exactly for blocked stdio servers',
+          '用于精确匹配阻止的 stdio 服务器的命令数组 [command, ...args]',
         ),
       serverUrl: z
         .string()
         .optional()
         .describe(
-          'URL pattern with wildcard support (e.g., "https://*.example.com/*") for blocked remote MCP servers',
+          '阻止的远程 MCP 服务器的 URL 模式，支持通配符（如 "https://*.example.com/*"）',
         ),
       // Future extensibility: reason, blockedSince, etc.
     })
@@ -201,7 +201,7 @@ export const DeniedMcpServerEntrySchema = lazySchema(() =>
       },
       {
         message:
-          'Entry must have exactly one of "serverName", "serverCommand", or "serverUrl"',
+          '条目必须恰好具有 "serverName"、"serverCommand" 或 "serverUrl" 之一',
       },
     ),
 )
@@ -710,8 +710,8 @@ export const SettingsSchema = lazySchema(() =>
       effortLevel: z
         .enum(
           process.env.USER_TYPE === 'ant'
-            ? ['low', 'medium', 'high', 'max']
-            : ['low', 'medium', 'high'],
+            ? ['low', 'medium', 'high', 'xhigh', 'max']
+            : ['low', 'medium', 'high', 'xhigh'],
         )
         .optional()
         .catch(undefined)
@@ -738,6 +738,12 @@ export const SettingsSchema = lazySchema(() =>
         .describe(
           'When false, prompt suggestions are disabled. When absent or true, ' +
             'prompt suggestions are enabled.',
+        ),
+      poorMode: z
+        .boolean()
+        .optional()
+        .describe(
+          'When true, poor mode is active — extract_memories and prompt_suggestion are disabled to save tokens.',
         ),
       showClearContextOnPlanAccept: z
         .boolean()

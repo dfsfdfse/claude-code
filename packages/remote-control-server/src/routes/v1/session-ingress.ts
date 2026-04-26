@@ -1,5 +1,6 @@
+import { log, error as logError } from "../../logger";
 import { Hono } from "hono";
-import { createBunWebSocket } from "hono/bun";
+import { upgradeWebSocket, websocket } from "../../transport/ws-shared";
 import { validateApiKey } from "../../auth/api-key";
 import { verifyWorkerJwt } from "../../auth/jwt";
 import {
@@ -8,9 +9,7 @@ import {
   handleWebSocketClose,
   ingestBridgeMessage,
 } from "../../transport/ws-handler";
-import { getSession } from "../../services/session";
-
-const { upgradeWebSocket, websocket } = createBunWebSocket();
+import { getSession, resolveExistingSessionId } from "../../services/session";
 
 const app = new Hono();
 
@@ -30,20 +29,21 @@ function authenticateRequest(c: any, label: string, expectedSessionId?: string):
     const payload = verifyWorkerJwt(token);
     if (payload) {
       if (expectedSessionId && payload.session_id !== expectedSessionId) {
-        console.log(`[Auth] ${label}: FAILED — JWT session_id mismatch`);
+        log(`[Auth] ${label}: FAILED — JWT session_id mismatch`);
         return false;
       }
       return true;
     }
   }
 
-  console.log(`[Auth] ${label}: FAILED — no valid API key or JWT`);
+  log(`[Auth] ${label}: FAILED — no valid API key or JWT`);
   return false;
 }
 
 /** POST /v2/session_ingress/session/:sessionId/events — HTTP POST (HybridTransport writes) */
 app.post("/session/:sessionId/events", async (c) => {
-  const sessionId = c.req.param("sessionId")!;
+  const requestedSessionId = c.req.param("sessionId")!;
+  const sessionId = resolveExistingSessionId(requestedSessionId) ?? requestedSessionId;
 
   if (!authenticateRequest(c, `POST session/${sessionId}`, sessionId)) {
     return c.json({ error: { type: "unauthorized", message: "Invalid auth" } }, 401);
@@ -71,7 +71,8 @@ app.post("/session/:sessionId/events", async (c) => {
 app.get(
   "/ws/:sessionId",
   upgradeWebSocket(async (c) => {
-    const sessionId = c.req.param("sessionId")!;
+    const requestedSessionId = c.req.param("sessionId")!;
+    const sessionId = resolveExistingSessionId(requestedSessionId) ?? requestedSessionId;
 
     if (!authenticateRequest(c, `WS ${sessionId}`, sessionId)) {
       return {
@@ -83,7 +84,7 @@ app.get(
 
     const session = getSession(sessionId);
     if (!session) {
-      console.log(`[WS] Upgrade rejected: session ${sessionId} not found`);
+      log(`[WS] Upgrade rejected: session ${sessionId} not found`);
       return {
         onOpen(_evt, ws) {
           ws.close(4001, "session not found");
@@ -91,7 +92,7 @@ app.get(
       };
     }
 
-    console.log(`[WS] Upgrade accepted: session=${sessionId}`);
+    log(`[WS] Upgrade accepted: session=${sessionId}`);
     return {
       onOpen(_evt, ws) {
         handleWebSocketOpen(ws as any, sessionId);
@@ -108,7 +109,7 @@ app.get(
         handleWebSocketClose(ws as any, sessionId, closeEvt?.code, closeEvt?.reason);
       },
       onError(evt, ws) {
-        console.error(`[WS] Error on session=${sessionId}:`, evt);
+        logError(`[WS] Error on session=${sessionId}:`, evt);
         handleWebSocketClose(ws as any, sessionId, 1006, "websocket error");
       },
     };

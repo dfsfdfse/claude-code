@@ -53,7 +53,7 @@ export function FallbackPermissionRequest({
             event: 'accept',
             metadata: {
               language_name: 'none',
-              message_id: toolUseConfirm.assistantMessage.message.id,
+              message_id: toolUseConfirm.assistantMessage.message.id!,
               platform: env.platform,
             },
           })
@@ -66,7 +66,7 @@ export function FallbackPermissionRequest({
             event: 'accept',
             metadata: {
               language_name: 'none',
-              message_id: toolUseConfirm.assistantMessage.message.id,
+              message_id: toolUseConfirm.assistantMessage.message.id!,
               platform: env.platform,
             },
           })
@@ -92,7 +92,7 @@ export function FallbackPermissionRequest({
             event: 'reject',
             metadata: {
               language_name: 'none',
-              message_id: toolUseConfirm.assistantMessage.message.id,
+              message_id: toolUseConfirm.assistantMessage.message.id!,
               platform: env.platform,
             },
           })
@@ -111,7 +111,7 @@ export function FallbackPermissionRequest({
       event: 'reject',
       metadata: {
         language_name: 'none',
-        message_id: toolUseConfirm.assistantMessage.message.id,
+        message_id: toolUseConfirm.assistantMessage.message.id!,
         platform: env.platform,
       },
     })
@@ -125,7 +125,7 @@ export function FallbackPermissionRequest({
   const options = useMemo((): PermissionPromptOption<FallbackOptionValue>[] => {
     const result: PermissionPromptOption<FallbackOptionValue>[] = [
       {
-        label: 'Yes',
+        label: '是',
         value: 'yes',
         feedbackConfig: { type: 'accept' },
       },
@@ -135,8 +135,8 @@ export function FallbackPermissionRequest({
       result.push({
         label: (
           <Text>
-            Yes, and don&apos;t ask again for <Text bold>{userFacingName}</Text>{' '}
-            commands in <Text bold>{originalCwd}</Text>
+            是，不再询问此 <Text bold>{userFacingName}</Text> 命令在{' '}
+            <Text bold>{originalCwd}</Text>
           </Text>
         ),
         value: 'yes-dont-ask-again',
@@ -144,7 +144,7 @@ export function FallbackPermissionRequest({
     }
 
     result.push({
-      label: 'No',
+      label: '否',
       value: 'no',
       feedbackConfig: { type: 'reject' },
     })
@@ -161,7 +161,7 @@ export function FallbackPermissionRequest({
   )
 
   return (
-    <PermissionDialog title="Tool use" workerBadge={workerBadge}>
+    <PermissionDialog title="使用工具" workerBadge={workerBadge}>
       <Box flexDirection="column" paddingX={2} paddingY={1}>
         <Text>
           {userFacingName}(

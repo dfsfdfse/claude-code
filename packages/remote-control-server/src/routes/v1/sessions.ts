@@ -1,9 +1,11 @@
+import { log, error as logError } from "../../logger";
 import { Hono } from "hono";
 import {
   createSession,
   getSession,
   updateSessionTitle,
   archiveSession,
+  resolveExistingSessionId,
 } from "../../services/session";
 import { createWorkItem } from "../../services/work-dispatch";
 import { apiKeyAuth, acceptCliHeaders } from "../../auth/middleware";
@@ -22,7 +24,7 @@ app.post("/", acceptCliHeaders, apiKeyAuth, async (c) => {
     try {
       await createWorkItem(body.environment_id, session.id);
     } catch (err) {
-      console.error(`[RCS] Failed to create work item: ${(err as Error).message}`);
+      logError(`[RCS] Failed to create work item: ${(err as Error).message}`);
     }
   }
 
@@ -38,7 +40,8 @@ app.post("/", acceptCliHeaders, apiKeyAuth, async (c) => {
 
 /** GET /v1/sessions/:id — Get session */
 app.get("/:id", acceptCliHeaders, apiKeyAuth, async (c) => {
-  const session = getSession(c.req.param("id"));
+  const sessionId = resolveExistingSessionId(c.req.param("id")!) ?? c.req.param("id")!;
+  const session = getSession(sessionId);
   if (!session) {
     return c.json({ error: { type: "not_found", message: "Session not found" } }, 404);
   }
@@ -47,27 +50,43 @@ app.get("/:id", acceptCliHeaders, apiKeyAuth, async (c) => {
 
 /** PATCH /v1/sessions/:id — Update session title */
 app.patch("/:id", acceptCliHeaders, apiKeyAuth, async (c) => {
+  const sessionId = resolveExistingSessionId(c.req.param("id")!) ?? c.req.param("id")!;
+  const existing = getSession(sessionId);
+  if (!existing) {
+    return c.json({ error: { type: "not_found", message: "Session not found" } }, 404);
+  }
   const body = await c.req.json();
   if (body.title) {
-    updateSessionTitle(c.req.param("id"), body.title);
+    updateSessionTitle(sessionId, body.title);
   }
-  const session = getSession(c.req.param("id"));
+  const session = getSession(sessionId);
   return c.json(session, 200);
 });
 
 /** POST /v1/sessions/:id/archive — Archive session */
 app.post("/:id/archive", acceptCliHeaders, apiKeyAuth, async (c) => {
+  const sessionId = resolveExistingSessionId(c.req.param("id")!) ?? c.req.param("id")!;
+  const session = getSession(sessionId);
+  if (!session) {
+    return c.json({ error: { type: "not_found", message: "Session not found" } }, 404);
+  }
+
   try {
-    archiveSession(c.req.param("id"));
+    archiveSession(sessionId);
   } catch {
     return c.json({ status: "ok" }, 409);
   }
+
   return c.json({ status: "ok" }, 200);
 });
 
 /** POST /v1/sessions/:id/events — Send event to session */
 app.post("/:id/events", acceptCliHeaders, apiKeyAuth, async (c) => {
-  const sessionId = c.req.param("id");
+  const sessionId = resolveExistingSessionId(c.req.param("id")!) ?? c.req.param("id")!;
+  const session = getSession(sessionId);
+  if (!session) {
+    return c.json({ error: { type: "not_found", message: "Session not found" } }, 404);
+  }
   const body = await c.req.json();
 
   const events = body.events

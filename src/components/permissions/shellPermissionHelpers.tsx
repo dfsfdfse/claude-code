@@ -14,13 +14,13 @@ function commandListDisplay(commands: string[]): ReactNode {
     case 2:
       return (
         <Text>
-          <Text bold>{commands[0]}</Text> and <Text bold>{commands[1]}</Text>
+          <Text bold>{commands[0]}</Text> 和 <Text bold>{commands[1]}</Text>
         </Text>
       )
     default:
       return (
         <Text>
-          <Text bold>{commands.slice(0, -1).join(', ')}</Text>, and{' '}
+          <Text bold>{commands.slice(0, -1).join(', ')}</Text>、以及{' '}
           <Text bold>{commands.slice(-1)[0]}</Text>
         </Text>
       )
@@ -31,7 +31,7 @@ function commandListDisplayTruncated(commands: string[]): ReactNode {
   // Check if the plain text representation would be too long
   const plainText = commands.join(', ')
   if (plainText.length > 50) {
-    return 'similar'
+    return '类似'
   }
   return commandListDisplay(commands)
 }
@@ -54,7 +54,7 @@ function formatPathList(paths: string[]): ReactNode {
     return (
       <Text>
         <Text bold>{names[0]}</Text>
-        {sep} and <Text bold>{names[1]}</Text>
+        {sep} 和 <Text bold>{names[1]}</Text>
         {sep}
       </Text>
     )
@@ -65,16 +65,15 @@ function formatPathList(paths: string[]): ReactNode {
     <Text>
       <Text bold>{names[0]}</Text>
       {sep}, <Text bold>{names[1]}</Text>
-      {sep} and {paths.length - 2} more
+      {sep} 等 {paths.length - 2} 个
     </Text>
   )
 }
 
 /**
- * Generate the label for the "Yes, and apply suggestions" option in shell
- * permission dialogs (Bash, PowerShell). Parametrized by the shell tool name
- * and an optional command transform (e.g., Bash strips output redirections so
- * filenames don't show as commands).
+ * 生成 Shell 权限对话框（Bash、PowerShell）中"是，并应用建议"选项的标签。
+ * 参数包括 shell 工具名称和可选的命令转换函数（例如 Bash 会剥离输出重定向，
+ * 因此文件名不会显示为命令）。
  */
 export function generateShellSuggestionsLabel(
   suggestions: PermissionUpdate[],
@@ -125,8 +124,8 @@ export function generateShellSuggestionsLabel(
       const dirName = basename(firstPath) || firstPath
       return (
         <Text>
-          Yes, allow reading from <Text bold>{dirName}</Text>
-          {sep} from this project
+          允许读取 <Text bold>{dirName}</Text>
+          {sep} 中的文件
         </Text>
       )
     }
@@ -134,7 +133,7 @@ export function generateShellSuggestionsLabel(
     // Multiple read paths
     return (
       <Text>
-        Yes, allow reading from {formatPathList(readPaths)} from this project
+        允许读取 {formatPathList(readPaths)} 中的文件
       </Text>
     )
   }
@@ -146,8 +145,8 @@ export function generateShellSuggestionsLabel(
       const dirName = basename(firstDir) || firstDir
       return (
         <Text>
-          Yes, and always allow access to <Text bold>{dirName}</Text>
-          {sep} from this project
+          允许访问 <Text bold>{dirName}</Text>
+          {sep} 中的文件
         </Text>
       )
     }
@@ -155,8 +154,7 @@ export function generateShellSuggestionsLabel(
     // Multiple directories
     return (
       <Text>
-        Yes, and always allow access to {formatPathList(directories)} from this
-        project
+        允许访问 {formatPathList(directories)} 中的文件
       </Text>
     )
   }
@@ -165,8 +163,8 @@ export function generateShellSuggestionsLabel(
     // Only shell command permissions
     return (
       <Text>
-        {"Yes, and don't ask again for "}
-        {commandListDisplayTruncated(shellCommands)} commands in{' '}
+        {"不再询问 "}
+        {commandListDisplayTruncated(shellCommands)} 命令在{' '}
         <Text bold>{getOriginalCwd()}</Text>
       </Text>
     )
@@ -180,8 +178,7 @@ export function generateShellSuggestionsLabel(
       // Mixed - use generic "access to"
       return (
         <Text>
-          Yes, and always allow access to {formatPathList(allPaths)} from this
-          project
+          允许访问 {formatPathList(allPaths)} 中的文件
         </Text>
       )
     }
@@ -195,16 +192,16 @@ export function generateShellSuggestionsLabel(
     if (allPaths.length === 1 && shellCommands.length === 1) {
       return (
         <Text>
-          Yes, and allow access to {formatPathList(allPaths)} and{' '}
-          {commandListDisplayTruncated(shellCommands)} commands
+          允许访问 {formatPathList(allPaths)} 和{' '}
+          {commandListDisplayTruncated(shellCommands)} 命令
         </Text>
       )
     }
 
     return (
       <Text>
-        Yes, and allow {formatPathList(allPaths)} access and{' '}
-        {commandListDisplayTruncated(shellCommands)} commands
+        允许 {formatPathList(allPaths)} 访问和{' '}
+        {commandListDisplayTruncated(shellCommands)} 命令
       </Text>
     )
   }

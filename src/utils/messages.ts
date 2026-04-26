@@ -104,21 +104,21 @@ import type {
   HookEvent,
   SDKAssistantMessageError,
 } from 'src/entrypoints/agentSdkTypes.js'
-import { EXPLORE_AGENT } from 'src/tools/AgentTool/built-in/exploreAgent.js'
-import { PLAN_AGENT } from 'src/tools/AgentTool/built-in/planAgent.js'
-import { areExplorePlanAgentsEnabled } from 'src/tools/AgentTool/builtInAgents.js'
-import { AGENT_TOOL_NAME } from 'src/tools/AgentTool/constants.js'
-import { ASK_USER_QUESTION_TOOL_NAME } from 'src/tools/AskUserQuestionTool/prompt.js'
-import { BashTool } from 'src/tools/BashTool/BashTool.js'
-import { ExitPlanModeV2Tool } from 'src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
-import { FileEditTool } from 'src/tools/FileEditTool/FileEditTool.js'
+import { EXPLORE_AGENT } from '@claude-code-best/builtin-tools/tools/AgentTool/built-in/exploreAgent.js'
+import { PLAN_AGENT } from '@claude-code-best/builtin-tools/tools/AgentTool/built-in/planAgent.js'
+import { areExplorePlanAgentsEnabled } from '@claude-code-best/builtin-tools/tools/AgentTool/builtInAgents.js'
+import { AGENT_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/AgentTool/constants.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/AskUserQuestionTool/prompt.js'
+import { BashTool } from '@claude-code-best/builtin-tools/tools/BashTool/BashTool.js'
+import { ExitPlanModeV2Tool } from '@claude-code-best/builtin-tools/tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
+import { FileEditTool } from '@claude-code-best/builtin-tools/tools/FileEditTool/FileEditTool.js'
 import {
   FILE_READ_TOOL_NAME,
   MAX_LINES_TO_READ,
-} from 'src/tools/FileReadTool/prompt.js'
-import { FileWriteTool } from 'src/tools/FileWriteTool/FileWriteTool.js'
-import { GLOB_TOOL_NAME } from 'src/tools/GlobTool/prompt.js'
-import { GREP_TOOL_NAME } from 'src/tools/GrepTool/prompt.js'
+} from '@claude-code-best/builtin-tools/tools/FileReadTool/prompt.js'
+import { FileWriteTool } from '@claude-code-best/builtin-tools/tools/FileWriteTool/FileWriteTool.js'
+import { GLOB_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/GlobTool/prompt.js'
+import { GREP_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/GrepTool/prompt.js'
 import type { DeepImmutable } from 'src/types/utils.js'
 import { getStrictToolResultPairing } from '../bootstrap/state.js'
 import type { SpinnerMode } from '../components/Spinner.js'
@@ -139,11 +139,11 @@ import {
 import {
   FileReadTool,
   type Output as FileReadToolOutput,
-} from '../tools/FileReadTool/FileReadTool.js'
-import { SEND_MESSAGE_TOOL_NAME } from '../tools/SendMessageTool/constants.js'
-import { TASK_CREATE_TOOL_NAME } from '../tools/TaskCreateTool/constants.js'
-import { TASK_OUTPUT_TOOL_NAME } from '../tools/TaskOutputTool/constants.js'
-import { TASK_UPDATE_TOOL_NAME } from '../tools/TaskUpdateTool/constants.js'
+} from '@claude-code-best/builtin-tools/tools/FileReadTool/FileReadTool.js'
+import { SEND_MESSAGE_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/SendMessageTool/constants.js'
+import { TASK_CREATE_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/TaskCreateTool/constants.js'
+import { TASK_OUTPUT_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/TaskOutputTool/constants.js'
+import { TASK_UPDATE_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/TaskUpdateTool/constants.js'
 import type { PermissionMode } from '../types/permissions.js'
 import { normalizeToolInput, normalizeToolInputForAPI } from './api.js'
 import { getCurrentProjectConfig } from './config.js'
@@ -305,9 +305,9 @@ export function isSyntheticMessage(message: Message): boolean {
     message.type !== 'progress' &&
     message.type !== 'attachment' &&
     message.type !== 'system' &&
-    Array.isArray(message.message.content) &&
-    message.message.content[0]?.type === 'text' &&
-    SYNTHETIC_MESSAGES.has(message.message.content[0].text)
+    Array.isArray(message.message?.content) &&
+    message.message?.content[0]?.type === 'text' &&
+    SYNTHETIC_MESSAGES.has((message.message?.content[0] as { text: string }).text)
   )
 }
 
@@ -317,7 +317,7 @@ function isSyntheticApiErrorMessage(
   return (
     message.type === 'assistant' &&
     message.isApiErrorMessage === true &&
-    message.message.model === SYNTHETIC_MODEL
+    message.message?.model === SYNTHETIC_MODEL
   )
 }
 
@@ -688,27 +688,31 @@ export function isNotEmptyMessage(message: Message): boolean {
     return true
   }
 
-  if (typeof message.message.content === 'string') {
-    return message.message.content.trim().length > 0
+  const msg = message.message
+  if (!msg) return true
+
+  if (typeof msg.content === 'string') {
+    return msg.content.trim().length > 0
   }
 
-  if (message.message.content.length === 0) {
+  if (!msg.content || msg.content.length === 0) {
     return false
   }
 
   // 目前跳过多块消息
-  if (message.message.content.length > 1) {
+  // Skip multi-block messages for now
+  if (msg.content.length > 1) {
     return true
   }
 
-  if (message.message.content[0]!.type !== 'text') {
+  if (msg.content[0]!.type !== 'text') {
     return true
   }
 
   return (
-    message.message.content[0]!.text.trim().length > 0 &&
-    message.message.content[0]!.text !== NO_CONTENT_MESSAGE &&
-    message.message.content[0]!.text !== INTERRUPT_MESSAGE_FOR_TOOL_USE
+    (msg.content[0] as { text: string }).text.trim().length > 0 &&
+    (msg.content[0] as { text: string }).text !== NO_CONTENT_MESSAGE &&
+    (msg.content[0] as { text: string }).text !== INTERRUPT_MESSAGE_FOR_TOOL_USE
   )
 }
 
@@ -741,7 +745,8 @@ export function normalizeMessages(messages: Message[]): NormalizedMessage[] {
   return messages.flatMap(message => {
     switch (message.type) {
       case 'assistant': {
-        const assistantContent = Array.isArray(message.message.content) ? message.message.content : []
+        const aMsg = message as AssistantMessage
+        const assistantContent = Array.isArray(aMsg.message.content) ? aMsg.message.content : []
         isNewChain = isNewChain || assistantContent.length > 1
         return assistantContent.map((_, index) => {
           const uuid = isNewChain
@@ -751,9 +756,9 @@ export function normalizeMessages(messages: Message[]): NormalizedMessage[] {
             type: 'assistant' as const,
             timestamp: message.timestamp,
             message: {
-              ...message.message,
+              ...aMsg.message,
               content: [_],
-              context_management: message.message.context_management ?? null,
+              context_management: aMsg.message.context_management ?? null,
             },
             isMeta: message.isMeta,
             isVirtual: message.isVirtual,
@@ -772,45 +777,48 @@ export function normalizeMessages(messages: Message[]): NormalizedMessage[] {
       case 'system':
         return [message]
       case 'user': {
-        if (typeof message.message.content === 'string') {
-          const uuid = isNewChain ? deriveUUID(message.uuid, 0) : message.uuid
+        const uMsg = message as UserMessage
+        if (typeof uMsg.message.content === 'string') {
+          const uuid = isNewChain ? deriveUUID(uMsg.uuid, 0) : uMsg.uuid
           return [
             {
-              ...message,
+              ...uMsg,
               uuid,
               message: {
-                ...message.message,
-                content: [{ type: 'text', text: message.message.content }],
+                ...uMsg.message,
+                content: [{ type: 'text', text: uMsg.message.content }],
               },
             } as NormalizedMessage,
           ]
         }
-        isNewChain = isNewChain || message.message.content.length > 1
+        isNewChain = isNewChain || (uMsg.message.content?.length ?? 0) > 1
         let imageIndex = 0
-        return message.message.content.map((_, index) => {
+        return (uMsg.message.content ?? []).map((_, index) => {
           const isImage = _.type === 'image'
           // 对于图像内容块，仅为此图像提取 ID
           const imageId =
-            isImage && message.imagePasteIds
-              ? message.imagePasteIds[imageIndex]
+            isImage && uMsg.imagePasteIds
+              ? (uMsg.imagePasteIds as number[])[imageIndex]
               : undefined
           if (isImage) imageIndex++
           return {
             ...createUserMessage({
               content: [_],
-              toolUseResult: message.toolUseResult,
-              mcpMeta: message.mcpMeta as { _meta?: Record<string, unknown>; structuredContent?: Record<string, unknown> },
-              isMeta: message.isMeta === true ? true : undefined,
-              isVisibleInTranscriptOnly: message.isVisibleInTranscriptOnly === true ? true : undefined,
-              isVirtual: (message.isVirtual as boolean | undefined) === true ? true : undefined,
-              timestamp: message.timestamp as string | undefined,
+              toolUseResult: uMsg.toolUseResult,
+              mcpMeta: uMsg.mcpMeta as { _meta?: Record<string, unknown>; structuredContent?: Record<string, unknown> },
+              isMeta: uMsg.isMeta === true ? true : undefined,
+              isVisibleInTranscriptOnly: uMsg.isVisibleInTranscriptOnly === true ? true : undefined,
+              isVirtual: (uMsg.isVirtual as boolean | undefined) === true ? true : undefined,
+              timestamp: uMsg.timestamp as string | undefined,
               imagePasteIds: imageId !== undefined ? [imageId] : undefined,
-              origin: message.origin as MessageOrigin | undefined,
+              origin: uMsg.origin as MessageOrigin | undefined,
             }),
-            uuid: isNewChain ? deriveUUID(message.uuid, index) : message.uuid,
+            uuid: isNewChain ? deriveUUID(uMsg.uuid, index) : uMsg.uuid,
           } as NormalizedMessage
         })
       }
+      default:
+        return [message]
     }
   })
 }
@@ -825,8 +833,9 @@ export function isToolUseRequestMessage(
   return (
     message.type === 'assistant' &&
     // 注意：stop_reason === 'tool_use' 是不可靠的 —— 它并不总是被正确设置
-    Array.isArray(message.message.content) &&
-    message.message.content.some(_ => _.type === 'tool_use')
+    // Note: stop_reason === 'tool_use' is unreliable -- it's not always set correctly
+    Array.isArray(message.message?.content) &&
+    (message.message?.content as Array<{type: string}>).some(_ => _.type === 'tool_use')
   )
 }
 
@@ -839,8 +848,8 @@ export function isToolUseResultMessage(
 ): message is ToolUseResultMessage {
   return (
     message.type === 'user' &&
-    ((Array.isArray(message.message.content) &&
-      message.message.content[0]?.type === 'tool_result') ||
+    ((Array.isArray(message.message?.content) &&
+      (message.message?.content as Array<{type: string}>)[0]?.type === 'tool_result') ||
       Boolean(message.toolUseResult))
   )
 }
@@ -1026,14 +1035,14 @@ function isHookAttachmentMessage(
 ): message is AttachmentMessage<HookAttachment> {
   return (
     message.type === 'attachment' &&
-    (message.attachment.type === 'hook_blocking_error' ||
-      message.attachment.type === 'hook_cancelled' ||
-      message.attachment.type === 'hook_error_during_execution' ||
-      message.attachment.type === 'hook_non_blocking_error' ||
-      message.attachment.type === 'hook_success' ||
-      message.attachment.type === 'hook_system_message' ||
-      message.attachment.type === 'hook_additional_context' ||
-      message.attachment.type === 'hook_stopped_continuation')
+    (message.attachment?.type === 'hook_blocking_error' ||
+      message.attachment?.type === 'hook_cancelled' ||
+      message.attachment?.type === 'hook_error_during_execution' ||
+      message.attachment?.type === 'hook_non_blocking_error' ||
+      message.attachment?.type === 'hook_success' ||
+      message.attachment?.type === 'hook_system_message' ||
+      message.attachment?.type === 'hook_additional_context' ||
+      message.attachment?.type === 'hook_stopped_continuation')
   )
 }
 
@@ -1096,11 +1105,11 @@ export function getToolResultIDs(normalizedMessages: NormalizedMessage[]): {
 } {
   return Object.fromEntries(
     normalizedMessages.flatMap(_ =>
-      _.type === 'user' && Array.isArray(_.message.content) && _.message.content[0]?.type === 'tool_result'
+      _.type === 'user' && Array.isArray(_.message?.content) && (_.message?.content as Array<{type:string}>)[0]?.type === 'tool_result'
         ? [
             [
-              (_.message.content[0] as ToolResultBlockParam).tool_use_id,
-              (_.message.content[0] as ToolResultBlockParam).is_error ?? false,
+              ((_.message?.content as Array<{type:string}>)[0] as ToolResultBlockParam).tool_use_id,
+              ((_.message?.content as Array<{type:string}>)[0] as ToolResultBlockParam).is_error ?? false,
             ],
           ]
         : ([] as [string, boolean][]),
@@ -1120,8 +1129,8 @@ export function getSiblingToolUseIDs(
   const unnormalizedMessage = messages.find(
     (_): _ is AssistantMessage =>
       _.type === 'assistant' &&
-      Array.isArray(_.message.content) &&
-      _.message.content.some(block => block.type === 'tool_use' && (block as ToolUseBlock).id === toolUseID),
+      Array.isArray(_.message?.content) &&
+      (_.message?.content as Array<{type:string; id?:string}>).some(block => block.type === 'tool_use' && block.id === toolUseID),
   )
   if (!unnormalizedMessage) {
     return new Set()
@@ -1130,13 +1139,13 @@ export function getSiblingToolUseIDs(
   const messageID = unnormalizedMessage.message.id
   const siblingMessages = messages.filter(
     (_): _ is AssistantMessage =>
-      _.type === 'assistant' && _.message.id === messageID,
+      _.type === 'assistant' && _.message?.id === messageID,
   )
 
   return new Set(
     siblingMessages.flatMap(_ =>
-      Array.isArray(_.message.content)
-        ? _.message.content.filter(_ => _.type === 'tool_use').map(_ => (_ as ToolUseBlock).id)
+      Array.isArray(_.message?.content)
+        ? (_.message?.content as Array<{type:string; id?:string}>).filter(_ => _.type === 'tool_use').map(_ => _.id!)
         : [],
     ),
   )
@@ -1176,14 +1185,15 @@ export function buildMessageLookups(
   const toolUseByToolUseID = new Map<string, ToolUseBlockParam>()
   for (const msg of messages) {
     if (msg.type === 'assistant') {
-      const id = msg.message.id
+      const aMsg = msg as AssistantMessage
+      const id = aMsg.message.id!
       let toolUseIDs = toolUseIDsByMessageID.get(id)
       if (!toolUseIDs) {
         toolUseIDs = new Set()
         toolUseIDsByMessageID.set(id, toolUseIDs)
       }
-      if (Array.isArray(msg.message.content)) {
-        for (const content of msg.message.content) {
+      if (Array.isArray(aMsg.message.content)) {
+        for (const content of aMsg.message.content) {
           if (typeof content !== 'string' && content.type === 'tool_use') {
             const toolUseContent = content as ToolUseBlock
             toolUseIDs.add(toolUseContent.id)
@@ -1238,8 +1248,9 @@ export function buildMessageLookups(
     }
 
     // 构建工具结果查找和已解决/出错集合
-    if (msg.type === 'user' && Array.isArray(msg.message.content)) {
-      for (const content of msg.message.content) {
+    // Build tool result lookup and resolved/errored sets
+    if (msg.type === 'user' && Array.isArray(msg.message?.content)) {
+      for (const content of (msg.message?.content ?? [])) {
         if (typeof content !== 'string' && content.type === 'tool_result') {
           const tr = content as ToolResultBlockParam
           toolResultByToolUseID.set(tr.tool_use_id, msg)
@@ -1251,8 +1262,8 @@ export function buildMessageLookups(
       }
     }
 
-    if (msg.type === 'assistant' && Array.isArray(msg.message.content)) {
-      for (const content of msg.message.content) {
+    if (msg.type === 'assistant' && Array.isArray(msg.message?.content)) {
+      for (const content of (msg.message?.content ?? [])) {
         if (typeof content === 'string') continue
         // 跟踪所有服务端 *_tool_result 块（advisor、web_search、
         // code_execution、mcp 等）—— 任何带有 tool_use_id 的块都是结果。
@@ -1312,14 +1323,17 @@ export function buildMessageLookups(
   // 永久旋转。
   const lastMsg = messages.at(-1)
   const lastAssistantMsgId =
-    lastMsg?.type === 'assistant' ? lastMsg.message.id : undefined
+    lastMsg?.type === 'assistant' ? lastMsg.message?.id : undefined
   for (const msg of normalizedMessages) {
     if (msg.type !== 'assistant') continue
     // 如果最后一条原始消息是助手消息，则跳过其中的块，
     // 因为它可能仍在进行中。
-    if (msg.message.id === lastAssistantMsgId) continue
-    if (!Array.isArray(msg.message.content)) continue
-    for (const content of msg.message.content) {
+    const aMsg = msg as AssistantMessage
+    // Skip blocks from the last original message if it's an assistant,
+    // since it may still be in progress.
+    if (aMsg.message.id === lastAssistantMsgId) continue
+    if (!Array.isArray(aMsg.message.content)) continue
+    for (const content of aMsg.message.content) {
       if (
         typeof content !== 'string' &&
         ((content.type as string) === 'server_tool_use' ||
@@ -1474,10 +1488,10 @@ export function getToolUseIDs(
       .filter(
         (_): _ is NormalizedAssistantMessage<BetaToolUseBlock> =>
           _.type === 'assistant' &&
-          Array.isArray(_.message.content) &&
-          _.message.content[0]?.type === 'tool_use',
+          Array.isArray(_.message?.content) &&
+          (_.message?.content as Array<{type:string}>)[0]?.type === 'tool_use',
       )
-      .map(_ => (_.message.content[0] as BetaToolUseBlock).id),
+      .map(_ => ((_.message?.content as Array<BetaToolUseBlock>)[0]).id),
   )
 }
 
@@ -1506,8 +1520,8 @@ export function reorderAttachmentsForAPI(messages: Message[]): Message[] {
       const isStoppingPoint =
         message.type === 'assistant' ||
         (message.type === 'user' &&
-          Array.isArray(message.message.content) &&
-          message.message.content[0]?.type === 'tool_result')
+          Array.isArray(message.message?.content) &&
+          (message.message?.content as Array<{type:string}>)[0]?.type === 'tool_result')
 
       if (isStoppingPoint && pendingAttachments.length > 0) {
         // 到达停止点 —— 附件在此停止（在停止点之后）。
@@ -1806,6 +1820,7 @@ function contentHasToolReference(
  */
 function ensureSystemReminderWrap(msg: UserMessage): UserMessage {
   const content = msg.message.content
+  if (!content) return msg
   if (typeof content === 'string') {
     if (content.startsWith('<system-reminder>')) return msg
     return {
@@ -2388,8 +2403,8 @@ export function mergeUserMessagesAndToolResults(
   a: UserMessage,
   b: UserMessage,
 ): UserMessage {
-  const lastContent = normalizeUserTextContent(a.message.content)
-  const currentContent = normalizeUserTextContent(b.message.content)
+  const lastContent = normalizeUserTextContent(a.message.content as string | ContentBlockParam[])
+  const currentContent = normalizeUserTextContent(b.message.content as string | ContentBlockParam[])
   return {
     ...a,
     message: {
@@ -2421,14 +2436,14 @@ function isToolResultMessage(msg: Message): boolean {
   if (msg.type !== 'user') {
     return false
   }
-  const content = msg.message.content
-  if (typeof content === 'string') return false
-  return content.some(block => block.type === 'tool_result')
+  const content = msg.message?.content
+  if (!content || typeof content === 'string') return false
+  return (content as Array<{type:string}>).some(block => block.type === 'tool_result')
 }
 
 export function mergeUserMessages(a: UserMessage, b: UserMessage): UserMessage {
-  const lastContent = normalizeUserTextContent(a.message.content)
-  const currentContent = normalizeUserTextContent(b.message.content)
+  const lastContent = normalizeUserTextContent(a.message.content as string | ContentBlockParam[])
+  const currentContent = normalizeUserTextContent(b.message.content as string | ContentBlockParam[])
   if (feature('HISTORY_SNIP')) {
     // A merged message is only meta if ALL merged messages are meta. If any
     // operand is real user content, the result must not be flagged isMeta
@@ -2784,12 +2799,12 @@ export function getToolUseID(message: NormalizedMessage): string | null {
   switch (message.type) {
     case 'attachment':
       if (isHookAttachmentMessage(message)) {
-        return message.attachment.toolUseID
+        return message.attachment.toolUseID ?? null
       }
       return null
     case 'assistant': {
-      const aContent = Array.isArray(message.message.content) ? message.message.content : []
-      const firstBlock = aContent[0]
+      const aContent = Array.isArray(message.message?.content) ? message.message?.content : []
+      const firstBlock = aContent![0]
       if (!firstBlock || typeof firstBlock === 'string' || firstBlock.type !== 'tool_use') {
         return null
       }
@@ -2799,8 +2814,8 @@ export function getToolUseID(message: NormalizedMessage): string | null {
       if (message.sourceToolUseID) {
         return message.sourceToolUseID as string
       }
-      const uContent = Array.isArray(message.message.content) ? message.message.content : []
-      const firstUBlock = uContent[0]
+      const uContent = Array.isArray(message.message?.content) ? message.message?.content : []
+      const firstUBlock = uContent![0]
       if (!firstUBlock || typeof firstUBlock === 'string' || firstUBlock.type !== 'tool_result') {
         return null
       }
@@ -2812,6 +2827,8 @@ export function getToolUseID(message: NormalizedMessage): string | null {
       return (message.subtype as string) === 'informational'
         ? ((message.toolUseID as string) ?? null)
         : null
+    default:
+      return null
   }
 }
 
@@ -2826,14 +2843,14 @@ export function filterUnresolvedToolUses(messages: Message[]): Message[] {
 
   for (const msg of messages) {
     if (msg.type !== 'user' && msg.type !== 'assistant') continue
-    const content = msg.message.content
+    const content = msg.message?.content
     if (!Array.isArray(content)) continue
-    for (const block of content) {
+    for (const block of content as Array<{type:string; id?:string; tool_use_id?:string}>) {
       if (block.type === 'tool_use') {
-        toolUseIds.add(block.id)
+        toolUseIds.add(block.id!)
       }
       if (block.type === 'tool_result') {
-        toolResultIds.add(block.tool_use_id)
+        toolResultIds.add(block.tool_use_id!)
       }
     }
   }
@@ -2849,12 +2866,12 @@ export function filterUnresolvedToolUses(messages: Message[]): Message[] {
   // Filter out assistant messages whose tool_use blocks are all unresolved
   return messages.filter(msg => {
     if (msg.type !== 'assistant') return true
-    const content = msg.message.content
+    const content = msg.message?.content
     if (!Array.isArray(content)) return true
     const toolUseBlockIds: string[] = []
-    for (const b of content) {
+    for (const b of content as Array<{type:string; id?:string}>) {
       if (b.type === 'tool_use') {
-        toolUseBlockIds.push(b.id)
+        toolUseBlockIds.push(b.id!)
       }
     }
     if (toolUseBlockIds.length === 0) return true
@@ -2869,11 +2886,11 @@ export function getAssistantMessageText(message: Message): string | null {
   }
 
   // For content blocks array, extract and concatenate text blocks
-  if (Array.isArray(message.message.content)) {
+  if (Array.isArray(message.message?.content)) {
     return (
-      message.message.content
+      (message.message?.content as Array<{type:string; text?:string}>)
         .filter(block => block.type === 'text')
-        .map(block => (block.type === 'text' ? block.text : ''))
+        .map(block => block.text ?? '')
         .join('\n')
         .trim() || null
     )
@@ -2888,9 +2905,9 @@ export function getUserMessageText(
     return null
   }
 
-  const content = message.message.content
+  const content = message.message?.content
 
-  return getContentText(content)
+  return getContentText(content as string | ContentBlockParam[])
 }
 
 export function textForResubmit(
@@ -3508,13 +3525,41 @@ export function normalizeAttachmentForAPI(
   // be gated, but this pattern can — same approach as teammate_mailbox above.
   if (feature('EXPERIMENTAL_SKILL_SEARCH')) {
     if (attachment.type === 'skill_discovery') {
-      if (attachment.skills.length === 0) return []
-      const lines = attachment.skills.map(s => `- ${s.name}: ${s.description}`)
+      if (attachment.skills.length === 0 && !attachment.gap) return []
+      const loaded = attachment.skills.filter(s => s.autoLoaded && s.content)
+      const recommended = attachment.skills.filter(s => !s.autoLoaded)
+      const loadedSections = loaded.map(
+        s =>
+          `<${COMMAND_NAME_TAG}>${s.name}</${COMMAND_NAME_TAG}>\n` +
+          `<loaded-skill name="${s.name}" path="${s.path ?? ''}">\n${s.content}\n</loaded-skill>`,
+      )
+      const recommendationLines = recommended.map(
+        s => `- ${s.name}: ${s.description}`,
+      )
+      const gapText = attachment.gap
+        ? [
+            'No high-confidence active skill was auto-loaded for this request.',
+            attachment.gap.activePath
+              ? `A learned skill was promoted for future turns: ${attachment.gap.activeName} (${attachment.gap.activePath}).`
+              : attachment.gap.draftPath
+                ? `A draft learned skill candidate was created: ${attachment.gap.draftName} (${attachment.gap.draftPath}).`
+                : `The skill gap was recorded for future learning: ${attachment.gap.key}.`,
+          ].join('\n')
+        : ''
       return wrapMessagesInSystemReminder([
         createUserMessage({
-          content:
-            `与你任务相关的技能如下：\n\n${lines.join('\n')}\n\n` +
-            `这些技能封装了项目约定，可通过 Skill("<名称>") 获取完整用法说明。`,       
+          content: [
+            loadedSections.length > 0
+              ? `以下技能已自动加载，请直接应用其指令，无需再次调用 Skill("<名称>")：\n\n${loadedSections.join('\n\n')}`
+              : '',
+            recommendationLines.length > 0
+              ? `还发现了其他相关技能但未自动加载：\n\n${recommendationLines.join('\n')}\n\n仅在需要完整说明时通过 Skill("<名称>") 调用。`
+              : '',
+            gapText,
+          ]
+            .filter(Boolean)
+            .join('\n\n'),
+
           isMeta: true,
         }),
       ])
@@ -3522,7 +3567,6 @@ export function normalizeAttachmentForAPI(
   }
 
   // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- teammate_mailbox/team_context/skill_discovery/bagel_console handled above
-  // biome-ignore lint/nursery/useExhaustiveSwitchCases: teammate_mailbox/team_context/max_turns_reached/skill_discovery/bagel_console handled above, can't add case for dead code elimination
   switch (attachment.type) {
     case 'directory': {
       return wrapMessagesInSystemReminder([
@@ -4424,7 +4468,7 @@ export function createStopHookSummaryMessage(
     timestamp: new Date().toISOString(),
     uuid: randomUUID(),
     toolUseID,
-    hookLabel,
+    hookLabel: hookLabel ?? '',
     totalDurationMs,
   }
 }
@@ -4682,8 +4726,8 @@ export function shouldShowUserMessage(
 
 export function isThinkingMessage(message: Message): boolean {
   if (message.type !== 'assistant') return false
-  if (!Array.isArray(message.message.content)) return false
-  return message.message.content.every(
+  if (!Array.isArray(message.message?.content)) return false
+  return (message.message?.content as Array<{type:string}>).every(
     block => block.type === 'thinking' || block.type === 'redacted_thinking',
   )
 }
@@ -4700,8 +4744,8 @@ export function countToolCalls(
   let count = 0
   for (const msg of messages) {
     if (!msg) continue
-    if (msg.type === 'assistant' && Array.isArray(msg.message.content)) {
-      const hasToolUse = msg.message.content.some(
+    if (msg.type === 'assistant' && Array.isArray(msg.message?.content)) {
+      const hasToolUse = (msg.message?.content as Array<{type:string; name?:string}>).some(
         (block): block is ToolUseBlock =>
           block.type === 'tool_use' && block.name === toolName,
       )
@@ -4729,8 +4773,8 @@ export function hasSuccessfulToolCall(
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i]
     if (!msg) continue
-    if (msg.type === 'assistant' && Array.isArray(msg.message.content)) {
-      const toolUse = msg.message.content.find(
+    if (msg.type === 'assistant' && Array.isArray(msg.message?.content)) {
+      const toolUse = (msg.message?.content as Array<{type:string; name?:string; id?:string}>).find(
         (block): block is ToolUseBlock =>
           block.type === 'tool_use' && block.name === toolName,
       )
@@ -4747,8 +4791,8 @@ export function hasSuccessfulToolCall(
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i]
     if (!msg) continue
-    if (msg.type === 'user' && Array.isArray(msg.message.content)) {
-      const toolResult = msg.message.content.find(
+    if (msg.type === 'user' && Array.isArray(msg.message?.content)) {
+      const toolResult = (msg.message?.content as Array<{type:string; tool_use_id?:string; is_error?:boolean}>).find(
         (block): block is ToolResultBlockParam =>
           block.type === 'tool_result' &&
           block.tool_use_id === mostRecentToolUseId,
@@ -4887,8 +4931,7 @@ export function filterWhitespaceOnlyAssistantMessages(
       return true
     }
 
-    const content = message.message.content
-    // Keep messages with empty arrays (handled elsewhere) or that have real content
+    const content = message.message?.content
     if (!Array.isArray(content) || content.length === 0) {
       return true
     }
@@ -5008,14 +5051,14 @@ export function filterOrphanedThinkingOnlyMessages(
   for (const msg of messages) {
     if (msg.type !== 'assistant') continue
 
-    const content = msg.message.content
+    const content = msg.message?.content
     if (!Array.isArray(content)) continue
 
-    const hasNonThinking = content.some(
+    const hasNonThinking = (content as Array<{type:string}>).some(
       block => block.type !== 'thinking' && block.type !== 'redacted_thinking',
     )
-    if (hasNonThinking && msg.message.id) {
-      messageIdsWithNonThinkingContent.add(msg.message.id)
+    if (hasNonThinking && msg.message?.id) {
+      messageIdsWithNonThinkingContent.add(msg.message.id as string)
     }
   }
 
@@ -5025,13 +5068,13 @@ export function filterOrphanedThinkingOnlyMessages(
       return true
     }
 
-    const content = msg.message.content
+    const content = msg.message?.content
     if (!Array.isArray(content) || content.length === 0) {
       return true
     }
 
     // Check if ALL content blocks are thinking blocks
-    const allThinking = content.every(
+    const allThinking = (content as Array<{type:string}>).every(
       block => block.type === 'thinking' || block.type === 'redacted_thinking',
     )
 
@@ -5042,8 +5085,8 @@ export function filterOrphanedThinkingOnlyMessages(
     // It's thinking-only. Keep it if there's another message with same id
     // that has non-thinking content (they'll be merged later)
     if (
-      msg.message.id &&
-      messageIdsWithNonThinkingContent.has(msg.message.id)
+      msg.message?.id &&
+      messageIdsWithNonThinkingContent.has(msg.message.id as string)
     ) {
       return true
     }
@@ -5053,7 +5096,7 @@ export function filterOrphanedThinkingOnlyMessages(
       messageUUID:
         msg.uuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       messageId: msg.message
-        .id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        ?.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       blockCount: content.length,
     })
     return false
@@ -5073,7 +5116,7 @@ export function stripSignatureBlocks(messages: Message[]): Message[] {
   const result = messages.map(msg => {
     if (msg.type !== 'assistant') return msg
 
-    const content = msg.message.content
+    const content = (msg as AssistantMessage).message.content
     if (!Array.isArray(content)) return msg
 
     const filtered = content.filter(block => {
@@ -5209,7 +5252,8 @@ export function ensureToolResultPairing(
 
     // Collect server-side tool result IDs (*_tool_result blocks have tool_use_id).
     const serverResultIds = new Set<string>()
-    for (const c of msg.message.content) {
+    const aMsg5 = msg as AssistantMessage
+    for (const c of aMsg5.message.content as (ContentBlockParam | ContentBlock)[]) {
       if (typeof c !== 'string' && 'tool_use_id' in c && typeof (c as { tool_use_id: string }).tool_use_id === 'string') {
         serverResultIds.add((c as { tool_use_id: string }).tool_use_id)
       }
@@ -5228,7 +5272,7 @@ export function ensureToolResultPairing(
     // has no matching *_tool_result and the API rejects with e.g. "advisor
     // tool use without corresponding advisor_tool_result".
     const seenToolUseIds = new Set<string>()
-    const assistantContent = Array.isArray(msg.message.content) ? msg.message.content : []
+    const assistantContent = Array.isArray(aMsg5.message.content) ? aMsg5.message.content : []
     const finalContent = assistantContent.filter(block => {
       if (typeof block === 'string') return true
       if (block.type === 'tool_use') {
@@ -5250,7 +5294,7 @@ export function ensureToolResultPairing(
     })
 
     const assistantContentChanged =
-      finalContent.length !== msg.message.content.length
+      finalContent.length !== (aMsg5.message.content as (ContentBlockParam | ContentBlock)[]).length
 
     // If stripping orphaned server tool uses empties the content array,
     // insert a placeholder so the API doesn't reject empty assistant content.
@@ -5334,11 +5378,12 @@ export function ensureToolResultPairing(
 
     if (nextMsg?.type === 'user') {
       // Next message is already a user message - patch it
+      const nextUserMsg = nextMsg as UserMessage
       let content: (ContentBlockParam | ContentBlock)[] = Array.isArray(
-        nextMsg.message.content,
+        nextUserMsg.message.content,
       )
-        ? nextMsg.message.content
-        : [{ type: 'text' as const, text: nextMsg.message.content }]
+        ? nextUserMsg.message.content as (ContentBlockParam | ContentBlock)[]
+        : [{ type: 'text' as const, text: (nextUserMsg.message.content as string | undefined) ?? '' }]
 
       // Strip orphaned tool_results and dedupe duplicate tool_result IDs
       if (orphanedIds.length > 0 || hasDuplicateToolResults) {
@@ -5364,9 +5409,9 @@ export function ensureToolResultPairing(
       // If content is now empty after stripping orphans, skip the user message
       if (patchedContent.length > 0) {
         const patchedNext: UserMessage = {
-          ...nextMsg,
+          ...nextUserMsg,
           message: {
-            ...nextMsg.message,
+            ...nextUserMsg.message,
             content: patchedContent,
           },
         }

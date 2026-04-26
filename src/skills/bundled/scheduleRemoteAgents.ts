@@ -2,8 +2,8 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/gr
 import type { MCPServerConnection } from '../../services/mcp/types.js'
 import { isPolicyAllowed } from '../../services/policyLimits/index.js'
 import type { ToolUseContext } from '../../Tool.js'
-import { ASK_USER_QUESTION_TOOL_NAME } from '../../tools/AskUserQuestionTool/prompt.js'
-import { REMOTE_TRIGGER_TOOL_NAME } from '../../tools/RemoteTriggerTool/prompt.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/AskUserQuestionTool/prompt.js'
+import { REMOTE_TRIGGER_TOOL_NAME } from '@claude-code-best/builtin-tools/tools/RemoteTriggerTool/prompt.js'
 import { getClaudeAIOAuthTokens } from '../../utils/auth.js'
 import { checkRepoForRemoteAccess } from '../../utils/background/remote/preconditions.js'
 import { logForDebugging } from '../../utils/debug.js'
@@ -96,9 +96,9 @@ function sanitizeConnectorName(name: string): string {
 
 function formatConnectorsInfo(connectors: ConnectorInfo[]): string {
   if (connectors.length === 0) {
-    return 'No connected MCP connectors found. The user may need to connect servers at https://claude.ai/settings/connectors'
+    return '未找到已连接的 MCP 连接器。用户可能需要在 https://claude.ai/settings/connectors 连接服务器'
   }
-  const lines = ['Connected connectors (available for triggers):']
+  const lines = ['已连接的连接器（可用于触发器）：']
   for (const c of connectors) {
     const safeName = sanitizeConnectorName(c.name)
     lines.push(
@@ -108,7 +108,7 @@ function formatConnectorsInfo(connectors: ConnectorInfo[]): string {
   return lines.join('\n')
 }
 
-const BASE_QUESTION = 'What would you like to do with scheduled remote agents?'
+const BASE_QUESTION = '你想对计划的远程智能体做什么？'
 
 /**
  * Formats setup notes as a bulleted Heads-up block. Shared between the
@@ -117,7 +117,7 @@ const BASE_QUESTION = 'What would you like to do with scheduled remote agents?'
  */
 function formatSetupNotes(notes: string[]): string {
   const items = notes.map(n => `- ${n}`).join('\n')
-  return `⚠ Heads-up:\n${items}`
+  return `⚠ 注意事项：\n${items}`
 }
 
 async function getCurrentRepoHttpsUrl(): Promise<string | null> {
@@ -164,44 +164,44 @@ function buildPrompt(opts: {
       ? `${formatSetupNotes(setupNotes)}\n\n${BASE_QUESTION}`
       : BASE_QUESTION
   const firstStep = userArgs
-    ? `The user has already told you what they want (see User Request at the bottom). Skip the initial question and go directly to the matching workflow.`
-    : `Your FIRST action must be a single ${ASK_USER_QUESTION_TOOL_NAME} tool call (no preamble). Use this EXACT string for the \`question\` field — do not paraphrase or shorten it:
+    ? `用户已经说明了他们想要的（见底部用户请求）。跳过初始问题，直接进入对应工作流。`
+    : `你的第一步操作必须是单个 ${ASK_USER_QUESTION_TOOL_NAME} 工具调用（无序言）。使用此确切的字符串作为 \`question\` 字段——不要改写或缩短：
 
 ${jsonStringify(initialQuestion)}
 
-Set \`header: "Action"\` and offer the four actions (create/list/update/run) as options. After the user picks, follow the matching workflow below.`
+设置 \`header: "操作"\` 并提供四个操作（创建/列出/更新/运行）作为选项。用户选择后，遵循下方对应工作流。`
 
-  return `# Schedule Remote Agents
+  return `# 计划远程智能体
 
-You are helping the user schedule, update, list, or run **remote** Claude Code agents. These are NOT local cron jobs — each trigger spawns a fully isolated remote session (CCR) in Anthropic's cloud infrastructure on a cron schedule. The agent runs in a sandboxed environment with its own git checkout, tools, and optional MCP connections.
+你正在帮助用户计划、更新、列出或运行**远程** Claude Code 智能体。这些不是本地 cron 任务——每个触发器都会在 Anthropic 云基础设施中按 cron 计划生成完全隔离的远程会话（CCR）。智能体在沙箱环境中运行，拥有自己的 git 仓库副本、工具和可选的 MCP 连接。
 
-## First Step
+## 第一步
 
 ${firstStep}
 ${setupNotesSection}
 
-## What You Can Do
+## 你可以做什么
 
-Use the \`${REMOTE_TRIGGER_TOOL_NAME}\` tool (load it first with \`ToolSearch select:${REMOTE_TRIGGER_TOOL_NAME}\`; auth is handled in-process — do not use curl):
+使用 \`${REMOTE_TRIGGER_TOOL_NAME}\` 工具（先用 \`ToolSearch select:${REMOTE_TRIGGER_TOOL_NAME}\` 加载；认证在进程内处理——不要使用 curl）：
 
-- \`{action: "list"}\` — list all triggers
-- \`{action: "get", trigger_id: "..."}\` — fetch one trigger
-- \`{action: "create", body: {...}}\` — create a trigger
-- \`{action: "update", trigger_id: "...", body: {...}}\` — partial update
-- \`{action: "run", trigger_id: "..."}\` — run a trigger now
+- \`{action: "list"}\` — 列出所有触发器
+- \`{action: "get", trigger_id: "..."}\` — 获取一个触发器
+- \`{action: "create", body: {...}}\` — 创建触发器
+- \`{action: "update", trigger_id: "...", body: {...}}\` — 部分更新
+- \`{action: "run", trigger_id: "..."}\` — 立即运行触发器
 
-You CANNOT delete triggers. If the user asks to delete, direct them to: https://claude.ai/code/scheduled
+你无法删除触发器。如果用户要求删除，请引导他们访问：https://claude.ai/code/scheduled
 
-## Create body shape
+## 创建请求体结构
 
 \`\`\`json
 {
-  "name": "AGENT_NAME",
-  "cron_expression": "CRON_EXPR",
+  "name": "智能体名称",
+  "cron_expression": "CRON表达式",
   "enabled": true,
   "job_config": {
     "ccr": {
-      "environment_id": "ENVIRONMENT_ID",
+      "environment_id": "环境ID",
       "session_context": {
         "model": "claude-sonnet-4-6",
         "sources": [
@@ -211,11 +211,11 @@ You CANNOT delete triggers. If the user asks to delete, direct them to: https://
       },
       "events": [
         {"data": {
-          "uuid": "<lowercase v4 uuid>",
+          "uuid": "<小写 v4 uuid>",
           "session_id": "",
           "type": "user",
           "parent_tool_use_id": null,
-          "message": {"content": "PROMPT_HERE", "role": "user"}
+          "message": {"content": "提示词", "role": "user"}
         }}
       ]
     }
@@ -223,111 +223,110 @@ You CANNOT delete triggers. If the user asks to delete, direct them to: https://
 }
 \`\`\`
 
-Generate a fresh lowercase UUID for \`events[].data.uuid\` yourself.
+请自己生成一个新的小写 UUID 用于 \`events[].data.uuid\`。
 
-## Available MCP Connectors
+## 可用的 MCP 连接器
 
-These are the user's currently connected claude.ai MCP connectors:
+这些是用户当前已连接的 claude.ai MCP 连接器：
 
 ${connectorsInfo}
 
-When attaching connectors to a trigger, use the \`connector_uuid\` and \`name\` shown above (the name is already sanitized to only contain letters, numbers, hyphens, and underscores), and the connector's URL. The \`name\` field in \`mcp_connections\` must only contain \`[a-zA-Z0-9_-]\` — dots and spaces are NOT allowed.
+将连接器附加到触发器时，使用上面显示的 \`connector_uuid\` 和 \`name\`（名称已经过清理，只包含字母、数字、连字符和下划线），以及连接器的 URL。\`mcp_connections\` 中的 \`name\` 字段只能包含 \`[a-zA-Z0-9_-]\`——不允许使用点和空格。
 
-**Important:** Infer what services the agent needs from the user's description. For example, if they say "check Datadog and Slack me errors," the agent needs both Datadog and Slack connectors. Cross-reference against the list above and warn if any required service isn't connected. If a needed connector is missing, direct the user to https://claude.ai/settings/connectors to connect it first.
+**重要提示：** 根据用户的描述推断智能体需要哪些服务。例如，如果用户说"检查 Datadog 并通过 Slack 发送错误"，智能体需要 Datadog 和 Slack 两个连接器。请与上面的列表交叉检查。如果任何需要的服务未连接，请警告用户并引导他们访问 https://claude.ai/settings/connectors 先进行连接。
 
-## Environments
+## 环境
 
-Every trigger requires an \`environment_id\` in the job config. This determines where the remote agent runs. Ask the user which environment to use.
+每个触发器都需要在作业配置中指定 \`environment_id\`。这决定了远程智能体运行在哪里。请询问用户使用哪个环境。
 
 ${environmentsInfo}
 
-Use the \`id\` value as the \`environment_id\` in \`job_config.ccr.environment_id\`.
-${createdEnvironment ? `\n**Note:** A new environment \`${createdEnvironment.name}\` (id: \`${createdEnvironment.environment_id}\`) was just created for the user because they had none. Use this id for \`job_config.ccr.environment_id\` and mention the creation when you confirm the trigger config.\n` : ''}
+将 \`id\` 值用作 \`job_config.ccr.environment_id\`。${createdEnvironment ? `\n**注意：** 由于用户没有环境，刚刚为用户创建了新环境 \`${createdEnvironment.name}\`（id: \`${createdEnvironment.environment_id}\`）。请使用此 id 作为 \`job_config.ccr.environment_id\`，并在确认触发器配置时提及创建过程。\n` : ''}
 
-## API Field Reference
+## API 字段参考
 
-### Create Trigger — Required Fields
-- \`name\` (string) — A descriptive name
-- \`cron_expression\` (string) — 5-field cron. **Minimum interval is 1 hour.**
-- \`job_config\` (object) — Session configuration (see structure above)
+### 创建触发器——必填字段
+- \`name\`（字符串）——描述性名称
+- \`cron_expression\`（字符串）——5 字段 cron。**最小间隔为 1 小时。**
+- \`job_config\`（对象）——会话配置（见上方结构）
 
-### Create Trigger — Optional Fields
-- \`enabled\` (boolean, default: true)
-- \`mcp_connections\` (array) — MCP servers to attach:
+### 创建触发器——可选字段
+- \`enabled\`（布尔值，默认：true）
+- \`mcp_connections\`（数组）——要附加的 MCP 服务器：
   \`\`\`json
   [{"connector_uuid": "uuid", "name": "server-name", "url": "https://..."}]
   \`\`\`
 
-### Update Trigger — Optional Fields
-All fields optional (partial update):
-- \`name\`, \`cron_expression\`, \`enabled\`, \`job_config\`
-- \`mcp_connections\` — Replace MCP connections
-- \`clear_mcp_connections\` (boolean) — Remove all MCP connections
+### 更新触发器——可选字段
+所有字段均可选（部分更新）：
+- \`name\`、\`cron_expression\`、\`enabled\`、\`job_config\`
+- \`mcp_connections\` ——替换 MCP 连接
+- \`clear_mcp_connections\`（布尔值）——移除所有 MCP 连接
 
-### Cron Expression Examples
+### Cron 表达式示例
 
-The user's local timezone is **${userTimezone}**. Cron expressions are always in UTC. When the user says a local time, convert it to UTC for the cron expression but confirm with them: "9am ${userTimezone} = Xam UTC, so the cron would be \`0 X * * 1-5\`."
+用户的本地时区是 **${userTimezone}**。Cron 表达式始终使用 UTC。当用户说出本地时间时，请将其转换为 UTC 的 cron 表达式并与用户确认："${userTimezone} 时间上午 9 点 = UTC 时间上午 X 点，所以 cron 应该是 \`0 X * * 1-5\`。"
 
-- \`0 9 * * 1-5\` — Every weekday at 9am **UTC**
-- \`0 */2 * * *\` — Every 2 hours
-- \`0 0 * * *\` — Daily at midnight **UTC**
-- \`30 14 * * 1\` — Every Monday at 2:30pm **UTC**
-- \`0 8 1 * *\` — First of every month at 8am **UTC**
+- \`0 9 * * 1-5\` — 每个工作日 UTC 时间上午 9 点
+- \`0 */2 * * *\` — 每 2 小时
+- \`0 0 * * *\` — 每天 UTC 时间午夜
+- \`30 14 * * 1\` — 每个星期一二 UTC 时间下午 2:30
+- \`0 8 1 * *\` — 每月 1 日 UTC 时间上午 8 点
 
-Minimum interval is 1 hour. \`*/30 * * * *\` will be rejected.
+最小间隔为 1 小时。\`*/30 * * * *\` 会被拒绝。
 
-## Workflow
+## 工作流
 
-### CREATE a new trigger:
+### 创建新触发器：
 
-1. **Understand the goal** — Ask what they want the remote agent to do. What repo(s)? What task? Remind them that the agent runs remotely — it won't have access to their local machine, local files, or local environment variables.
-2. **Craft the prompt** — Help them write an effective agent prompt. Good prompts are:
-   - Specific about what to do and what success looks like
-   - Clear about which files/areas to focus on
-   - Explicit about what actions to take (open PRs, commit, just analyze, etc.)
-3. **Set the schedule** — Ask when and how often. The user's timezone is ${userTimezone}. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am ${userTimezone} = Xam UTC."
-4. **Choose the model** — Default to \`claude-sonnet-4-6\`. Tell the user which model you're defaulting to and ask if they want a different one.
-5. **Validate connections** — Infer what services the agent will need from the user's description. For example, if they say "check Datadog and Slack me errors," the agent needs both Datadog and Slack MCP connectors. Cross-reference with the connectors list above. If any are missing, warn the user and link them to https://claude.ai/settings/connectors to connect first.${gitRepoUrl ? ` The default git repo is already set to \`${gitRepoUrl}\`. Ask the user if this is the right repo or if they need a different one.` : ' Ask which git repos the remote agent needs cloned into its environment.'}
-6. **Review and confirm** — Show the full configuration before creating. Let them adjust.
-7. **Create it** \u2014 Call \`${REMOTE_TRIGGER_TOOL_NAME}\` with \`action: "create"\` and show the result. The response includes the trigger ID. Always output a link at the end: \`https://claude.ai/code/scheduled/{TRIGGER_ID}\`
+1. **了解目标** — 询问用户希望远程智能体做什么。哪个仓库？什么任务？提醒他们智能体在远程运行——它无法访问他们的本地机器、本地文件或本地环境变量。
+2. **编写提示词** — 帮助用户写出有效的智能体提示词。好的提示词应该：
+   - 明确说明要做什么以及成功是什么样的
+   - 清楚指出要关注哪些文件/区域
+   - 明确说明要采取什么行动（打开 PR、提交、仅分析等）
+3. **设置计划** — 询问时间和频率。用户的时区是 ${userTimezone}。当他们说出一个时间（例如"每天上午 9 点"），请假设他们指的是本地时间并转换为 UTC 的 cron 表达式。始终确认转换："${userTimezone} 时间上午 9 点 = UTC 时间上午 X 点。"
+4. **选择模型** — 默认为 \`claude-sonnet-4-6\`。告诉用户你默认使用哪个模型，并询问他们是否需要不同的模型。
+5. **验证连接** — 根据用户的描述推断智能体需要哪些服务。例如，如果他们说"检查 Datadog 并通过 Slack 发送错误"，智能体需要 Datadog 和 Slack 两个 MCP 连接器。请与上面的连接器列表交叉检查。如果任何连接器缺失，请警告用户并引导他们访问 https://claude.ai/settings/connectors 进行连接。${gitRepoUrl ? ` 默认 git 仓库已设置为 \`${gitRepoUrl}\`。请询问用户这是否是正确的仓库，或者他们是否需要不同的仓库。` : ' 请询问远程智能体需要克隆到其环境中的 git 仓库。'}
+6. **审查并确认** — 在创建前显示完整配置。让他们调整。
+7. **创建** — 使用 \`action: "create"\` 调用 \`${REMOTE_TRIGGER_TOOL_NAME}\` 并显示结果。响应包含触发器 ID。最后始终输出一条链接：\`https://claude.ai/code/scheduled/{TRIGGER_ID}\`
 
-### UPDATE a trigger:
+### 更新触发器：
 
-1. List triggers first so they can pick one
-2. Ask what they want to change
-3. Show current vs proposed value
-4. Confirm and update
+1. 先列出触发器，以便用户选择
+2. 询问他们想更改什么
+3. 显示当前值与提议值的对比
+4. 确认并更新
 
-### LIST triggers:
+### 列出触发器：
 
-1. Fetch and display in a readable format
-2. Show: name, schedule (human-readable), enabled/disabled, next run, repo(s)
+1. 获取并以可读格式显示
+2. 显示：名称、计划（人类可读）、启用/禁用状态、下次运行时间、仓库
 
-### RUN NOW:
+### 立即运行：
 
-1. List triggers if they haven't specified which one
-2. Confirm which trigger
-3. Execute and confirm
+1. 如果用户未指定，先列出触发器
+2. 确认是哪个触发器
+3. 执行并确认
 
-## Important Notes
+## 重要提示
 
-- These are REMOTE agents — they run in Anthropic's cloud, not on the user's machine. They cannot access local files, local services, or local environment variables.
-- Always convert cron to human-readable when displaying
-- Default to \`enabled: true\` unless user says otherwise
-- Accept GitHub URLs in any format (https://github.com/org/repo, org/repo, etc.) and normalize to the full HTTPS URL (without .git suffix)
-- The prompt is the most important part — spend time getting it right. The remote agent starts with zero context, so the prompt must be self-contained.
-- To delete a trigger, direct users to https://claude.ai/code/scheduled
-${needsGitHubAccessReminder ? `- If the user's request seems to require GitHub repo access (e.g. cloning a repo, opening PRs, reading code), remind them that ${getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_lantern', false) ? "they should run /web-setup to connect their GitHub account (or install the Claude GitHub App on the repo as an alternative) — otherwise the remote agent won't be able to access it" : "they need the Claude GitHub App installed on the repo — otherwise the remote agent won't be able to access it"}.` : ''}
-${userArgs ? `\n## User Request\n\nThe user said: "${userArgs}"\n\nStart by understanding their intent and working through the appropriate workflow above.` : ''}`
+- 这些是远程智能体——它们在 Anthropic 云中运行，而非用户的机器。它们无法访问本地文件、本地服务或本地环境变量。
+- 显示 cron 时始终转换为人类可读的格式
+- 除非用户另有说明，否则默认为 \`enabled: true\`
+- 接受任何格式的 GitHub URL（https://github.com/org/repo、org/repo 等）并规范化为完整 HTTPS URL（不带 .git 后缀）
+- 提示词是最重要的部分——请花时间把提示词写好。远程智能体从零开始，所以提示词必须是自包含的。
+- 要删除触发器，请引导用户访问 https://claude.ai/code/scheduled
+${needsGitHubAccessReminder ? `- 如果用户的请求似乎需要 GitHub 仓库访问权限（例如克隆仓库、打开 PR、读取代码），请提醒他们 ${getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_lantern', false) ? "他们应该运行 /web-setup 来同步 GitHub 凭据（或在仓库上安装 Claude GitHub App 作为替代方案）——否则远程智能体将无法访问它" : "他们需要在仓库上安装 Claude GitHub App——否则远程智能体将无法访问它"}.` : ''}
+${userArgs ? `\n## 用户请求\n\nThe user said: "${userArgs}"\n\n首先理解他们的意图，然后按照上面的对应工作流进行操作。` : ''}`
 }
 
 export function registerScheduleRemoteAgentsSkill(): void {
   registerBundledSkill({
     name: 'schedule',
     description:
-      'Create, update, list, or run scheduled remote agents (triggers) that execute on a cron schedule.',
+      '创建、更新、列出或运行按 cron 计划执行的计划远程智能体（触发器）。',
     whenToUse:
-      'When the user wants to schedule a recurring remote agent, set up automated tasks, create a cron job for Claude Code, or manage their scheduled agents/triggers.',
+      '当用户想要计划重复远程智能体、设置自动化任务、为 Claude Code 创建 cron 任务或管理其计划智能体/触发器时使用。',
     userInvocable: true,
     isEnabled: () =>
       getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&
@@ -338,7 +337,7 @@ export function registerScheduleRemoteAgentsSkill(): void {
         return [
           {
             type: 'text',
-            text: 'You need to authenticate with a claude.ai account first. API accounts are not supported. Run /login, then try /schedule again.',
+            text: '你需要先通过 claude.ai 账户认证。API 账户不支持。请运行 /login，然后重试 /schedule。',
           },
         ]
       }
@@ -347,13 +346,13 @@ export function registerScheduleRemoteAgentsSkill(): void {
       try {
         environments = await fetchEnvironments()
       } catch (err) {
-        logForDebugging(`[schedule] Failed to fetch environments: ${err}`, {
+        logForDebugging(`[schedule] 获取环境失败：${err}`, {
           level: 'warn',
         })
         return [
           {
             type: 'text',
-            text: "We're having trouble connecting with your remote claude.ai account to set up a scheduled task. Please try /schedule again in a few minutes.",
+            text: '连接你的远程 claude.ai 账户以设置计划任务时遇到问题。请几分钟后重试 /schedule。',
           },
         ]
       }
@@ -366,29 +365,28 @@ export function registerScheduleRemoteAgentsSkill(): void {
           )
           environments = [createdEnvironment]
         } catch (err) {
-          logForDebugging(`[schedule] Failed to create environment: ${err}`, {
+          logForDebugging(`[schedule] 创建环境失败：${err}`, {
             level: 'warn',
           })
           return [
             {
               type: 'text',
-              text: 'No remote environments found, and we could not create one automatically. Visit https://claude.ai/code to set one up, then run /schedule again.',
+              text: '未找到远程环境，也无法自动创建。请访问 https://claude.ai/code 设置一个，然后再次运行 /schedule。',
             },
           ]
         }
       }
 
-      // Soft setup checks — collected as upfront notes embedded in the initial
-      // AskUserQuestion dialog. Never block — triggers don't require a git
-      // source (e.g., Slack-only polls), and the trigger's sources may point
-      // at a different repo than cwd anyway.
+      // 软性前置检查 — 收集为提前注意事项嵌入在初始 AskUserQuestion 对话框中。
+      // 永不阻止 — 触发器不需要 git 源（例如，仅 Slack 轮询），
+      // 而且触发器的源可能指向与 cwd 不同的仓库。
       const setupNotes: string[] = []
       let needsGitHubAccessReminder = false
 
       const repo = await detectCurrentRepositoryWithHost()
       if (repo === null) {
         setupNotes.push(
-          `Not in a git repo — you'll need to specify a repo URL manually (or skip repos entirely).`,
+          `不在 git 仓库中 — 你需要手动指定仓库 URL（或完全跳过仓库）。`,
         )
       } else if (repo.host === 'github.com') {
         const { hasAccess } = await checkRepoForRemoteAccess(
@@ -402,32 +400,32 @@ export function registerScheduleRemoteAgentsSkill(): void {
             false,
           )
           const msg = webSetupEnabled
-            ? `GitHub not connected for ${repo.owner}/${repo.name} \u2014 run /web-setup to sync your GitHub credentials, or install the Claude GitHub App at https://claude.ai/code/onboarding?magic=github-app-setup.`
-            : `Claude GitHub App not installed on ${repo.owner}/${repo.name} \u2014 install at https://claude.ai/code/onboarding?magic=github-app-setup if your trigger needs this repo.`
+            ? `GitHub 未为 ${repo.owner}/${repo.name} 连接 — 运行 /web-setup 同步你的 GitHub 凭证，或在 https://claude.ai/code/onboarding?magic=github-app-setup 安装 Claude GitHub App。`
+            : `${repo.owner}/${repo.name} 上未安装 Claude GitHub App — 如需此仓库请在 https://claude.ai/code/onboarding?magic=github-app-setup 安装。`
           setupNotes.push(msg)
         }
       }
-      // Non-github.com hosts (GHE/GitLab/etc.): silently skip. The GitHub
-      // App check is github.com-specific, and the "not in a git repo" note
-      // would be factually wrong — getCurrentRepoHttpsUrl() below will
-      // still populate gitRepoUrl with the GHE URL.
+      // 非 github.com 主机（GHE/GitLab 等）：静默跳过。GitHub
+      // App 检查是 github.com 特有的，而"不在 git 仓库"的注释
+      // 事实上是错误的 — getCurrentRepoHttpsUrl() 下方仍会
+      // 用 GHE URL 填充 gitRepoUrl。
 
       const connectors = getConnectedClaudeAIConnectors(
         context.options.mcpClients,
       )
       if (connectors.length === 0) {
         setupNotes.push(
-          `No MCP connectors — connect at https://claude.ai/settings/connectors if needed.`,
+          `无 MCP 连接器 — 如有需要请在 https://claude.ai/settings/connectors 连接。`,
         )
       }
 
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
       const connectorsInfo = formatConnectorsInfo(connectors)
       const gitRepoUrl = await getCurrentRepoHttpsUrl()
-      const lines = ['Available environments:']
+      const lines = ['可用环境：']
       for (const env of environments) {
         lines.push(
-          `- ${env.name} (id: ${env.environment_id}, kind: ${env.kind})`,
+          `- ${env.name}（id: ${env.environment_id}，类型: ${env.kind}）`,
         )
       }
       const environmentsInfo = lines.join('\n')

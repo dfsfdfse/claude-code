@@ -226,7 +226,7 @@ export function splitCommandWithOperators(command: string): string[] {
         }
         return null
       })
-      .filter(_ => _ !== null)
+      .filter((part): part is string => part !== null)
 
     // 3. Map quotes and escaped parentheses back to their original form
     const quotedParts = stringParts.map(part => {

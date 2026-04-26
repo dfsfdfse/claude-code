@@ -90,19 +90,21 @@ function convertInternalUserMessage(
 }
 
 function convertUserContentBlockToGeminiParts(
-  block: string | Record<string, unknown>,
+  block: unknown,
   toolNamesById: ReadonlyMap<string, string>,
 ): GeminiPart[] {
   if (typeof block === 'string') {
     return createTextGeminiParts(block)
   }
 
-  if (block.type === 'text') {
-    return createTextGeminiParts(block.text)
+  const record = block as Record<string, unknown>
+
+  if (record.type === 'text') {
+    return createTextGeminiParts(record.text)
   }
 
-  if (block.type === 'tool_result') {
-    const toolResult = block as unknown as BetaToolResultBlockParam
+  if (record.type === 'tool_result') {
+    const toolResult = record as unknown as BetaToolResultBlockParam
     return [
       {
         functionResponse: {
@@ -114,8 +116,8 @@ function convertUserContentBlockToGeminiParts(
   }
 
   // 将 Anthropic image 块转换为 Gemini inlineData
-  if (block.type === 'image') {
-    const source = block.source as Record<string, unknown> | undefined
+  if (record.type === 'image') {
+    const source = record.source as Record<string, unknown> | undefined
     if (source?.type === 'base64' && typeof source.data === 'string') {
       const mediaType = (source.media_type as string) || 'image/png'
       return [

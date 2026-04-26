@@ -62,7 +62,6 @@ export function isNavigableMessage(msg: NavigableMessage): boolean {
       return !stripSystemReminders(b.text!).startsWith('<')
     }
     case 'system':
-      // biome-ignore lint/nursery/useExhaustiveSwitchCases: blocklist — fallthrough return-true is the design
       switch (msg.subtype) {
         case 'api_metrics':
         case 'stop_hook_summary':
@@ -87,6 +86,7 @@ export function isNavigableMessage(msg: NavigableMessage): boolean {
       }
       return false
   }
+  return false
 }
 
 type PrimaryInput = {
@@ -395,6 +395,7 @@ export function copyTextOf(msg: NavigableMessage): string {
       return `[${a.type}]`
     }
   }
+  return ''
 }
 
 function toolResultText(r: NormalizedUserMessage): string {

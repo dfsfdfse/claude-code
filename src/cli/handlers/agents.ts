@@ -10,11 +10,11 @@ import {
   type ResolvedAgent,
   resolveAgentModelDisplay,
   resolveAgentOverrides,
-} from '../../tools/AgentTool/agentDisplay.js'
+} from '@claude-code-best/builtin-tools/tools/AgentTool/agentDisplay.js'
 import {
   getActiveAgentsFromList,
   getAgentDefinitionsWithOverrides,
-} from '../../tools/AgentTool/loadAgentsDir.js'
+} from '@claude-code-best/builtin-tools/tools/AgentTool/loadAgentsDir.js'
 import { getCwd } from '../../utils/cwd.js'
 
 function formatAgent(agent: ResolvedAgent): string {
@@ -49,7 +49,7 @@ export async function agentsHandler(): Promise<void> {
     for (const agent of groupAgents) {
       if (agent.overriddenBy) {
         const winnerSource = getOverrideSourceLabel(agent.overriddenBy)
-        lines.push(`  (shadowed by ${winnerSource}) ${formatAgent(agent)}`)
+        lines.push(`  (被 ${winnerSource} 覆盖) ${formatAgent(agent)}`)
       } else {
         lines.push(`  ${formatAgent(agent)}`)
         totalActive++
@@ -60,11 +60,12 @@ export async function agentsHandler(): Promise<void> {
 
   if (lines.length === 0) {
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('No agents found.')
+    console.log('未找到代理。')
   } else {
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${totalActive} active agents\n`)
+    console.log(`${totalActive} 活动代理\n`)
     // biome-ignore lint/suspicious/noConsole:: intentional console output
+
     console.log(lines.join('\n').trimEnd())
   }
 }

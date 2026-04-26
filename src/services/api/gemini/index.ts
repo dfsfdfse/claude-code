@@ -18,15 +18,10 @@ import type { SDKAssistantMessageError } from '../../../entrypoints/agentSdkType
 import type { SystemPrompt } from '../../../utils/systemPromptType.js'
 import type { ThinkingConfig } from '../../../utils/thinking.js'
 import type { Options } from '../claude.js'
+import { recordLLMObservation } from '../../../services/langfuse/tracing.js'
+import { convertMessagesToLangfuse, convertOutputToLangfuse, convertToolsToLangfuse } from '../../../services/langfuse/convert.js'
 import { streamGeminiGenerateContent } from './client.js'
-import { anthropicMessagesToGemini } from './convertMessages.js'
-import {
-  anthropicToolChoiceToGemini,
-  anthropicToolsToGemini,
-} from './convertTools.js'
-import { resolveGeminiModel } from './modelMapping.js'
-import { adaptGeminiStreamToAnthropic } from './streamAdapter.js'
-import { GEMINI_THOUGHT_SIGNATURE_FIELD } from './types.js'
+import { anthropicMessagesToGemini, resolveGeminiModel, adaptGeminiStreamToAnthropic, anthropicToolsToGemini, anthropicToolChoiceToGemini, GEMINI_THOUGHT_SIGNATURE_FIELD } from '@ant/model-provider'
 
 export async function* queryModelGemini(
   messages: Message[],
@@ -107,6 +102,7 @@ export async function* queryModelGemini(
 
     const adaptedStream = adaptGeminiStreamToAnthropic(stream, geminiModel)
     const contentBlocks: Record<number, any> = {}
+    const collectedMessages: AssistantMessage[] = []
     let partialMessage: any = undefined
     let ttftMs = 0
     const start = Date.now()
@@ -167,6 +163,7 @@ export async function* queryModelGemini(
             uuid: randomUUID(),
             timestamp: new Date().toISOString(),
           }
+          collectedMessages.push(message)
           yield message
           break
         }
@@ -181,6 +178,22 @@ export async function* queryModelGemini(
         ...(event.type === 'message_start' ? { ttftMs } : undefined),
       } as StreamEvent
     }
+
+    // Record LLM observation in Langfuse (no-op if not configured)
+    recordLLMObservation(options.langfuseTrace ?? null, {
+      model: geminiModel,
+      provider: 'gemini',
+      input: convertMessagesToLangfuse(messagesForAPI, systemPrompt),
+      output: convertOutputToLangfuse(collectedMessages),
+      usage: {
+        input_tokens: 0,
+        output_tokens: 0,
+      },
+      startTime: new Date(start),
+      endTime: new Date(),
+      completionStartTime: ttftMs > 0 ? new Date(start + ttftMs) : undefined,
+      tools: convertToolsToLangfuse(toolSchemas as unknown[]),
+    })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logForDebugging(`[Gemini] Error: ${errorMessage}`, { level: 'error' })

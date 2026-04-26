@@ -6,8 +6,8 @@ import { useExitOnCtrlCDWithKeybindings } from '../../../hooks/useExitOnCtrlCDWi
 import { useTerminalSize } from '../../../hooks/useTerminalSize.js'
 import { Box, Newline, Text } from '@anthropic/ink'
 import { useKeybinding } from '../../../keybindings/useKeybinding.js'
-import { BashTool } from '../../../tools/BashTool/BashTool.js'
-import { WebFetchTool } from '../../../tools/WebFetchTool/WebFetchTool.js'
+import { BashTool } from '@claude-code-best/builtin-tools/tools/BashTool/BashTool.js'
+import { WebFetchTool } from '@claude-code-best/builtin-tools/tools/WebFetchTool/WebFetchTool.js'
 import type {
   PermissionBehavior,
   PermissionRuleValue,
@@ -62,18 +62,17 @@ export function PermissionRuleInput({
         borderColor="permission"
       >
         <Text bold color="permission">
-          Add {ruleBehavior} permission rule
+          添加 {ruleBehavior} 权限规则
         </Text>
         <Box flexDirection="column">
           <Text>
-            Permission rules are a tool name, optionally followed by a specifier
-            in parentheses.
+            权限规则由工具名称组成，可选地后跟括号中的限定符。
             <Newline />
-            e.g.,{' '}
+            例如，{' '}
             <Text bold>
               {permissionRuleValueToString({ toolName: WebFetchTool.name })}
             </Text>
-            <Text bold={false}> or </Text>
+            <Text bold={false}> 或 </Text>
             <Text bold>
               {permissionRuleValueToString({
                 toolName: BashTool.name,
@@ -87,7 +86,7 @@ export function PermissionRuleInput({
               value={inputValue}
               onChange={setInputValue}
               onSubmit={handleSubmit}
-              placeholder={`Enter permission rule${figures.ellipsis}`}
+              placeholder={`输入权限规则${figures.ellipsis}`}
               columns={textInputColumns}
               cursorOffset={cursorOffset}
               onChangeCursorOffset={setCursorOffset}
@@ -97,9 +96,9 @@ export function PermissionRuleInput({
       </Box>
       <Box marginLeft={3}>
         {exitState.pending ? (
-          <Text dimColor>Press {exitState.keyName} again to exit</Text>
+          <Text dimColor>再次按 {exitState.keyName} 退出</Text>
         ) : (
-          <Text dimColor>Enter to submit · Esc to cancel</Text>
+          <Text dimColor>回车提交 · Esc 取消</Text>
         )}
       </Box>
     </>

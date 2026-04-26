@@ -94,9 +94,9 @@ function RuleDetails({
   const footer = (
     <Box marginLeft={3}>
       {exitState.pending ? (
-        <Text dimColor>Press {exitState.keyName} again to exit</Text>
+        <Text dimColor>再次按 {exitState.keyName} 退出</Text>
       ) : (
-        <Text dimColor>Esc to cancel</Text>
+        <Text dimColor>Esc 取消</Text>
       )}
     </Box>
   )
@@ -105,24 +105,24 @@ function RuleDetails({
   if (rule.source === 'policySettings') {
     return (
       <>
-        <Box
-          flexDirection="column"
-          gap={1}
-          borderStyle="round"
-          paddingLeft={1}
-          paddingRight={1}
-          borderColor="permission"
-        >
-          <Text bold color="permission">
-            Rule details
-          </Text>
-          {ruleDescription}
-          <Text italic>
-            This rule is configured by managed settings and cannot be modified.
-            {'\n'}
-            Contact your system administrator for more information.
-          </Text>
-        </Box>
+      <Box
+        flexDirection="column"
+        gap={1}
+        borderStyle="round"
+        paddingLeft={1}
+        paddingRight={1}
+        borderColor="permission"
+      >
+        <Text bold color="permission">
+          规则详情
+        </Text>
+        {ruleDescription}
+        <Text italic>
+          此规则由托管设置配置，无法修改。
+          {'\n'}
+          如需更多信息，请联系系统管理员。
+        </Text>
+      </Box>
         {footer}
       </>
     )
@@ -139,16 +139,16 @@ function RuleDetails({
         borderColor="error"
       >
         <Text bold color="error">
-          Delete {getRuleBehaviorLabel(rule.ruleBehavior)} tool?
+          确定要删除 {getRuleBehaviorLabel(rule.ruleBehavior)} 的工具吗？
         </Text>
         {ruleDescription}
-        <Text>Are you sure you want to delete this permission rule?</Text>
+        <Text>确定要删除此权限规则吗？</Text>
         <Select
           onChange={_ => (_ === 'yes' ? onDelete() : onCancel())}
           onCancel={onCancel}
           options={[
-            { label: 'Yes', value: 'yes' },
-            { label: 'No', value: 'no' },
+            { label: '是', value: 'yes' },
+            { label: '否', value: 'no' },
           ]}
         />
       </Box>
@@ -230,9 +230,9 @@ function PermissionRulesTab({
       <Text>
         {
           {
-            allow: "Claude Code won't ask before using allowed tools.",
-            ask: 'Claude Code will always ask for confirmation before using these tools.',
-            deny: 'Claude Code will always reject requests to use denied tools.',
+            allow: 'Claude Code 使用允许的工具前不会再询问。',
+            ask: 'Claude Code 使用这些工具前始终要求确认。',
+            deny: 'Claude Code 始终拒绝使用已拒绝的工具。',
           }[tab]
         }
       </Text>
@@ -728,33 +728,32 @@ export function PermissionRuleList({
     <Box flexDirection="column" onKeyDown={handleKeyDown}>
       <Pane color="permission">
         <Tabs
-          title="Permissions:"
+          title="权限："
           color="permission"
           defaultTab={defaultTab}
           hidden={isHidden}
           initialHeaderFocused={!hasDenials}
           navFromContent={!isSearchMode}
         >
-          <Tab id="recent" title="Recently denied">
+          <Tab id="recent" title="最近拒绝">
             <RecentDenialsTab
               onHeaderFocusChange={handleHeaderFocusChange}
               onStateChange={handleDenialStateChange}
             />
           </Tab>
-          <Tab id="allow" title="Allow">
+          <Tab id="allow" title="允许">
             <PermissionRulesTab tab="allow" {...sharedRulesProps} />
           </Tab>
-          <Tab id="ask" title="Ask">
+          <Tab id="ask" title="询问">
             <PermissionRulesTab tab="ask" {...sharedRulesProps} />
           </Tab>
-          <Tab id="deny" title="Deny">
+          <Tab id="deny" title="拒绝">
             <PermissionRulesTab tab="deny" {...sharedRulesProps} />
           </Tab>
-          <Tab id="workspace" title="Workspace">
+          <Tab id="workspace" title="工作区">
             <Box flexDirection="column">
               <Text>
-                Claude Code can read files in the workspace, and make edits when
-                auto-accept edits is on.
+                Claude Code 可以读取工作区中的文件，并在自动接受编辑开启时进行编辑。
               </Text>
               <WorkspaceTab
                 onExit={onExit}
@@ -769,19 +768,18 @@ export function PermissionRuleList({
         <Box marginTop={1} paddingLeft={1}>
           <Text dimColor>
             {exitState.pending ? (
-              <>Press {exitState.keyName} again to exit</>
+              <>再次按 {exitState.keyName} 退出</>
             ) : headerFocused ? (
-              <>←/→ tab switch · ↓ return · Esc cancel</>
+              <>←/→ 切换标签 · ↓ 确认 · Esc 取消</>
             ) : isSearchMode ? (
-              <>Type to filter · Enter/↓ select · ↑ tabs · Esc clear</>
+              <>输入过滤 · 回车/↓ 选择 · ↑ 标签 · Esc 清空</>
             ) : hasDenials && defaultTab === 'recent' ? (
               <>
-                Enter approve · r retry · ↑↓ navigate · ←/→ switch · Esc cancel
+                回车批准 · r 重试 · ↑↓ 导航 · ←/→ 切换 · Esc 取消
               </>
             ) : (
               <>
-                ↑↓ navigate · Enter select · Type to search · ←/→ switch · Esc
-                cancel
+                ↑↓ 导航 · 回车选择 · 输入搜索 · ←/→ 切换 · Esc 取消
               </>
             )}
           </Text>
