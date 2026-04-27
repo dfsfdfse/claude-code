@@ -7,7 +7,7 @@ import {
   realpathSync,
   writeFileSync,
 } from 'fs'
-import { basename, join, resolve } from 'path'
+import { basename, dirname, isAbsolute, join, resolve } from 'path'
 import { getClaudeConfigHomeDir } from '../../utils/envUtils.js'
 import type {
   ProjectContextSource,
@@ -233,8 +233,87 @@ function git(args: string[], cwd: string): string | null {
     const trimmed = output.trim()
     return trimmed ? trimmed : null
   } catch {
+    return gitFallback(args, cwd)
+  }
+}
+
+function gitFallback(args: string[], cwd: string): string | null {
+  if (
+    args.length === 3 &&
+    args[0] === 'remote' &&
+    args[1] === 'get-url' &&
+    args[2] === 'origin'
+  ) {
+    return readOriginRemoteFromGitConfig(cwd)
+  }
+  if (
+    args.length === 2 &&
+    args[0] === 'rev-parse' &&
+    args[1] === '--show-toplevel'
+  ) {
+    return findGitRoot(cwd)
+  }
+  return null
+}
+
+function findGitRoot(cwd: string): string | null {
+  let current = normalizePath(cwd)
+  while (true) {
+    if (existsSync(join(current, '.git'))) {
+      return current
+    }
+    const parent = dirname(current)
+    if (parent === current) {
+      return null
+    }
+    current = parent
+  }
+}
+
+function readOriginRemoteFromGitConfig(cwd: string): string | null {
+  const root = findGitRoot(cwd)
+  if (!root) return null
+  const gitDir = resolveGitDir(root)
+  if (!gitDir) return null
+
+  try {
+    const lines = readFileSync(join(gitDir, 'config'), 'utf8').split(/\r?\n/)
+    let inOrigin = false
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (trimmed.startsWith('[')) {
+        inOrigin = /^\[remote\s+"origin"\]$/i.test(trimmed)
+        continue
+      }
+      if (inOrigin) {
+        const match = trimmed.match(/^url\s*=\s*(.+)$/i)
+        if (match?.[1]) {
+          return match[1].trim()
+        }
+      }
+    }
+  } catch {
     return null
   }
+  return null
+}
+
+function resolveGitDir(root: string): string | null {
+  const dotGit = join(root, '.git')
+  if (existsSync(join(dotGit, 'config'))) {
+    return dotGit
+  }
+  try {
+    const raw = readFileSync(dotGit, 'utf8').trim()
+    const prefix = 'gitdir:'
+    if (raw.toLowerCase().startsWith(prefix)) {
+      const gitDir = raw.slice(prefix.length).trim()
+      return normalizePath(isAbsolute(gitDir) ? gitDir : resolve(root, gitDir))
+    }
+  } catch {
+    return null
+  }
+  return null
 }
 
 function normalizePath(path: string): string {

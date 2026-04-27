@@ -57,11 +57,7 @@ export const PermissionsSchema = lazySchema(() =>
           '始终要求确认的权限规则列表',
         ),
       defaultMode: z
-        .enum(
-          feature('TRANSCRIPT_CLASSIFIER')
-            ? PERMISSION_MODES
-            : EXTERNAL_PERMISSION_MODES,
-        )
+        .enum(PERMISSION_MODES)
         .optional()
         .describe('Claude Code 需要访问时的默认权限模式'),
       disableBypassPermissionsMode: z
@@ -880,6 +876,10 @@ export const SettingsSchema = lazySchema(() =>
               .boolean()
               .optional()
               .describe('Enable voice mode (hold-to-talk dictation)'),
+            voiceProvider: z
+              .enum(['anthropic', 'doubao'])
+              .optional()
+              .describe('Voice STT backend: "anthropic" (default) or "doubao" (Doubao ASR)'),
           }
         : {}),
       ...(feature('KAIROS')

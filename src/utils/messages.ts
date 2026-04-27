@@ -242,13 +242,18 @@ export const SYNTHETIC_TOOL_RESULT_PLACEHOLDER =
 // UI 用于检测分类器拒绝并简洁渲染的前缀
 const AUTO_MODE_REJECTION_PREFIX =
   '此操作的权限已被拒绝。原因：'
+const AUTO_MODE_REJECTION_PREFIX_ASCII_COLON =
+  '此操作的权限已被拒绝。原因:'
 
 /**
  * 检查工具结果消息是否为分类器拒绝。
  * UI 使用它来渲染简短摘要而非完整消息。
  */
 export function isClassifierDenial(content: string): boolean {
-  return content.startsWith(AUTO_MODE_REJECTION_PREFIX)
+  return (
+    content.startsWith(AUTO_MODE_REJECTION_PREFIX) ||
+    content.startsWith(AUTO_MODE_REJECTION_PREFIX_ASCII_COLON)
+  )
 }
 
 /**

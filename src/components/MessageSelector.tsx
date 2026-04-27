@@ -876,7 +876,6 @@ function computeDiffStatsBetweenMessages(
         }
       }
     } catch {
-      continue
     }
   }
 

@@ -67,15 +67,15 @@ describe("permissionModeFromString", () => {
 
 describe("permissionModeTitle", () => {
   test("returns title for known modes", () => {
-    expect(permissionModeTitle("default")).toBe("Default");
-    expect(permissionModeTitle("plan")).toBe("Plan Mode");
-    expect(permissionModeTitle("acceptEdits")).toBe("Accept edits");
-    expect(permissionModeTitle("bypassPermissions")).toBe("Bypass Permissions");
-    expect(permissionModeTitle("dontAsk")).toBe("Don't Ask");
+    expect(permissionModeTitle("default")).toBe("默认");
+    expect(permissionModeTitle("plan")).toBe("计划模式");
+    expect(permissionModeTitle("acceptEdits")).toBe("接受编辑");
+    expect(permissionModeTitle("bypassPermissions")).toBe("跳过权限");
+    expect(permissionModeTitle("dontAsk")).toBe("不再询问");
   });
 
   test("falls back to Default for unknown mode", () => {
-    expect(permissionModeTitle("nonexistent" as any)).toBe("Default");
+    expect(permissionModeTitle("nonexistent" as any)).toBe("默认");
   });
 });
 
@@ -83,11 +83,11 @@ describe("permissionModeTitle", () => {
 
 describe("permissionModeShortTitle", () => {
   test("returns short title for known modes", () => {
-    expect(permissionModeShortTitle("default")).toBe("Default");
-    expect(permissionModeShortTitle("plan")).toBe("Plan");
-    expect(permissionModeShortTitle("bypassPermissions")).toBe("Bypass");
-    expect(permissionModeShortTitle("dontAsk")).toBe("DontAsk");
-    expect(permissionModeShortTitle("acceptEdits")).toBe("Accept");
+    expect(permissionModeShortTitle("default")).toBe("默认");
+    expect(permissionModeShortTitle("plan")).toBe("计划");
+    expect(permissionModeShortTitle("bypassPermissions")).toBe("跳过");
+    expect(permissionModeShortTitle("dontAsk")).toBe("不再询问");
+    expect(permissionModeShortTitle("acceptEdits")).toBe("接受");
   });
 });
 

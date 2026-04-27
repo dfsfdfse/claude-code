@@ -86,7 +86,7 @@ function substituteVariables(
   // （替换函数将 $ 字面处理），以及 (2) 当用户内容恰好包含
   // 匹配后续变量的 {{varName}} 时的双重替换。
   return template.replace(/\{\{(\w+)\}\}/g, (match, key: string) =>
-    Object.prototype.hasOwnProperty.call(variables, key)
+    Object.hasOwn(variables, key)
       ? variables[key]!
       : match,
   )

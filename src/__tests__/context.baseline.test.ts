@@ -47,7 +47,7 @@ describe('context baseline', () => {
   test('getUserContext includes currentDate and project CLAUDE.md content', async () => {
     const ctx = await getUserContext()
 
-    expect(ctx.currentDate).toContain("Today's date is")
+    expect(ctx.currentDate).toContain('今天的日期是')
     expect(ctx.claudeMd).toContain(projectClaudeMdContent)
   })
 
@@ -56,7 +56,7 @@ describe('context baseline', () => {
 
     const ctx = await getUserContext()
 
-    expect(ctx.currentDate).toContain("Today's date is")
+    expect(ctx.currentDate).toContain('今天的日期是')
     expect(ctx.claudeMd).toBeUndefined()
   })
 

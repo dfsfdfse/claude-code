@@ -227,6 +227,10 @@ async function getFullPrompt(
   return sections.join('\n\n')
 }
 
+function expectContainsAny(text: string, terms: string[]): void {
+  expect(terms.some(term => text.includes(term))).toBe(true)
+}
+
 // =====================================================================
 // 第一部分: 提示词工程技巧验证
 // 对应审计文档 第一部分 #1-#10
@@ -248,7 +252,10 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
 
     test('decision tree has "stop at the first match" semantics', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('stop at the first match')
+      expectContainsAny(prompt, [
+        'stop at the first match',
+        '第一个匹配处停止',
+      ])
     })
 
     test('Step 0 teaches when NOT to use tools', async () => {
@@ -271,7 +278,7 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#2 Anti-pattern guidance (when NOT to use tools)', () => {
     test('prompt says when NOT to use tools', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('Do NOT use')
+      expectContainsAny(prompt, ['Do NOT use', 'Do not use', '不要使用'])
     })
 
     test('includes explicit "Do not use tools when" section', async () => {
@@ -295,7 +302,9 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
       const prompt = await getFullPrompt()
       const hasFileAntiPattern =
         prompt.includes('Do not create files unless') ||
-        prompt.includes('prefer editing an existing file')
+        prompt.includes('prefer editing an existing file') ||
+        prompt.includes('不要创建文件，除非绝对必要') ||
+        prompt.includes('编辑现有文件优于创建新文件')
       expect(hasFileAntiPattern).toBe(true)
     })
   })
@@ -365,20 +374,20 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#4 Linguistic signal detection', () => {
     test('file creation signals teach when to create vs inline', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('Linguistic signals')
-      expect(prompt).toContain('write a script')
-      expect(prompt).toContain('create a config')
+      expectContainsAny(prompt, ['Linguistic signals', '语言信号'])
+      expectContainsAny(prompt, ['write a script', '写一个脚本'])
+      expectContainsAny(prompt, ['create a config', '创建配置'])
     })
 
     test('inline answer signals are listed', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('show me how')
-      expect(prompt).toContain('answer inline')
+      expectContainsAny(prompt, ['show me how', '给我看看怎么做'])
+      expectContainsAny(prompt, ['answer inline', '内联回答'])
     })
 
     test('20-line threshold for file creation', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('20 lines')
+      expectContainsAny(prompt, ['20 lines', '20 行代码'])
     })
   })
 
@@ -389,7 +398,10 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#5 Cost asymmetry framing', () => {
     test('prompt has cost asymmetry for actions (existing)', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('cost of pausing to confirm is low')
+      expectContainsAny(prompt, [
+        'cost of pausing to confirm is low',
+        '暂停确认的成本很低',
+      ])
     })
 
     test('frames search tools as cheap', async () => {
@@ -412,18 +424,24 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#7 Anti-over-explanation', () => {
     test('prompt contains no-machinery-narration rule (existing)', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain("Don't narrate internal machinery")
+      expectContainsAny(prompt, [
+        "Don't narrate internal machinery",
+        '不要叙述内部机制',
+      ])
     })
 
     test('includes anti-postamble guidance', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('Do not restate')
-      expect(prompt).toContain('the user can read the diff')
+      expectContainsAny(prompt, ['Do not restate', '不要重述文件内容'])
+      expectContainsAny(prompt, [
+        'the user can read the diff',
+        '用户可以阅读 diff',
+      ])
     })
 
     test('discourages offering unchosen approach', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('unchosen approach')
+      expectContainsAny(prompt, ['unchosen approach', '未选择的方案'])
     })
   })
 
@@ -468,12 +486,12 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#9 Prompt injection defense', () => {
     test('prompt warns about prompt injection in tool results (existing)', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('prompt injection')
+      expectContainsAny(prompt, ['prompt injection', '提示注入'])
     })
 
     test('distinguishes file instructions from user instructions', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('not from the user')
+      expectContainsAny(prompt, ['not from the user', '不是来自用户'])
     })
   })
 
@@ -507,19 +525,19 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#11 Formatting discipline', () => {
     test('prompt contains prose-first guidance (existing)', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('direct answer in prose')
+      expectContainsAny(prompt, ['direct answer in prose', '散文直接回答'])
     })
 
     test('discourages over-formatting', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('over-formatting')
-      expect(prompt).toContain('natural language')
+      expectContainsAny(prompt, ['over-formatting', '过度使用'])
+      expectContainsAny(prompt, ['natural language', '流畅的散文'])
     })
 
     test('bullet points must be 1-2 sentences, not fragments', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('1-2 sentences')
-      expect(prompt).toContain('not sentence fragments')
+      expectContainsAny(prompt, ['1-2 sentences', '完整、语法正确的句子'])
+      expectContainsAny(prompt, ['not sentence fragments', '避免碎片化'])
     })
   })
 
@@ -546,12 +564,12 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#12 Warm tone', () => {
     test('avoids negative assumptions about user abilities', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('negative assumptions')
+      expectContainsAny(prompt, ['negative assumptions', '负面假设'])
     })
 
     test('pushback should be constructive', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('constructively')
+      expectContainsAny(prompt, ['constructively', '建设性'])
     })
   })
 
@@ -562,7 +580,10 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#20 Say less when risky', () => {
     test('security-sensitive code should say less about details', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('saying less about implementation details')
+      expectContainsAny(prompt, [
+        'saying less about implementation details',
+        '少说实现细节',
+      ])
     })
   })
 
@@ -573,7 +594,10 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe("#23 Don't justify search", () => {
     test('instructs not to justify why searching', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain("Don't justify why you're searching")
+      expectContainsAny(prompt, [
+        "Don't justify why you're searching",
+        '不要解释为什么要搜索',
+      ])
     })
   })
 
@@ -615,7 +639,10 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#15 Conversation end respect', () => {
     test('discourages "anything else?" appendages', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('the user will ask if they need more')
+      expectContainsAny(prompt, [
+        'the user will ask if they need more',
+        '用户需要时会问',
+      ])
     })
   })
 
@@ -626,7 +653,7 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('#16 One question per response', () => {
     test('limits questions per response', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('one question per response')
+      expectContainsAny(prompt, ['one question per response', '每次回复限制一个问题'])
     })
   })
 
@@ -638,40 +665,54 @@ describe('Opus 4.7 Prompt Engineering Audit', () => {
   describe('Existing behavioral anchors (regression)', () => {
     test('default_stance: default to helping', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('Default to helping')
-      expect(prompt).toContain('concrete, specific risk of serious harm')
+      expectContainsAny(prompt, ['Default to helping', '默认帮助'])
+      expectContainsAny(prompt, [
+        'concrete, specific risk of serious harm',
+        '具体、严重的危害风险',
+      ])
     })
 
     test('anti-collapse: no self-abasement', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('self-abasement')
-      expect(prompt).toContain('maintain self-respect')
+      expectContainsAny(prompt, ['self-abasement', '自我贬低'])
+      expectContainsAny(prompt, ['maintain self-respect', '保持自尊'])
     })
 
     test('cutoff silence: do not proactively mention cutoff', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain(
+      expectContainsAny(prompt, [
         "Don't proactively mention your knowledge cutoff",
-      )
+        '不要主动提及你的知识截止日期',
+      ])
     })
 
     test('no-machinery-narration: describe in user terms', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain("Don't narrate internal machinery")
-      expect(prompt).toContain('Describe the action in user terms')
+      expectContainsAny(prompt, [
+        "Don't narrate internal machinery",
+        '不要叙述内部机制',
+      ])
+      expectContainsAny(prompt, [
+        'Describe the action in user terms',
+        '用用户语言描述动作',
+      ])
     })
 
     test('tool_discovery: search before saying unavailable', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('visible tool list is partial by design')
-      expect(prompt).toContain(
+      expectContainsAny(prompt, [
+        'visible tool list is partial by design',
+        '可见的工具列表是部分的设计',
+      ])
+      expectContainsAny(prompt, [
         'Only state something is unavailable after the search returns no match',
-      )
+        '只有在搜索返回无匹配结果时才说明不可用',
+      ])
     })
 
     test('false-claims mitigation: report outcomes faithfully', async () => {
       const prompt = await getFullPrompt()
-      expect(prompt).toContain('Report outcomes faithfully')
+      expectContainsAny(prompt, ['Report outcomes faithfully', '如实地报告结果'])
     })
 
     test('CYBER_RISK_INSTRUCTION: allows security testing', async () => {

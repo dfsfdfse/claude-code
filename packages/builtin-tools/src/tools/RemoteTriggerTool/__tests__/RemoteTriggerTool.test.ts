@@ -28,19 +28,36 @@ mock.module('src/services/oauth/client.js', () => ({
   getOrganizationUUID: async () => 'org',
 }))
 
+mock.module('src/services/analytics/growthbook.js', () => ({
+  getFeatureValue_CACHED_MAY_BE_STALE: () => true,
+}))
+
+mock.module('src/services/policyLimits/index.js', () => ({
+  isPolicyAllowed: () => true,
+}))
+
+mock.module('src/Tool.js', () => ({
+  buildTool: (tool: unknown) => tool,
+}))
+
 mock.module('src/constants/oauth.js', () => ({
+  fileSuffixForOauthConfig: () => '',
   getOauthConfig: () => ({ BASE_API_URL: 'https://example.test' }),
+  OAUTH_BETA_HEADER: 'oauth-2025-04-20',
+}))
+
+mock.module('../UI.js', () => ({
+  renderToolResultMessage: () => null,
+  renderToolUseMessage: () => '',
 }))
 
 let cwd = ''
-let previousCwd = ''
+const remoteTriggerToolModule = import('../RemoteTriggerTool')
 
 beforeEach(async () => {
   requestStatus = 200
-  previousCwd = process.cwd()
   cwd = join(tmpdir(), `remote-trigger-tool-${Date.now()}-${Math.random().toString(16).slice(2)}`)
   await mkdir(cwd, { recursive: true })
-  process.chdir(cwd)
   resetStateForTests()
   setOriginalCwd(cwd)
   setProjectRoot(cwd)
@@ -48,13 +65,12 @@ beforeEach(async () => {
 
 afterEach(async () => {
   resetStateForTests()
-  process.chdir(previousCwd)
   await rm(cwd, { recursive: true, force: true })
 })
 
 describe('RemoteTriggerTool audit', () => {
   test('writes an audit record for successful remote calls', async () => {
-    const { RemoteTriggerTool } = await import('../RemoteTriggerTool')
+    const { RemoteTriggerTool } = await remoteTriggerToolModule
     const result = await RemoteTriggerTool.call(
       { action: 'run', trigger_id: 'trigger-1' },
       { abortController: new AbortController() } as any,
@@ -71,7 +87,7 @@ describe('RemoteTriggerTool audit', () => {
   })
 
   test('writes an audit record before rethrowing validation failures', async () => {
-    const { RemoteTriggerTool } = await import('../RemoteTriggerTool')
+    const { RemoteTriggerTool } = await remoteTriggerToolModule
 
     await expect(
       RemoteTriggerTool.call(

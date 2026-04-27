@@ -3,16 +3,27 @@ const REDACTED_FILE_TOOLS = new Set(['FileReadTool', 'FileWriteTool', 'FileEditT
 const REDACTED_SHELL_TOOLS = new Set(['BashTool', 'PowerShellTool'])
 const SENSITIVE_OUTPUT_TOOLS = new Set(['ConfigTool', 'MCPTool'])
 
-const HOME_DIR_PATTERN = new RegExp(
-  (process.env.HOME ?? '/Users/[^/]+').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-  'g',
-)
+const POSIX_HOME_PATTERN = /\/Users\/[^/\\]+/g
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function redactHomeDir(value: string): string {
+  let result = value
+  for (const home of [process.env.HOME, process.env.USERPROFILE]) {
+    if (home) {
+      result = result.replace(new RegExp(escapeRegExp(home), 'g'), '~')
+    }
+  }
+  return result.replace(POSIX_HOME_PATTERN, '~')
+}
 
 const SENSITIVE_KEY_PATTERN = /(?:api_?key|token|secret|password|credential|auth_header)/i
 
 export function sanitizeGlobal(data: unknown): unknown {
   if (typeof data === 'string') {
-    return data.replace(HOME_DIR_PATTERN, '~')
+    return redactHomeDir(data)
   }
   if (typeof data === 'object' && data !== null) {
     return sanitizeObject(data as Record<string, unknown>)
@@ -26,7 +37,7 @@ function sanitizeObject(obj: Record<string, unknown>): Record<string, unknown> {
     if (SENSITIVE_KEY_PATTERN.test(key)) {
       result[key] = '[REDACTED]'
     } else if (typeof value === 'string') {
-      result[key] = value.replace(HOME_DIR_PATTERN, '~')
+      result[key] = redactHomeDir(value)
     } else if (typeof value === 'object' && value !== null) {
       result[key] = sanitizeObject(value as Record<string, unknown>)
     } else {
@@ -48,7 +59,7 @@ export function sanitizeToolInput(toolName: string, input: unknown): unknown {
 
   for (const key of ['file_path', 'path', 'directory'] as const) {
     if (key in obj && typeof obj[key] === 'string') {
-      obj[key] = (obj[key] as string).replace(HOME_DIR_PATTERN, '~')
+      obj[key] = redactHomeDir(obj[key] as string)
     }
   }
   return obj

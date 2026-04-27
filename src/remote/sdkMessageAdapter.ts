@@ -270,6 +270,11 @@ export function convertSDKMessage(
       logForDebugging('[sdkMessageAdapter] Ignoring task_state message')
       return { type: 'ignored' }
 
+    case 'task_state':
+      // Bridge-only task snapshots are consumed by the web panel, not REPL UIs.
+      logForDebugging('[sdkMessageAdapter] Ignoring task_state message')
+      return { type: 'ignored' }
+
     default: {
       // 优雅忽略未知消息类型，后端可能在新类型发送后才更新客户端；
       // 日志有助于调试，不会崩溃或丢失会话。
